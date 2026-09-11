@@ -38,10 +38,15 @@ namespace SmartCraftStorage.QuickStack
 
         private static int MoveItemIntoMatchingStacks(Inventory playerInventory, ItemDrop.ItemData item, List<Container> containers)
         {
-            int moved = 0;
+            int originalStack = item.m_stack;
 
             foreach (var container in containers)
             {
+                if (item.m_stack <= 0)
+                {
+                    break;
+                }
+
                 var chestInventory = container.GetInventory();
                 var existingStack = chestInventory.GetItem(item.m_shared.m_name, item.m_quality);
 
@@ -56,24 +61,11 @@ namespace SmartCraftStorage.QuickStack
                     continue;
                 }
 
-                int amountToMove = Mathf.Min(freeSpace, item.m_stack - moved);
-                if (amountToMove <= 0)
-                {
-                    continue;
-                }
-
-                if (chestInventory.MoveItemToThis(playerInventory, item, amountToMove, existingStack.m_gridPos.x, existingStack.m_gridPos.y))
-                {
-                    moved += amountToMove;
-                }
-
-                if (moved >= item.m_stack)
-                {
-                    break;
-                }
+                int amountToMove = Mathf.Min(freeSpace, item.m_stack);
+                chestInventory.MoveItemToThis(playerInventory, item, amountToMove, existingStack.m_gridPos.x, existingStack.m_gridPos.y);
             }
 
-            return moved;
+            return originalStack - item.m_stack;
         }
     }
 }
