@@ -219,6 +219,7 @@ namespace SmartCraftStorage.Stations
 
             private static int FeedNearbySmelters(Smelter kiln, int amount)
             {
+                string coalName = KilnDetection.GetCoalItemName(kiln);
                 var candidates = new List<Smelter>();
                 var hits = Physics.OverlapSphere(kiln.transform.position, StationConfig.SmelterKilnRadius.Value);
 
@@ -230,6 +231,10 @@ namespace SmartCraftStorage.Stations
                         continue;
                     }
                     if (smelter.m_fuelItem == null || smelter.GetFuel() >= smelter.m_maxFuel)
+                    {
+                        continue;
+                    }
+                    if (smelter.m_fuelItem.m_itemData.m_shared.m_name != coalName)
                     {
                         continue;
                     }
