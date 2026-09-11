@@ -48,12 +48,11 @@ namespace SmartCraftStorage.QuickStack
                 }
 
                 var chestInventory = container.GetInventory();
-                var matchingStacks = chestInventory.GetAllItems().FindAll(i =>
+                var existingMatches = chestInventory.GetAllItems().FindAll(i =>
                     i.m_shared.m_name == item.m_shared.m_name &&
-                    i.m_quality == item.m_quality &&
-                    i.m_stack < i.m_shared.m_maxStackSize);
+                    i.m_quality == item.m_quality);
 
-                if (matchingStacks.Count == 0)
+                if (existingMatches.Count == 0)
                 {
                     continue;
                 }
@@ -63,7 +62,7 @@ namespace SmartCraftStorage.QuickStack
                     continue;
                 }
 
-                foreach (var existingStack in matchingStacks)
+                foreach (var existingStack in existingMatches)
                 {
                     if (item.m_stack <= 0)
                     {
@@ -78,6 +77,18 @@ namespace SmartCraftStorage.QuickStack
 
                     int amountToMove = Mathf.Min(freeSpace, item.m_stack);
                     chestInventory.MoveItemToThis(playerInventory, item, amountToMove, existingStack.m_gridPos.x, existingStack.m_gridPos.y);
+                }
+
+                while (item.m_stack > 0)
+                {
+                    var newSlot = chestInventory.FindEmptySlot(false);
+                    if (newSlot.x < 0)
+                    {
+                        break;
+                    }
+
+                    int amountToMove = Mathf.Min(item.m_shared.m_maxStackSize, item.m_stack);
+                    chestInventory.MoveItemToThis(playerInventory, item, amountToMove, newSlot.x, newSlot.y);
                 }
             }
 
