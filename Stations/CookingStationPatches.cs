@@ -49,7 +49,7 @@ namespace SmartCraftStorage.Stations
                     {
                         var chestInventory = container.GetInventory();
                         var item = station.FindCookableItem(chestInventory);
-                        if (item == null)
+                        if (item == null || !station.IsItemAllowed(item.m_dropPrefab.name))
                         {
                             continue;
                         }

@@ -66,7 +66,7 @@ namespace SmartCraftStorage.Stations
                 {
                     var chestInventory = container.GetInventory();
                     var item = smelter.FindCookableItem(chestInventory);
-                    if (item == null)
+                    if (item == null || !smelter.IsItemAllowed(item.m_dropPrefab.name))
                     {
                         continue;
                     }
