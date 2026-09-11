@@ -9,9 +9,13 @@ namespace SmartCraftStorage.ItemMarking
     internal static class SlotOverlayPatch
     {
         private static readonly Dictionary<InventoryElement, Image> LockedOverlays = new Dictionary<InventoryElement, Image>();
+        private static readonly Dictionary<InventoryElement, Image> RestockOverlays = new Dictionary<InventoryElement, Image>();
 
         private static Sprite _lockedSprite;
         private static Sprite LockedSprite => _lockedSprite != null ? _lockedSprite : (_lockedSprite = CreateBorderSprite(new Color(1f, 0.35f, 0.1f, 0.9f)));
+
+        private static Sprite _restockSprite;
+        private static Sprite RestockSprite => _restockSprite != null ? _restockSprite : (_restockSprite = CreateCornerDotSprite(new Color(0.2f, 0.6f, 1f, 0.95f)));
 
         private static void Postfix(InventoryGrid __instance)
         {
@@ -21,12 +25,17 @@ namespace SmartCraftStorage.ItemMarking
             }
 
             int width = __instance.m_inventory.GetWidth();
+            var localPlayer = Player.m_localPlayer;
 
             foreach (var element in __instance.m_elements)
             {
-                if (LockedOverlays.TryGetValue(element, out var overlay) && overlay != null)
+                if (LockedOverlays.TryGetValue(element, out var lockedOv) && lockedOv != null)
                 {
-                    overlay.enabled = false;
+                    lockedOv.enabled = false;
+                }
+                if (RestockOverlays.TryGetValue(element, out var restockOv) && restockOv != null)
+                {
+                    restockOv.enabled = false;
                 }
             }
 
@@ -40,6 +49,10 @@ namespace SmartCraftStorage.ItemMarking
 
                 var lockedOverlay = GetOrCreateOverlay(element, LockedOverlays, LockedSprite, "SmartCraft_LockedOverlay");
                 lockedOverlay.enabled = ItemFlags.IsLocked(item);
+
+                bool restockMarked = localPlayer != null && RestockList.Contains(localPlayer, item.m_shared.m_name);
+                var restockOverlay = GetOrCreateOverlay(element, RestockOverlays, RestockSprite, "SmartCraft_RestockOverlay");
+                restockOverlay.enabled = restockMarked;
             }
         }
 
@@ -87,6 +100,27 @@ namespace SmartCraftStorage.ItemMarking
 
             return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect,
                 new Vector4(thickness, thickness, thickness, thickness));
+        }
+
+        internal static Sprite CreateCornerDotSprite(Color color, int size = 64, int dotRadius = 10)
+        {
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            var pixels = new Color[size * size];
+            var center = new Vector2(size - dotRadius - 4, dotRadius + 4);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float distance = Vector2.Distance(new Vector2(x, y), center);
+                    pixels[y * size + x] = distance <= dotRadius ? color : Color.clear;
+                }
+            }
+
+            texture.SetPixels(pixels);
+            texture.Apply();
+
+            return Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
         }
     }
 }
