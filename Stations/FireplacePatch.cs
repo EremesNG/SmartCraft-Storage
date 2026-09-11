@@ -1,5 +1,6 @@
 using HarmonyLib;
 using SmartCraftStorage.Shared;
+using UnityEngine;
 
 namespace SmartCraftStorage.Stations
 {
@@ -10,7 +11,9 @@ namespace SmartCraftStorage.Stations
         {
             try
             {
-                if (!StationConfig.FireplaceAutoRefuel.Value || !__instance.m_nview.IsOwner())
+                if (!StationConfig.FireplaceAutoRefuel.Value
+                    || __instance.m_nview == null || !__instance.m_nview.IsValid()
+                    || !__instance.m_nview.IsOwner())
                 {
                     return;
                 }
@@ -27,7 +30,7 @@ namespace SmartCraftStorage.Stations
                 }
 
                 float currentFuel = __instance.m_nview.GetZDO().GetFloat(ZDOVars.s_fuel);
-                if (currentFuel >= __instance.m_maxFuel)
+                if (Mathf.CeilToInt(currentFuel) >= __instance.m_maxFuel)
                 {
                     return;
                 }
@@ -36,7 +39,7 @@ namespace SmartCraftStorage.Stations
 
                 foreach (var container in NearbyContainers.Find(__instance.transform.position, StationConfig.FireplaceRadius.Value, player))
                 {
-                    if (currentFuel >= __instance.m_maxFuel)
+                    if (Mathf.CeilToInt(currentFuel) >= __instance.m_maxFuel)
                     {
                         break;
                     }
