@@ -22,6 +22,14 @@ namespace SmartCraftStorage.ItemMarking
 
             int width = __instance.m_inventory.GetWidth();
 
+            foreach (var element in __instance.m_elements)
+            {
+                if (LockedOverlays.TryGetValue(element, out var overlay) && overlay != null)
+                {
+                    overlay.enabled = false;
+                }
+            }
+
             foreach (var item in __instance.m_inventory.GetAllItems())
             {
                 var element = __instance.GetElement(item.m_gridPos.x, item.m_gridPos.y, width);
