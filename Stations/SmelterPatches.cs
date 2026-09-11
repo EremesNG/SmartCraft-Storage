@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 using SmartCraftStorage.Shared;
+using UnityEngine;
 
 namespace SmartCraftStorage.Stations
 {
@@ -140,6 +141,125 @@ namespace SmartCraftStorage.Stations
                 }
 
                 return false;
+            }
+        }
+
+        [HarmonyPatch(typeof(Smelter), "Spawn")]
+        private static class CollectPatch
+        {
+            private static bool Prefix(Smelter __instance, string ore, int stack)
+            {
+                try
+                {
+                    bool isKiln = KilnDetection.IsKiln(__instance);
+                    bool enabled = isKiln ? StationConfig.KilnAutoCollect.Value : StationConfig.SmelterAutoCollect.Value;
+                    if (!enabled)
+                    {
+                        return true;
+                    }
+
+                    var player = Player.m_localPlayer;
+                    if (player == null)
+                    {
+                        return true;
+                    }
+
+                    var conversion = __instance.GetItemConversion(ore);
+                    if (conversion == null || conversion.m_to == null)
+                    {
+                        return true;
+                    }
+
+                    int remaining = stack;
+
+                    if (isKiln)
+                    {
+                        remaining = FeedNearbySmelters(__instance, remaining);
+                    }
+
+                    if (remaining <= 0)
+                    {
+                        return false;
+                    }
+
+                    foreach (var container in NearbyContainers.Find(__instance.transform.position, StationConfig.SmelterKilnRadius.Value, player))
+                    {
+                        if (!NearbyContainers.TryClaimWriteAccess(container))
+                        {
+                            continue;
+                        }
+
+                        if (container.GetInventory().AddItem(conversion.m_to.gameObject, remaining))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogException(ex);
+                    return true;
+                }
+            }
+
+            private static int FeedNearbySmelters(Smelter kiln, int amount)
+            {
+                var candidates = new List<Smelter>();
+                var hits = Physics.OverlapSphere(kiln.transform.position, StationConfig.SmelterKilnRadius.Value);
+
+                foreach (var hit in hits)
+                {
+                    var smelter = hit.GetComponentInParent<Smelter>();
+                    if (smelter == null || smelter == kiln || KilnDetection.IsKiln(smelter))
+                    {
+                        continue;
+                    }
+                    if (smelter.m_fuelItem == null || smelter.GetFuel() >= smelter.m_maxFuel)
+                    {
+                        continue;
+                    }
+                    if (!PrivateArea.CheckAccess(smelter.transform.position, 0f, false))
+                    {
+                        continue;
+                    }
+                    if (!candidates.Contains(smelter))
+                    {
+                        candidates.Add(smelter);
+                    }
+                }
+
+                if (candidates.Count == 0)
+                {
+                    return amount;
+                }
+
+                if (StationConfig.KilnFeedStrategyConfig.Value == KilnFeedStrategy.LeastFuelFirst)
+                {
+                    candidates.Sort((a, b) => a.GetFuel().CompareTo(b.GetFuel()));
+                }
+                else
+                {
+                    candidates.Sort((a, b) => Vector3.Distance(kiln.transform.position, a.transform.position)
+                        .CompareTo(Vector3.Distance(kiln.transform.position, b.transform.position)));
+                }
+
+                foreach (var smelter in candidates)
+                {
+                    while (amount > 0 && smelter.GetFuel() < smelter.m_maxFuel)
+                    {
+                        smelter.m_nview.InvokeRPC("RPC_AddFuel");
+                        amount--;
+                    }
+
+                    if (amount <= 0)
+                    {
+                        break;
+                    }
+                }
+
+                return amount;
             }
         }
     }
