@@ -119,14 +119,22 @@ namespace SmartCraftStorage.Stations
             {
                 try
                 {
-                    if (!StationConfig.CookingStationAutoCollect.Value || !__instance.m_nview.IsOwner())
+                    if (!StationConfig.CookingStationAutoCollect.Value
+                        || __instance.m_nview == null || !__instance.m_nview.IsValid()
+                        || !__instance.m_nview.IsOwner())
+                    {
+                        return;
+                    }
+
+                    var player = Player.m_localPlayer;
+                    if (player == null)
                     {
                         return;
                     }
 
                     while (__instance.HaveDoneItem())
                     {
-                        __instance.m_nview.InvokeRPC("RPC_RemoveDoneItem", __instance.transform.position, 1);
+                        __instance.OnInteract(player);
                     }
                 }
                 catch (System.Exception ex)
