@@ -177,27 +177,38 @@ namespace SmartCraftStorage.Stations
                         remaining = FeedNearbySmelters(__instance, remaining);
                     }
 
-                    stack = remaining;
-
                     if (remaining <= 0)
                     {
+                        stack = 0;
                         return false;
                     }
 
+                    string itemName = conversion.m_to.m_itemData.m_shared.m_name;
+
                     foreach (var container in NearbyContainers.Find(__instance.transform.position, StationConfig.SmelterKilnRadius.Value, player))
                     {
+                        if (remaining <= 0)
+                        {
+                            break;
+                        }
+
                         if (!NearbyContainers.TryClaimWriteAccess(container))
                         {
                             continue;
                         }
 
-                        if (container.GetInventory().AddItem(conversion.m_to.gameObject, remaining))
+                        var chestInventory = container.GetInventory();
+                        int before = chestInventory.CountItems(itemName);
+                        chestInventory.AddItem(conversion.m_to.gameObject, remaining);
+                        int added = chestInventory.CountItems(itemName) - before;
+                        if (added > 0)
                         {
-                            return false;
+                            remaining -= added;
                         }
                     }
 
-                    return true;
+                    stack = remaining;
+                    return remaining > 0;
                 }
                 catch (System.Exception ex)
                 {
