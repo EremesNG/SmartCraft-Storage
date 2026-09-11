@@ -23,7 +23,7 @@ namespace SmartCraftStorage.QuickStack
 
             foreach (var item in items)
             {
-                if (item.m_equipped)
+                if (item.m_equipped || SmartCraftStorage.ItemMarking.ItemFlags.IsLocked(item))
                 {
                     continue;
                 }
