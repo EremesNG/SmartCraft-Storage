@@ -262,6 +262,11 @@ namespace SmartCraftStorage.Stations
                 {
                     while (amount > 0 && smelter.GetFuel() < smelter.m_maxFuel)
                     {
+                        if (!NearbyContainers.TryClaimWriteAccess(smelter.m_nview))
+                        {
+                            break;
+                        }
+
                         smelter.m_nview.InvokeRPC("RPC_AddFuel");
                         amount--;
                     }

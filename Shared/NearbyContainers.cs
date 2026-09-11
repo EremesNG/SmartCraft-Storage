@@ -43,18 +43,23 @@ namespace SmartCraftStorage.Shared
             return result;
         }
 
-        public static bool TryClaimWriteAccess(Container container)
+        public static bool TryClaimWriteAccess(ZNetView nview)
         {
-            if (container.m_nview == null || !container.m_nview.IsValid())
+            if (nview == null || !nview.IsValid())
             {
                 return false;
             }
-            if (container.IsOwner())
+            if (nview.IsOwner())
             {
                 return true;
             }
-            container.m_nview.ClaimOwnership();
-            return container.IsOwner();
+            nview.ClaimOwnership();
+            return nview.IsOwner();
+        }
+
+        public static bool TryClaimWriteAccess(Container container)
+        {
+            return TryClaimWriteAccess(container.m_nview);
         }
 
         private static bool IsInUseByAnyone(Container container)
