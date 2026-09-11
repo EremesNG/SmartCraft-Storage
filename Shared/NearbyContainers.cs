@@ -14,7 +14,7 @@ namespace SmartCraftStorage.Shared
             foreach (var hit in hits)
             {
                 var container = hit.GetComponentInParent<Container>();
-                if (container == null)
+                if (container == null || container.GetInventory() == null)
                 {
                     continue;
                 }
