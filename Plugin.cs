@@ -15,6 +15,13 @@ namespace SmartCraftStorage
         public const string PluginName = "SmartCraft-Storage";
         public const string PluginVersion = "0.1.0";
 
+        // Jotunn's InputManager mutates ButtonConfig.Name to "<name>!<modGuid>" when it
+        // registers the button into ZInput, and it only ever wires the Shortcut's MainKey
+        // into the game's input system (the modifier keys in KeyboardShortcut are not
+        // enforced by Jotunn 2.30.0) — so we register one plain-E button and disambiguate
+        // Shift vs Ctrl ourselves in HotkeyPatch, matching the exact registered name here.
+        public const string ActionButtonName = "SmartCraft_Action!" + PluginGuid;
+
         internal static Harmony HarmonyInstance;
 
         private void Awake()
@@ -23,16 +30,9 @@ namespace SmartCraftStorage
 
             InputManager.Instance.AddButton(PluginGuid, new ButtonConfig
             {
-                Name = "SmartCraft_QuickStack",
-                Shortcut = new KeyboardShortcut(KeyCode.E, KeyCode.LeftShift),
-                HintToken = "$smartcraft_quickstack_hint"
-            });
-
-            InputManager.Instance.AddButton(PluginGuid, new ButtonConfig
-            {
-                Name = "SmartCraft_Restock",
-                Shortcut = new KeyboardShortcut(KeyCode.E, KeyCode.LeftControl),
-                HintToken = "$smartcraft_restock_hint"
+                Name = "SmartCraft_Action",
+                Key = KeyCode.E,
+                HintToken = "$smartcraft_action_hint"
             });
 
             HarmonyInstance = new Harmony(PluginGuid);

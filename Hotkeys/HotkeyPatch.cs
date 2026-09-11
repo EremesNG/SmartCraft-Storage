@@ -1,4 +1,5 @@
 using HarmonyLib;
+using UnityEngine;
 
 namespace SmartCraftStorage.Hotkeys
 {
@@ -14,12 +15,19 @@ namespace SmartCraftStorage.Hotkeys
                     return;
                 }
 
-                if (ZInput.GetButtonDown("SmartCraft_QuickStack"))
+                if (!ZInput.GetButtonDown(Plugin.ActionButtonName))
+                {
+                    return;
+                }
+
+                bool shiftHeld = ZInput.GetKey(KeyCode.LeftShift) || ZInput.GetKey(KeyCode.RightShift);
+                bool ctrlHeld = ZInput.GetKey(KeyCode.LeftControl) || ZInput.GetKey(KeyCode.RightControl);
+
+                if (shiftHeld)
                 {
                     QuickStack.QuickStackService.Execute(__instance);
                 }
-
-                if (ZInput.GetButtonDown("SmartCraft_Restock"))
+                else if (ctrlHeld)
                 {
                     Restock.RestockService.Execute(__instance);
                 }
