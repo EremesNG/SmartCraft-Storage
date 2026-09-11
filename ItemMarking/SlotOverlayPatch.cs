@@ -19,40 +19,48 @@ namespace SmartCraftStorage.ItemMarking
 
         private static void Postfix(InventoryGrid __instance)
         {
-            if (__instance.m_inventory == null)
+            try
             {
-                return;
+                if (__instance.m_inventory == null)
+                {
+                    return;
+                }
+
+                int width = __instance.m_inventory.GetWidth();
+                var localPlayer = Player.m_localPlayer;
+                var restockNames = localPlayer != null ? new HashSet<string>(RestockList.GetAll(localPlayer)) : null;
+
+                foreach (var element in __instance.m_elements)
+                {
+                    if (LockedOverlays.TryGetValue(element, out var lockedOv) && lockedOv != null)
+                    {
+                        lockedOv.enabled = false;
+                    }
+                    if (RestockOverlays.TryGetValue(element, out var restockOv) && restockOv != null)
+                    {
+                        restockOv.enabled = false;
+                    }
+                }
+
+                foreach (var item in __instance.m_inventory.GetAllItems())
+                {
+                    var element = __instance.GetElement(item.m_gridPos.x, item.m_gridPos.y, width);
+                    if (element == null)
+                    {
+                        continue;
+                    }
+
+                    var lockedOverlay = GetOrCreateOverlay(element, LockedOverlays, LockedSprite, "SmartCraft_LockedOverlay");
+                    lockedOverlay.enabled = ItemFlags.IsLocked(item);
+
+                    bool restockMarked = restockNames != null && restockNames.Contains(item.m_shared.m_name);
+                    var restockOverlay = GetOrCreateOverlay(element, RestockOverlays, RestockSprite, "SmartCraft_RestockOverlay");
+                    restockOverlay.enabled = restockMarked;
+                }
             }
-
-            int width = __instance.m_inventory.GetWidth();
-            var localPlayer = Player.m_localPlayer;
-
-            foreach (var element in __instance.m_elements)
+            catch (System.Exception ex)
             {
-                if (LockedOverlays.TryGetValue(element, out var lockedOv) && lockedOv != null)
-                {
-                    lockedOv.enabled = false;
-                }
-                if (RestockOverlays.TryGetValue(element, out var restockOv) && restockOv != null)
-                {
-                    restockOv.enabled = false;
-                }
-            }
-
-            foreach (var item in __instance.m_inventory.GetAllItems())
-            {
-                var element = __instance.GetElement(item.m_gridPos.x, item.m_gridPos.y, width);
-                if (element == null)
-                {
-                    continue;
-                }
-
-                var lockedOverlay = GetOrCreateOverlay(element, LockedOverlays, LockedSprite, "SmartCraft_LockedOverlay");
-                lockedOverlay.enabled = ItemFlags.IsLocked(item);
-
-                bool restockMarked = localPlayer != null && RestockList.Contains(localPlayer, item.m_shared.m_name);
-                var restockOverlay = GetOrCreateOverlay(element, RestockOverlays, RestockSprite, "SmartCraft_RestockOverlay");
-                restockOverlay.enabled = restockMarked;
+                UnityEngine.Debug.LogException(ex);
             }
         }
 

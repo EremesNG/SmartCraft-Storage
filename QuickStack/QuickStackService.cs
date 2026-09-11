@@ -10,7 +10,7 @@ namespace SmartCraftStorage.QuickStack
         public static void Execute(Player player)
         {
             var inventory = player.GetInventory();
-            var containers = new List<Container>(NearbyContainers.Find(player.transform.position, ModConfig.QuickStackRadius.Value));
+            var containers = new List<Container>(NearbyContainers.Find(player.transform.position, ModConfig.QuickStackRadius.Value, player));
 
             if (containers.Count == 0)
             {
@@ -48,21 +48,37 @@ namespace SmartCraftStorage.QuickStack
                 }
 
                 var chestInventory = container.GetInventory();
-                var existingStack = chestInventory.GetItem(item.m_shared.m_name, item.m_quality);
+                var matchingStacks = chestInventory.GetAllItems().FindAll(i =>
+                    i.m_shared.m_name == item.m_shared.m_name &&
+                    i.m_quality == item.m_quality &&
+                    i.m_stack < i.m_shared.m_maxStackSize);
 
-                if (existingStack == null)
+                if (matchingStacks.Count == 0)
                 {
                     continue;
                 }
 
-                int freeSpace = item.m_shared.m_maxStackSize - existingStack.m_stack;
-                if (freeSpace <= 0)
+                if (!NearbyContainers.TryClaimWriteAccess(container))
                 {
                     continue;
                 }
 
-                int amountToMove = Mathf.Min(freeSpace, item.m_stack);
-                chestInventory.MoveItemToThis(playerInventory, item, amountToMove, existingStack.m_gridPos.x, existingStack.m_gridPos.y);
+                foreach (var existingStack in matchingStacks)
+                {
+                    if (item.m_stack <= 0)
+                    {
+                        break;
+                    }
+
+                    int freeSpace = existingStack.m_shared.m_maxStackSize - existingStack.m_stack;
+                    if (freeSpace <= 0)
+                    {
+                        continue;
+                    }
+
+                    int amountToMove = Mathf.Min(freeSpace, item.m_stack);
+                    chestInventory.MoveItemToThis(playerInventory, item, amountToMove, existingStack.m_gridPos.x, existingStack.m_gridPos.y);
+                }
             }
 
             return originalStack - item.m_stack;

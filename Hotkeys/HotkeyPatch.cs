@@ -7,19 +7,26 @@ namespace SmartCraftStorage.Hotkeys
     {
         private static void Postfix(Player __instance)
         {
-            if (__instance != Player.m_localPlayer)
+            try
             {
-                return;
-            }
+                if (__instance != Player.m_localPlayer || !__instance.TakeInput())
+                {
+                    return;
+                }
 
-            if (ZInput.GetButtonDown("SmartCraft_QuickStack"))
-            {
-                QuickStack.QuickStackService.Execute(__instance);
-            }
+                if (ZInput.GetButtonDown("SmartCraft_QuickStack"))
+                {
+                    QuickStack.QuickStackService.Execute(__instance);
+                }
 
-            if (ZInput.GetButtonDown("SmartCraft_Restock"))
+                if (ZInput.GetButtonDown("SmartCraft_Restock"))
+                {
+                    Restock.RestockService.Execute(__instance);
+                }
+            }
+            catch (System.Exception ex)
             {
-                Restock.RestockService.Execute(__instance);
+                UnityEngine.Debug.LogException(ex);
             }
         }
     }

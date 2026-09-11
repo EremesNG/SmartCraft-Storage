@@ -23,14 +23,21 @@ namespace SmartCraftStorage.CraftingChestAccess
         {
             private static void Postfix(Inventory __instance, string name, int quality, bool matchWorldLevel, ref int __result)
             {
-                if (!IsCraftingOrBuildingContext(__instance, out var player))
+                try
                 {
-                    return;
-                }
+                    if (!IsCraftingOrBuildingContext(__instance, out var player))
+                    {
+                        return;
+                    }
 
-                foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value))
+                    foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
+                    {
+                        __result += container.GetInventory().CountItems(name, quality, matchWorldLevel);
+                    }
+                }
+                catch (System.Exception ex)
                 {
-                    __result += container.GetInventory().CountItems(name, quality, matchWorldLevel);
+                    UnityEngine.Debug.LogException(ex);
                 }
             }
         }
@@ -40,18 +47,25 @@ namespace SmartCraftStorage.CraftingChestAccess
         {
             private static void Postfix(Inventory __instance, string name, bool matchWorldLevel, ref bool __result)
             {
-                if (__result || !IsCraftingOrBuildingContext(__instance, out var player))
+                try
                 {
-                    return;
-                }
-
-                foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value))
-                {
-                    if (container.GetInventory().HaveItem(name, matchWorldLevel))
+                    if (__result || !IsCraftingOrBuildingContext(__instance, out var player))
                     {
-                        __result = true;
                         return;
                     }
+
+                    foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
+                    {
+                        if (container.GetInventory().HaveItem(name, matchWorldLevel))
+                        {
+                            __result = true;
+                            return;
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogException(ex);
                 }
             }
         }
@@ -61,36 +75,48 @@ namespace SmartCraftStorage.CraftingChestAccess
         {
             private static void Prefix(Inventory __instance, string name, ref int amount, int itemQuality, bool worldLevelBased)
             {
-                if (!IsCraftingOrBuildingContext(__instance, out var player))
+                try
                 {
-                    return;
-                }
-
-                int haveInInventory = SumMatchingStack(__instance, name, itemQuality);
-                if (amount <= haveInInventory)
-                {
-                    return;
-                }
-
-                int remaining = amount - haveInInventory;
-                amount = haveInInventory;
-
-                foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value))
-                {
-                    if (remaining <= 0)
+                    if (!IsCraftingOrBuildingContext(__instance, out var player))
                     {
-                        break;
+                        return;
                     }
 
-                    var chestInventory = container.GetInventory();
-                    int haveInChest = SumMatchingStack(chestInventory, name, itemQuality);
-                    int takeFromChest = Math.Min(remaining, haveInChest);
-
-                    if (takeFromChest > 0)
+                    int haveInInventory = SumMatchingStack(__instance, name, itemQuality);
+                    if (amount <= haveInInventory)
                     {
-                        chestInventory.RemoveItem(name, takeFromChest, itemQuality, worldLevelBased);
-                        remaining -= takeFromChest;
+                        return;
                     }
+
+                    int remaining = amount - haveInInventory;
+                    amount = haveInInventory;
+
+                    foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
+                    {
+                        if (remaining <= 0)
+                        {
+                            break;
+                        }
+
+                        if (!NearbyContainers.TryClaimWriteAccess(container))
+                        {
+                            continue;
+                        }
+
+                        var chestInventory = container.GetInventory();
+                        int haveInChest = SumMatchingStack(chestInventory, name, itemQuality);
+                        int takeFromChest = Math.Min(remaining, haveInChest);
+
+                        if (takeFromChest > 0)
+                        {
+                            chestInventory.RemoveItem(name, takeFromChest, itemQuality, worldLevelBased);
+                            remaining -= takeFromChest;
+                        }
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogException(ex);
                 }
             }
 

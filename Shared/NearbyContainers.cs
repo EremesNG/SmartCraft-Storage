@@ -5,10 +5,11 @@ namespace SmartCraftStorage.Shared
 {
     internal static class NearbyContainers
     {
-        public static IEnumerable<Container> Find(Vector3 origin, float radius)
+        public static IEnumerable<Container> Find(Vector3 origin, float radius, Player player)
         {
             var result = new List<Container>();
             var hits = Physics.OverlapSphere(origin, radius);
+            long playerId = player.GetPlayerID();
 
             foreach (var hit in hits)
             {
@@ -17,7 +18,15 @@ namespace SmartCraftStorage.Shared
                 {
                     continue;
                 }
-                if (container.IsInUse())
+                if (container.GetComponent<TombStone>() != null)
+                {
+                    continue;
+                }
+                if (IsInUseByAnyone(container))
+                {
+                    continue;
+                }
+                if (!container.CheckAccess(playerId))
                 {
                     continue;
                 }
@@ -32,6 +41,26 @@ namespace SmartCraftStorage.Shared
             }
 
             return result;
+        }
+
+        public static bool TryClaimWriteAccess(Container container)
+        {
+            if (container.IsOwner())
+            {
+                return true;
+            }
+            container.m_nview.ClaimOwnership();
+            return container.IsOwner();
+        }
+
+        private static bool IsInUseByAnyone(Container container)
+        {
+            if (container.IsInUse())
+            {
+                return true;
+            }
+            return container.m_nview != null && container.m_nview.IsValid()
+                && container.m_nview.GetZDO().GetInt(ZDOVars.s_inUse) == 1;
         }
     }
 }

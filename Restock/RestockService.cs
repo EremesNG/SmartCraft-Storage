@@ -18,7 +18,7 @@ namespace SmartCraftStorage.Restock
             }
 
             var inventory = player.GetInventory();
-            var containers = new List<Container>(NearbyContainers.Find(player.transform.position, ModConfig.QuickStackRadius.Value));
+            var containers = new List<Container>(NearbyContainers.Find(player.transform.position, ModConfig.QuickStackRadius.Value, player));
 
             int restocked = 0;
 
@@ -40,7 +40,7 @@ namespace SmartCraftStorage.Restock
                 return 0;
             }
 
-            int needed = maxStack - playerInventory.CountItems(itemName);
+            int needed = maxStack - CountPlayerOwned(playerInventory, itemName);
             if (needed <= 0)
             {
                 return 0;
@@ -56,32 +56,58 @@ namespace SmartCraftStorage.Restock
                 }
 
                 var chestInventory = container.GetInventory();
-                var stackInChest = chestInventory.GetAllItems().Find(i => i.m_shared.m_name == itemName);
-                if (stackInChest == null)
+                var matchingStacks = chestInventory.GetAllItems().FindAll(i => i.m_shared.m_name == itemName);
+                if (matchingStacks.Count == 0)
                 {
                     continue;
                 }
 
-                int amountToTake = Math.Min(needed, stackInChest.m_stack);
-
-                var existingPlayerStack = playerInventory.GetItem(itemName);
-                Vector2i targetPos = existingPlayerStack != null
-                    ? existingPlayerStack.m_gridPos
-                    : playerInventory.FindEmptySlot(false);
-
-                if (targetPos.x < 0)
+                if (!NearbyContainers.TryClaimWriteAccess(container))
                 {
-                    break;
+                    continue;
                 }
 
-                if (playerInventory.MoveItemToThis(chestInventory, stackInChest, amountToTake, targetPos.x, targetPos.y))
+                foreach (var stackInChest in matchingStacks)
                 {
-                    needed -= amountToTake;
-                    totalMoved += amountToTake;
+                    if (needed <= 0)
+                    {
+                        break;
+                    }
+
+                    int amountToTake = Math.Min(needed, stackInChest.m_stack);
+
+                    var existingPlayerStack = playerInventory.GetItem(itemName);
+                    Vector2i targetPos = existingPlayerStack != null
+                        ? existingPlayerStack.m_gridPos
+                        : playerInventory.FindEmptySlot(false);
+
+                    if (targetPos.x < 0)
+                    {
+                        return totalMoved;
+                    }
+
+                    if (playerInventory.MoveItemToThis(chestInventory, stackInChest, amountToTake, targetPos.x, targetPos.y))
+                    {
+                        needed -= amountToTake;
+                        totalMoved += amountToTake;
+                    }
                 }
             }
 
             return totalMoved;
+        }
+
+        private static int CountPlayerOwned(Inventory playerInventory, string itemName)
+        {
+            int total = 0;
+            foreach (var item in playerInventory.GetAllItems())
+            {
+                if (item.m_shared.m_name == itemName)
+                {
+                    total += item.m_stack;
+                }
+            }
+            return total;
         }
 
         private static int FindMaxStackSize(string itemName, List<Container> containers)
