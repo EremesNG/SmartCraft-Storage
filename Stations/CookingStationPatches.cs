@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using HarmonyLib;
 using SmartCraftStorage.Shared;
+using UnityEngine;
 
 namespace SmartCraftStorage.Stations
 {
@@ -107,6 +108,77 @@ namespace SmartCraftStorage.Stations
                     {
                         break;
                     }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(CookingStation), "UpdateCooking")]
+        private static class AutoCollectTriggerPatch
+        {
+            private static void Postfix(CookingStation __instance)
+            {
+                try
+                {
+                    if (!StationConfig.CookingStationAutoCollect.Value || !__instance.m_nview.IsOwner())
+                    {
+                        return;
+                    }
+
+                    while (__instance.HaveDoneItem())
+                    {
+                        __instance.m_nview.InvokeRPC("RPC_RemoveDoneItem", __instance.transform.position, 1);
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogException(ex);
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(CookingStation), "SpawnItem")]
+        private static class CollectRedirectPatch
+        {
+            private static bool Prefix(CookingStation __instance, string name, int slot, Vector3 userPoint, bool cheated)
+            {
+                try
+                {
+                    if (!StationConfig.CookingStationAutoCollect.Value)
+                    {
+                        return true;
+                    }
+
+                    var player = Player.m_localPlayer;
+                    if (player == null)
+                    {
+                        return true;
+                    }
+
+                    var itemPrefab = ObjectDB.instance.GetItemPrefab(name);
+                    if (itemPrefab == null)
+                    {
+                        return true;
+                    }
+
+                    foreach (var container in NearbyContainers.Find(__instance.transform.position, StationConfig.CookingStationRadius.Value, player))
+                    {
+                        if (!NearbyContainers.TryClaimWriteAccess(container))
+                        {
+                            continue;
+                        }
+
+                        if (container.GetInventory().AddItem(itemPrefab, 1))
+                        {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogException(ex);
+                    return true;
                 }
             }
         }
