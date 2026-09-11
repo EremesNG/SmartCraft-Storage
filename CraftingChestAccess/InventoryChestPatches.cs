@@ -1,3 +1,4 @@
+using System;
 using HarmonyLib;
 using SmartCraftStorage.Config;
 using SmartCraftStorage.Shared;
@@ -52,6 +53,58 @@ namespace SmartCraftStorage.CraftingChestAccess
                         return;
                     }
                 }
+            }
+        }
+
+        [HarmonyPatch(typeof(Inventory), nameof(Inventory.RemoveItem), new[] { typeof(string), typeof(int), typeof(int), typeof(bool) })]
+        private static class RemoveItemPatch
+        {
+            private static void Prefix(Inventory __instance, string name, ref int amount, int itemQuality, bool worldLevelBased)
+            {
+                if (!IsCraftingOrBuildingContext(__instance, out var player))
+                {
+                    return;
+                }
+
+                int haveInInventory = SumMatchingStack(__instance, name, itemQuality);
+                if (amount <= haveInInventory)
+                {
+                    return;
+                }
+
+                int remaining = amount - haveInInventory;
+                amount = haveInInventory;
+
+                foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value))
+                {
+                    if (remaining <= 0)
+                    {
+                        break;
+                    }
+
+                    var chestInventory = container.GetInventory();
+                    int haveInChest = SumMatchingStack(chestInventory, name, itemQuality);
+                    int takeFromChest = Math.Min(remaining, haveInChest);
+
+                    if (takeFromChest > 0)
+                    {
+                        chestInventory.RemoveItem(name, takeFromChest, itemQuality, worldLevelBased);
+                        remaining -= takeFromChest;
+                    }
+                }
+            }
+
+            private static int SumMatchingStack(Inventory inventory, string name, int quality)
+            {
+                int total = 0;
+                foreach (var item in inventory.GetAllItems())
+                {
+                    if (item.m_shared.m_name == name && (quality < 0 || item.m_quality == quality))
+                    {
+                        total += item.m_stack;
+                    }
+                }
+                return total;
             }
         }
     }
