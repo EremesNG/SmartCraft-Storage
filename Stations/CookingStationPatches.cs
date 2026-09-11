@@ -14,7 +14,9 @@ namespace SmartCraftStorage.Stations
             {
                 try
                 {
-                    if (!StationConfig.CookingStationAutoRefuel.Value || !__instance.m_nview.IsOwner())
+                    if (!StationConfig.CookingStationAutoRefuel.Value
+                        || __instance.m_nview == null || !__instance.m_nview.IsValid()
+                        || !__instance.m_nview.IsOwner())
                     {
                         return;
                     }

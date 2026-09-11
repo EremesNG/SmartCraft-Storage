@@ -16,7 +16,9 @@ namespace SmartCraftStorage.Stations
                 {
                     bool isKiln = KilnDetection.IsKiln(__instance);
                     bool enabled = isKiln ? StationConfig.KilnAutoRefuel.Value : StationConfig.SmelterAutoRefuel.Value;
-                    if (!enabled || !__instance.m_nview.IsOwner())
+                    if (!enabled
+                        || __instance.m_nview == null || !__instance.m_nview.IsValid()
+                        || !__instance.m_nview.IsOwner())
                     {
                         return;
                     }
