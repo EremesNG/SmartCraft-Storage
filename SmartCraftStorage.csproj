@@ -22,6 +22,10 @@
       <HintPath>$(ValheimManagedDir)/assembly_valheim.dll</HintPath>
       <Publicize>true</Publicize>
     </Reference>
+    <Reference Include="assembly_utils">
+      <HintPath>$(ValheimManagedDir)/assembly_utils.dll</HintPath>
+      <Publicize>true</Publicize>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>$(ValheimManagedDir)/UnityEngine.dll</HintPath>
     </Reference>
