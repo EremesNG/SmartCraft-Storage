@@ -111,6 +111,7 @@ namespace SmartCraftStorage.CraftingChestAccess
                         {
                             chestInventory.RemoveItem(name, takeFromChest, itemQuality, worldLevelBased);
                             remaining -= takeFromChest;
+                            amount += takeFromChest;
                         }
                     }
                 }

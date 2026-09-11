@@ -45,6 +45,10 @@ namespace SmartCraftStorage.Shared
 
         public static bool TryClaimWriteAccess(Container container)
         {
+            if (container.m_nview == null || !container.m_nview.IsValid())
+            {
+                return false;
+            }
             if (container.IsOwner())
             {
                 return true;
