@@ -147,7 +147,7 @@ namespace SmartCraftStorage.Stations
         [HarmonyPatch(typeof(Smelter), "Spawn")]
         private static class CollectPatch
         {
-            private static bool Prefix(Smelter __instance, string ore, int stack)
+            private static bool Prefix(Smelter __instance, string ore, ref int stack)
             {
                 try
                 {
@@ -176,6 +176,8 @@ namespace SmartCraftStorage.Stations
                     {
                         remaining = FeedNearbySmelters(__instance, remaining);
                     }
+
+                    stack = remaining;
 
                     if (remaining <= 0)
                     {
