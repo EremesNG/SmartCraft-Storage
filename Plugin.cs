@@ -15,6 +15,8 @@ namespace SmartCraftStorage
 
         private void Awake()
         {
+            SmartCraftStorage.Config.ModConfig.Bind(Config);
+
             HarmonyInstance = new Harmony(PluginGuid);
             HarmonyInstance.PatchAll();
 
