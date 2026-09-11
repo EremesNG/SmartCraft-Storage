@@ -27,6 +27,7 @@ namespace SmartCraftStorage
         private void Awake()
         {
             SmartCraftStorage.Config.ModConfig.Bind(Config);
+            SmartCraftStorage.Stations.StationConfig.Bind(Config);
 
             InputManager.Instance.AddButton(PluginGuid, new ButtonConfig
             {
