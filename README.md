@@ -4,8 +4,8 @@ Mod pessoal para Valheim 1.0 que junta automação de armazenamento e de
 estações num único pacote: guardar itens em massa nos baús próximos,
 craftar/construir puxando material direto dos baús sem precisar abrir eles,
 manter fogueira, forja, carvoaria e cozinha abastecidas e coletando
-sozinhas, e alimentar automaticamente animais domesticáveis a partir de um
-baú próximo.
+sozinhas, alimentar automaticamente animais domesticáveis a partir de um
+baú próximo, e reparar todo o equipamento de uma vez na bancada.
 
 Requer [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/)
 e [Jotunn](https://valheim.thunderstore.io/package/ValheimModding/Jotunn/).
@@ -77,6 +77,15 @@ mãos), o jogo passa a enxergar os itens dos baús próximos como se
 estivessem no seu inventário — sem precisar abrir nenhum baú. A prioridade
 é sempre consumir primeiro o que você já carrega; só busca no baú o que
 faltar. A contagem mostrada na UI de craft também já soma os baús próximos.
+
+## Reparo em massa
+
+Na bancada (banco de trabalho, forja, etc.), o botão de **Reparar** conserta
+de uma vez todos os itens equipados que a bancada atual consegue reparar —
+sem precisar clicar várias vezes até esgotar. Respeita exatamente a mesma
+regra do vanilla (nível da bancada vs. nível mínimo exigido pelo item): item
+que precisa de uma bancada mais avançada continua não sendo reparado ali.
+Sem mensagem extra na tela nem configuração — só reparo instantâneo.
 
 ## Estações automáticas
 
