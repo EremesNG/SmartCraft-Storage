@@ -1,8 +1,17 @@
 # Configuration
 
 All options live in BepInEx's [Configuration Manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/),
-split into four sections. Every option also has its own description
+split into five sections. Every option also has its own description
 inside the Configuration Manager itself.
+
+## Hotkeys
+
+| Option | Default | Description |
+|---|---|---|
+| `QuickStackShortcut` | Shift + E | Full key combo for quick-stack — click the value and press the combo you want |
+| `RestockShortcut` | Ctrl + E | Full key combo for restock — click the value and press the combo you want |
+| `LockClickShortcut` | Alt | Key(s) held while left-clicking an item to toggle its lock |
+| `RestockMarkClickShortcut` | Alt + Ctrl | Key(s) held while left-clicking an item to mark it for restock — independent of `LockClickShortcut`, does not require it to also be held |
 
 ## Radii (storage/restock/crafting-from-chest)
 

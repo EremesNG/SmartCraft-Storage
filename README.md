@@ -20,18 +20,23 @@ and [Jotunn](https://valheim.thunderstore.io/package/ValheimModding/Jotunn/).
 
 ## Hotkeys
 
-All hotkeys use **E** as the base key, combined with a modifier. They work
-with a free cursor (no need to have a chest open).
+Defaults below — every hotkey is fully configurable in the [Configuration Manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/),
+all as full key combos you set by clicking the value and pressing whatever
+combo you want. The lock and restock-mark combos are independent of each
+other. They work with a free cursor (no need to have a chest open).
 
-| Hotkey | Action |
+| Hotkey (default) | Action |
 |---|---|
 | `Shift + E` | **Quick-stack**: stashes items from your inventory into nearby chests that already contain that item. Locked (🔒) and equipped items are never moved. |
 | `Ctrl + E` | **Restock**: pulls from nearby chest(s) enough of each item marked for restock to fill a full stack in your inventory — even if you currently have none of that item. |
 | `Alt + left-click` on an inventory item | Toggles the **lock** (🔒) on that item — a locked item is never moved by quick-stack. |
-| `Alt + Ctrl + left-click` on an inventory item | Toggles the **restock** mark (🔵) on that item — defines the list `Ctrl+E` uses. |
+| `Alt + Ctrl + left-click` on an inventory item | Toggles the **restock** mark (🔵) on that item — defines the list the restock hotkey uses. |
 
 Both modifier-clicks replace the normal click (they don't open/move the
 item) only while the modifier is held.
+
+Messages shown by quick-stack and restock are localized (English,
+Portuguese-Brazilian, Spanish so far) based on your in-game language.
 
 ## Links
 

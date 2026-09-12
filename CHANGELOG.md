@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.3
+- Hotkeys are now fully configurable: `QuickStackShortcut`/`RestockShortcut` let you set any key combo via the Configuration Manager (click and press), no fixed base key
+- Lock and restock-mark click combos (`LockClickShortcut`/`RestockMarkClickShortcut`) are also configurable, and fully independent of each other (marking for restock no longer requires the lock combo to also be held)
+- Config section names are now all in English for consistency
+- Quick-stack and restock on-screen messages are now localized (English, Portuguese-Brazilian, Spanish)
+- Removed the on-screen action hint that was tied to the old fixed hotkey registration
+
 ## 0.1.2
 - Set the website link (GitHub repo) in the package metadata
 - Trimmed the README down to a quick reference; full docs moved to the wiki
