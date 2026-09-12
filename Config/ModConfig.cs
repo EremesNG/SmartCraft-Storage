@@ -10,19 +10,19 @@ namespace SmartCraftStorage.Config
         public static void Bind(ConfigFile config)
         {
             QuickStackRadius = config.Bind(
-                "Raios",
+                "Radii",
                 "QuickStackRadius",
                 20f,
                 new ConfigDescription(
-                    "Raio (em metros) em que o quick-stack e o restock procuram baús próximos.",
+                    "Radius (in meters) in which quick-stack and restock search for nearby chests.",
                     new AcceptableValueRange<float>(0f, 100f)));
 
             CraftingChestRadius = config.Bind(
-                "Raios",
+                "Radii",
                 "CraftingChestRadius",
                 20f,
                 new ConfigDescription(
-                    "Raio (em metros) em que crafting/construção considera itens de baús próximos.",
+                    "Radius (in meters) in which crafting/building considers items from nearby chests.",
                     new AcceptableValueRange<float>(0f, 100f)));
         }
     }

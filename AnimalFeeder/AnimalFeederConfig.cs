@@ -10,15 +10,15 @@ namespace SmartCraftStorage.AnimalFeeder
         public static void Bind(ConfigFile config)
         {
             AnimalFeederRadius = config.Bind(
-                "Animais",
+                "Animals",
                 "AnimalFeederRadius",
                 20f,
                 new ConfigDescription(
-                    "Raio (em metros) em que animais domesticáveis famintos procuram comida em baús próximos.",
+                    "Radius (in meters) in which hungry tameable animals search nearby chests for food.",
                     new AcceptableValueRange<float>(0f, 100f)));
 
-            AnimalAutoFeed = config.Bind("Animais", "AnimalAutoFeed", true,
-                "Animais domesticáveis (selvagens sendo domados, ou já domados) puxam comida compatível de baús próximos automaticamente.");
+            AnimalAutoFeed = config.Bind("Animals", "AnimalAutoFeed", true,
+                "Tameable animals (wild being tamed, or already tamed) automatically pull compatible food from nearby chests.");
         }
     }
 }

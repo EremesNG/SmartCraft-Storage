@@ -29,65 +29,65 @@ namespace SmartCraftStorage.Stations
         public static void Bind(ConfigFile config)
         {
             FireplaceRadius = config.Bind(
-                "Estacoes",
+                "Stations",
                 "FireplaceRadius",
                 10f,
                 new ConfigDescription(
-                    "Raio (em metros) em que fogueiras/tochas/lareiras buscam combustível em baús próximos.",
+                    "Radius (in meters) in which fireplaces/torches/hearths search nearby chests for fuel.",
                     new AcceptableValueRange<float>(0f, 100f)));
 
             SmelterKilnRadius = config.Bind(
-                "Estacoes",
+                "Stations",
                 "SmelterKilnRadius",
                 10f,
                 new ConfigDescription(
-                    "Raio (em metros) compartilhado entre fundição e carvoaria pra buscar em baús próximos.",
+                    "Radius (in meters) shared between smelters and charcoal kilns to search nearby chests.",
                     new AcceptableValueRange<float>(0f, 100f)));
 
             CookingStationRadius = config.Bind(
-                "Estacoes",
+                "Stations",
                 "CookingStationRadius",
                 10f,
                 new ConfigDescription(
-                    "Raio (em metros) em que estações de cozinha buscam comida crua em baús próximos.",
+                    "Radius (in meters) in which cooking stations search nearby chests for raw food.",
                     new AcceptableValueRange<float>(0f, 100f)));
 
-            FireplaceAutoRefuel = config.Bind("Estacoes", "FireplaceAutoRefuel", true,
-                "Fogueiras/tochas puxam combustível de baús próximos automaticamente.");
-            SmelterAutoRefuel = config.Bind("Estacoes", "SmelterAutoRefuel", true,
-                "Fundições puxam minério/combustível de baús próximos automaticamente.");
-            SmelterAutoCollect = config.Bind("Estacoes", "SmelterAutoCollect", true,
-                "Fundições guardam a barra produzida no baú mais próximo em vez de derrubar no chão.");
-            KilnAutoRefuel = config.Bind("Estacoes", "KilnAutoRefuel", true,
-                "Carvoarias puxam madeira de baús próximos automaticamente.");
-            KilnAutoCollect = config.Bind("Estacoes", "KilnAutoCollect", true,
-                "Carvoarias guardam o carvão produzido (ou alimentam fundições próximas primeiro) em vez de derrubar no chão.");
-            CookingStationAutoRefuel = config.Bind("Estacoes", "CookingStationAutoRefuel", true,
-                "Estações de cozinha puxam comida crua (e combustível próprio, se aplicável) de baús próximos automaticamente.");
-            CookingStationAutoCollect = config.Bind("Estacoes", "CookingStationAutoCollect", true,
-                "Estações de cozinha coletam o item pronto sozinhas e guardam no baú mais próximo, sem precisar interagir.");
+            FireplaceAutoRefuel = config.Bind("Stations", "FireplaceAutoRefuel", true,
+                "Fireplaces/torches automatically pull fuel from nearby chests.");
+            SmelterAutoRefuel = config.Bind("Stations", "SmelterAutoRefuel", true,
+                "Smelters automatically pull ore/fuel from nearby chests.");
+            SmelterAutoCollect = config.Bind("Stations", "SmelterAutoCollect", true,
+                "Smelters store the produced bar in the nearest chest instead of dropping it on the ground.");
+            KilnAutoRefuel = config.Bind("Stations", "KilnAutoRefuel", true,
+                "Charcoal kilns automatically pull wood from nearby chests.");
+            KilnAutoCollect = config.Bind("Stations", "KilnAutoCollect", true,
+                "Charcoal kilns store the coal they produce (or feed nearby smelters first) instead of dropping it on the ground.");
+            CookingStationAutoRefuel = config.Bind("Stations", "CookingStationAutoRefuel", true,
+                "Cooking stations automatically pull raw food (and their own fuel, if applicable) from nearby chests.");
+            CookingStationAutoCollect = config.Bind("Stations", "CookingStationAutoCollect", true,
+                "Cooking stations collect finished food on their own and store it in the nearest chest, without needing to interact.");
 
             KilnWoodBuffer = config.Bind(
-                "Carvoaria",
+                "Charcoal Kiln",
                 "KilnWoodBuffer",
                 3,
                 new ConfigDescription(
-                    "Nível de madeira que a carvoaria tenta manter na fila interna (não é a capacidade máxima dela).",
+                    "Wood level the kiln tries to keep in its internal queue (not its max capacity).",
                     new AcceptableValueRange<int>(1, 50)));
 
             KilnMaxCoalInChest = config.Bind(
-                "Carvoaria",
+                "Charcoal Kiln",
                 "KilnMaxCoalInChest",
                 50,
                 new ConfigDescription(
-                    "A carvoaria para de puxar madeira nova quando o(s) baú(s) próximo(s) já somam essa quantidade de carvão.",
+                    "The kiln stops pulling new wood once nearby chest(s) already hold this much coal combined.",
                     new AcceptableValueRange<int>(1, 9999)));
 
             KilnFeedStrategyConfig = config.Bind(
-                "Carvoaria",
+                "Charcoal Kiln",
                 "KilnFeedStrategy",
                 KilnFeedStrategy.LeastFuelFirst,
-                "Como a carvoaria escolhe qual fundição próxima alimentar primeiro com o carvão produzido.");
+                "How the kiln picks which nearby smelter to feed first with the coal it produces.");
         }
     }
 }
