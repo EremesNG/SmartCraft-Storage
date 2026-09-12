@@ -28,6 +28,7 @@ namespace SmartCraftStorage
         {
             SmartCraftStorage.Config.ModConfig.Bind(Config);
             SmartCraftStorage.Stations.StationConfig.Bind(Config);
+            SmartCraftStorage.AnimalFeeder.AnimalFeederConfig.Bind(Config);
 
             InputManager.Instance.AddButton(PluginGuid, new ButtonConfig
             {
