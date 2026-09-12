@@ -14,7 +14,7 @@ namespace SmartCraftStorage.QuickStack
 
             if (containers.Count == 0)
             {
-                player.Message(MessageHud.MessageType.Center, "Nenhum baú próximo.");
+                player.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$smartcraft_no_chest_nearby"));
                 return;
             }
 
@@ -32,8 +32,8 @@ namespace SmartCraftStorage.QuickStack
             }
 
             player.Message(MessageHud.MessageType.Center, itemsMoved > 0
-                ? $"Guardado(s) {itemsMoved} item(ns) nos baús próximos."
-                : "Nada pra guardar nos baús próximos.");
+                ? Localization.instance.Localize("$smartcraft_quickstack_success", itemsMoved.ToString())
+                : Localization.instance.Localize("$smartcraft_quickstack_nothing"));
         }
 
         private static int MoveItemIntoMatchingStacks(Inventory playerInventory, ItemDrop.ItemData item, List<Container> containers)

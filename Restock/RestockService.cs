@@ -13,7 +13,7 @@ namespace SmartCraftStorage.Restock
             var itemNames = RestockList.GetAll(player);
             if (itemNames.Count == 0)
             {
-                player.Message(MessageHud.MessageType.Center, "Nenhum item marcado pra restock.");
+                player.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$smartcraft_restock_no_items_marked"));
                 return;
             }
 
@@ -28,8 +28,8 @@ namespace SmartCraftStorage.Restock
             }
 
             player.Message(MessageHud.MessageType.Center, restocked > 0
-                ? $"Restock: {restocked} item(ns) repostos."
-                : "Nada pra restockar nos baús próximos.");
+                ? Localization.instance.Localize("$smartcraft_restock_success", restocked.ToString())
+                : Localization.instance.Localize("$smartcraft_restock_nothing"));
         }
 
         private static int RestockOne(Inventory playerInventory, string itemName, List<Container> containers)
