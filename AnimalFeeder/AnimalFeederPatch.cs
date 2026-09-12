@@ -57,7 +57,7 @@ namespace SmartCraftStorage.AnimalFeeder
 
                     foreach (var candidate in chestInventory.GetAllItems())
                     {
-                        if (IsAccepted(__instance, candidate))
+                        if (candidate.m_dropPrefab != null && __instance.CanConsume(candidate))
                         {
                             match = candidate;
                             break;
@@ -78,6 +78,7 @@ namespace SmartCraftStorage.AnimalFeeder
 
                     var spawnPosition = creaturePosition + Vector3.up * 0.5f;
                     var spawned = ItemDrop.DropItem(match, 1, spawnPosition, Quaternion.identity);
+                    spawned.OnPlayerDrop();
                     __instance.m_consumeTarget = spawned;
                     return;
                 }
@@ -86,19 +87,6 @@ namespace SmartCraftStorage.AnimalFeeder
             {
                 UnityEngine.Debug.LogException(ex);
             }
-        }
-
-        private static bool IsAccepted(MonsterAI monsterAI, ItemDrop.ItemData item)
-        {
-            foreach (var consumeItem in monsterAI.m_consumeItems)
-            {
-                if (consumeItem.m_itemData.m_shared.m_name == item.m_shared.m_name)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }
