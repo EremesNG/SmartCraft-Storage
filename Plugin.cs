@@ -13,7 +13,7 @@ namespace SmartCraftStorage
     {
         public const string PluginGuid = "com.zellds.smartcraftstorage";
         public const string PluginName = "SmartCraft-Storage";
-        public const string PluginVersion = "0.1.0";
+        public const string PluginVersion = "0.1.1";
 
         // Jotunn's InputManager mutates ButtonConfig.Name to "<name>!<modGuid>" when it
         // registers the button into ZInput, and it only ever wires the Shortcut's MainKey
