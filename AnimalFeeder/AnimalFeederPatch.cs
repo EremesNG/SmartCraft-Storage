@@ -16,6 +16,16 @@ namespace SmartCraftStorage.AnimalFeeder
                     return;
                 }
 
+                if (__instance.m_nview == null || !__instance.m_nview.IsValid() || !__instance.m_nview.IsOwner())
+                {
+                    return;
+                }
+
+                if (__instance.m_consumeSearchTimer != 0f)
+                {
+                    return;
+                }
+
                 if (__instance.m_consumeItems == null || __instance.m_consumeItems.Count == 0)
                 {
                     return;
@@ -26,7 +36,7 @@ namespace SmartCraftStorage.AnimalFeeder
                     return;
                 }
 
-                var tameable = __instance.GetComponent<Tameable>();
+                var tameable = __instance.m_tamable;
                 if (tameable == null || !tameable.IsHungry())
                 {
                     return;
