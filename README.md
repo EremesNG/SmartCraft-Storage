@@ -3,8 +3,9 @@
 Mod pessoal para Valheim 1.0 que junta automação de armazenamento e de
 estações num único pacote: guardar itens em massa nos baús próximos,
 craftar/construir puxando material direto dos baús sem precisar abrir eles,
-e manter fogueira, forja, carvoaria e cozinha abastecidas e coletando
-sozinhas.
+manter fogueira, forja, carvoaria e cozinha abastecidas e coletando
+sozinhas, e alimentar automaticamente animais domesticáveis a partir de um
+baú próximo.
 
 Requer [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/)
 e [Jotunn](https://valheim.thunderstore.io/package/ValheimModding/Jotunn/).
@@ -27,8 +28,8 @@ o item) só enquanto o modificador estiver segurado.
 ## Baús próximos: como são escolhidos
 
 Toda automação deste mod (quick-stack, restock, crafting-de-baús-próximos,
-e as 4 estações) usa a mesma regra pra decidir quais baús contam como
-"próximos":
+as 4 estações, e a alimentação automática de animais) usa a mesma regra pra
+decidir quais baús contam como "próximos":
 
 - Dentro do raio configurado (ver seção de configuração)
 - Não é um caixão de jogador morto (`TombStone`)
@@ -122,10 +123,29 @@ caminho de código de uma interação manual, então o EXP de perícia e o
 bônus de rendimento continuam funcionando normalmente (ver observação
 sobre quem recebe o EXP acima).
 
+## Alimentação automática de animais
+
+Animais domesticáveis (javali, lobo, lox, e qualquer outro com o
+componente de domesticação do próprio jogo) que estiverem com fome puxam
+comida compatível de um baú próximo automaticamente — tanto durante o
+processo de domesticação de um bicho selvagem quanto depois, pra manter a
+reprodução ativa num curral. O mod cria o item de comida de verdade perto
+do bicho (não faz o bicho "ficar alimentado" magicamente): o animal anda
+até lá e come normalmente, com a mesma animação de sempre — só a origem da
+comida (baú em vez de você jogando no chão manualmente) é automática. Cada
+espécie só recebe o item que ela mesma aceita (a mesma lista que o jogo já
+usa pra decidir o que aquele bicho come).
+
+Atenção: essa automação também alimenta bichos selvagens ainda não
+domados, ou qualquer criatura domesticável que não esteja em modo de
+alerta/combate, desde que tenha um baú com comida compatível dentro do
+raio — não distingue "esse eu quero alimentar" de "esse tá só passando
+perto do baú".
+
 ## Configuração
 
 Todas as opções ficam no [Configuration Manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/)
-do BepInEx, divididas em três seções.
+do BepInEx, divididas em quatro seções.
 
 **Raios** (guardar/restock/craft-de-baú):
 
@@ -156,6 +176,13 @@ do BepInEx, divididas em três seções.
 | `KilnWoodBuffer` | 3 | Nível de madeira mantido na fila interna (não é a capacidade máxima) |
 | `KilnMaxCoalInChest` | 50 | Teto de carvão nos baús próximos antes de pausar reposição de madeira |
 | `KilnFeedStrategy` | `LeastFuelFirst` | Como escolher qual fundição próxima alimentar primeiro: `LeastFuelFirst` (menos combustível) ou `Nearest` (mais próxima) |
+
+**Animais** (alimentação automática):
+
+| Opção | Padrão | Descrição |
+|---|---|---|
+| `AnimalFeederRadius` | 20m | Raio em que animais domesticáveis famintos procuram comida em baús próximos |
+| `AnimalAutoFeed` | ligado | Animais domesticáveis puxam comida compatível de baús próximos automaticamente |
 
 Cada opção também tem uma descrição própria dentro do Configuration
 Manager.
