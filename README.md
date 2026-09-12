@@ -1,197 +1,203 @@
 # SmartCraft-Storage
 
-Mod pessoal para Valheim 1.0 que junta automação de armazenamento e de
-estações num único pacote: guardar itens em massa nos baús próximos,
-craftar/construir puxando material direto dos baús sem precisar abrir eles,
-manter fogueira, forja, carvoaria e cozinha abastecidas e coletando
-sozinhas, alimentar automaticamente animais domesticáveis a partir de um
-baú próximo, e reparar todo o equipamento de uma vez na bancada.
+A personal Valheim 1.0 mod that combines storage and station automation
+into one cohesive package: mass-stashing items into nearby chests,
+crafting/building with materials pulled straight from chests without
+opening them, keeping fireplaces, smelters, charcoal kilns and cooking
+stations fueled and self-collecting, automatically feeding tameable
+animals from a nearby chest, and repairing all your gear at once.
 
-Requer [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/)
-e [Jotunn](https://valheim.thunderstore.io/package/ValheimModding/Jotunn/).
+Requires [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/)
+and [Jotunn](https://valheim.thunderstore.io/package/ValheimModding/Jotunn/).
 
-## Atalhos
+- **Quick-stack:** Press `Shift + E` to stash matching items into nearby chests.
+- **Lock and restock:** `Alt + left-click` locks an item so quick-stack never moves it. `Alt + Ctrl + left-click` marks it for restock instead.
+- **Restock:** Press `Ctrl + E` to refill every marked item to a full stack from nearby chests, even from zero.
+- **Crafting and building:** Use materials from nearby chests within a configurable radius (default 20m) — no need to open them.
+- **Repair-all:** The station's Repair button fixes every repairable equipped item in one click instead of one at a time.
+- **Fuel and ingredients:** Fireplaces, smelters, charcoal kilns, and cooking stations pull fuel/ingredients from nearby chests and store their output automatically — each behavior toggleable on its own.
+- **Animal feeding:** Automatically feeds hungry tameable animals from nearby chests, taming or already-tamed.
 
-Todos os atalhos usam a tecla **E** como base, combinada com um modificador.
-Funcionam com o cursor livre (sem precisar estar com um baú aberto).
+## Hotkeys
 
-| Atalho | Ação |
+All hotkeys use **E** as the base key, combined with a modifier. They work
+with a free cursor (no need to have a chest open).
+
+| Hotkey | Action |
 |---|---|
-| `Shift + E` | **Quick-stack**: guarda os itens do seu inventário nos baús próximos que já têm aquele item. Itens travados (🔒) e equipados nunca são movidos. |
-| `Ctrl + E` | **Restock**: repõe do(s) baú(s) próximo(s) os itens marcados pra restock, até completar uma pilha cheia no seu inventário — mesmo que você não tenha nenhuma unidade daquele item ainda. |
-| `Alt + clique esquerdo` num item do inventário | Alterna o **lock** (🔒) daquele item — item travado nunca é movido pelo quick-stack. |
-| `Alt + Ctrl + clique esquerdo` num item do inventário | Alterna a marcação de **restock** (🔵) daquele item — define a lista que o `Ctrl+E` usa. |
+| `Shift + E` | **Quick-stack**: stashes items from your inventory into nearby chests that already contain that item. Locked (🔒) and equipped items are never moved. |
+| `Ctrl + E` | **Restock**: pulls from nearby chest(s) enough of each item marked for restock to fill a full stack in your inventory — even if you currently have none of that item. |
+| `Alt + left-click` on an inventory item | Toggles the **lock** (🔒) on that item — a locked item is never moved by quick-stack. |
+| `Alt + Ctrl + left-click` on an inventory item | Toggles the **restock** mark (🔵) on that item — defines the list `Ctrl+E` uses. |
 
-Os dois cliques com modificador substituem o clique normal (não abrem/movem
-o item) só enquanto o modificador estiver segurado.
+Both modifier-clicks replace the normal click (they don't open/move the
+item) only while the modifier is held.
 
-## Baús próximos: como são escolhidos
+## Nearby chests: how they're chosen
 
-Toda automação deste mod (quick-stack, restock, crafting-de-baús-próximos,
-as 4 estações, e a alimentação automática de animais) usa a mesma regra pra
-decidir quais baús contam como "próximos":
+Every automation in this mod (quick-stack, restock, crafting-from-nearby-
+chests, the 4 stations, and the automatic animal feeder) uses the same
+rule to decide which chests count as "nearby":
 
-- Dentro do raio configurado (ver seção de configuração)
-- Não é um caixão de jogador morto (`TombStone`)
-- Não está sendo usado por ninguém no momento (aberto por outro jogador)
-- Você tem permissão de acesso no baú (respeita público/privado/grupo)
-- O baú está dentro de uma área com Ward (proteção) que te dá acesso — baú
-  fora do seu ward, ou dentro do ward de outra pessoa sem permissão, é
-  ignorado
+- Within the configured radius (see the configuration section)
+- Not a dead player's coffin (`TombStone`)
+- Not currently in use by anyone else (open by another player)
+- You have access permission on the chest (respects public/private/group)
+- The chest is inside a Ward (protection) area that grants you access — a
+  chest outside your ward, or inside someone else's ward without
+  permission, is ignored
 
-Funciona em multiplayer: quando o mod precisa escrever num baú que
-pertence a outro jogador (ZDO owner diferente), ele reivindica a posse
-antes de mexer, do mesmo jeito que o próprio jogo faz quando você abre um
-baú manualmente.
+Works in multiplayer: when the mod needs to write to a chest owned by
+another player (different ZDO owner), it claims ownership before touching
+it, the same way the game itself does when you open a chest manually.
 
-## Guardar em massa (Quick-Stack)
+## Mass storage (Quick-Stack)
 
-`Shift + E` — pra cada item do seu inventário (exceto equipados e
-travados), procura um baú próximo que já tenha aquele item (mesmo nome e
-qualidade) e move pra lá. Primeiro completa as pilhas existentes no baú;
-se sobrar quantidade e o baú tiver espaço livre, cria uma pilha nova nele
-também. Só move pra um baú que **já contém** o item — não é um "guarda
-tudo", é achar onde aquele item já mora.
+`Shift + E` — for each item in your inventory (except equipped and locked
+items), looks for a nearby chest that already has that item (same name and
+quality) and moves it there. It tops off existing stacks in the chest
+first; if there's leftover quantity and the chest has free space, it
+creates a new stack there too. It only moves an item into a chest that
+**already contains** it — this isn't a "stash everything," it's "find
+where that item already lives."
 
-## Lock de item
+## Item lock
 
-`Alt + clique esquerdo` num item marca ele com uma borda laranja. Item
-travado nunca é movido pelo quick-stack, mesmo que exista um baú com aquele
-item por perto. Útil pra manter munição, comida ou material de construção
-sempre no seu inventário.
+`Alt + left-click` on an item marks it with an orange border. A locked
+item is never moved by quick-stack, even if a chest with that same item is
+nearby. Useful for keeping ammo, food, or building material always in your
+inventory.
 
 ## Restock
 
-Marque quais itens você quer manter sempre reabastecidos com
-`Alt + Ctrl + clique esquerdo` (marca com um ponto azul no canto do slot).
-Depois, `Ctrl + E` puxa desses baús próximos o suficiente de cada item
-marcado pra completar uma pilha cheia no seu inventário — mesmo que você
-esteja com zero daquele item. Exemplo: marca flecha e carne assada; toda
-vez que aperta `Ctrl+E`, enche seu inventário com essas duas coisas a
-partir do que tiver nos baús por perto.
+Mark which items you always want restocked with `Alt + Ctrl + left-click`
+(marks it with a blue dot in the corner of the slot). Then, `Ctrl + E`
+pulls enough of each marked item from nearby chests to fill a full stack
+in your inventory — even if you currently have zero of that item. Example:
+mark arrows and cooked meat; every time you press `Ctrl+E`, it fills your
+inventory with both from whatever's in nearby chests.
 
-## Craft e construção usando baús próximos
+## Crafting and building from nearby chests
 
-Ao craftar num banco de trabalho/forja/etc. ou ao construir (martelo em
-mãos), o jogo passa a enxergar os itens dos baús próximos como se
-estivessem no seu inventário — sem precisar abrir nenhum baú. A prioridade
-é sempre consumir primeiro o que você já carrega; só busca no baú o que
-faltar. A contagem mostrada na UI de craft também já soma os baús próximos.
+While crafting at a workbench/forge/etc. or building (hammer in hand), the
+game treats items in nearby chests as if they were in your inventory —
+without needing to open any chest. It always prioritizes consuming what
+you're already carrying first, only pulling from a chest for what's
+missing. The count shown in the crafting UI already includes nearby
+chests too.
 
-## Reparo em massa
+## Repair-all
 
-Na bancada (banco de trabalho, forja, etc.), o botão de **Reparar** conserta
-de uma vez todos os itens equipados que a bancada atual consegue reparar —
-sem precisar clicar várias vezes até esgotar. Respeita exatamente a mesma
-regra do vanilla (nível da bancada vs. nível mínimo exigido pelo item): item
-que precisa de uma bancada mais avançada continua não sendo reparado ali.
-Sem mensagem extra na tela nem configuração — só reparo instantâneo.
+At a crafting station (workbench, forge, etc.), the **Repair** button now
+fixes every equipped item the current station can repair in one go —
+instead of having to click repeatedly until nothing's left. It respects
+the exact same vanilla rule (station level vs. the item's minimum required
+level): an item that needs a more advanced station still won't get
+repaired there. No extra on-screen message, no configuration — just
+instant repair.
 
-## Estações automáticas
+## Automatic stations
 
-As 4 categorias de estação puxam material de baús próximos sozinhas e
-guardam o resultado em vez de derrubar no chão. Cada uma tem seu próprio
-raio e pode ser desligada individualmente (veja a tabela de configuração).
-O EXP de perícia (Cooking) da coleta automática de comida vai sempre para
-quem é dono da estação (normalmente quem construiu ou foi o primeiro a
-interagir com ela) — em multiplayer, não necessariamente quem está por
-perto ou estocou o ingrediente.
+The 4 station categories pull material from nearby chests on their own
+and store the output instead of dropping it on the ground. Each has its
+own radius and can be disabled individually (see the configuration
+table). Skill XP (Cooking) from automatic food collection always goes to
+whoever owns the station (typically whoever built it or interacted with
+it first) — in multiplayer, not necessarily whoever's nearby or supplied
+the ingredient.
 
-### Fogueira, tocha e lareira
+### Fireplace, torch and hearth
 
-Reabastece combustível (lenha, resina, etc.) puxando do baú mais próximo
-até encher, uma unidade por vez. Não tem buffer/fila — é só um tanque de
-combustível, então ele enche até o máximo sempre que há espaço.
+Refuels fuel (wood, resin, etc.) by pulling from the nearest chest until
+full, one unit at a time. It has no buffer/queue — it's just a fuel tank,
+so it tops up to the max whenever there's room.
 
-### Fundição (forja de minério)
+### Smelter (ore forge)
 
-Puxa minério e combustível dos baús próximos automaticamente e guarda a
-barra produzida no baú mais próximo com espaço. Se não sobrar espaço em
-nenhum baú, o restante cai no chão normalmente (comportamento padrão do
-jogo, sem duplicar nem perder o que já foi guardado).
+Automatically pulls ore and fuel from nearby chests and stores the
+produced bar in the nearest chest with space. If no chest has room left,
+the remainder drops on the ground as usual (default game behavior, with
+no duplication or loss of what was already stored).
 
-### Carvoaria
+### Charcoal kiln
 
-Mesmo raio da fundição (configurável junto). Diferente da fogueira, tem
-um **buffer** configurável (padrão: 3) — mantém só esse tanto de madeira na
-fila interna dela em vez de encher tudo de uma vez, deixando a produção em
-andamento terminar antes de pegar mais. Também tem um teto configurável de
-carvão acumulado nos baús próximos: passando desse teto, ela para de puxar
-madeira nova (sem interromper o que já está processando). O carvão
-produzido primeiro tenta alimentar fundições próximas que estejam com pouco
-combustível (estratégia configurável: priorizar a que tem menos combustível
-ou a mais próxima); só o que sobra vai pro baú.
+Same radius as the smelter (configured together). Unlike the fireplace, it
+has a configurable **buffer** (default: 3) — it only keeps that much wood
+in its internal queue instead of filling it all at once, letting ongoing
+production finish before pulling more. It also has a configurable cap on
+coal accumulated in nearby chests: past that cap, it stops pulling new
+wood (without interrupting what's already processing). The coal it
+produces first tries to feed nearby smelters that are low on fuel
+(configurable strategy: prioritize the one with the least fuel, or the
+nearest one); only the leftover goes to a chest.
 
-### Cozinha (espeto de fogueira, panela, etc.)
+### Cooking station (fire spit, cauldron, etc.)
 
-Puxa comida crua (e combustível próprio, se a estação usar) dos baús
-próximos e cozinha sozinha. Quando o item termina de cozinhar, coleta
-automaticamente e guarda no baú mais próximo — sem precisar interagir com a
-estação pra tirar a comida pronta. A coleta automática passa pelo mesmo
-caminho de código de uma interação manual, então o EXP de perícia e o
-bônus de rendimento continuam funcionando normalmente (ver observação
-sobre quem recebe o EXP acima).
+Pulls raw food (and its own fuel, if the station uses one) from nearby
+chests and cooks on its own. When an item finishes cooking, it's collected
+automatically and stored in the nearest chest — no need to interact with
+the station to take the finished food. Automatic collection goes through
+the same code path as a manual interaction, so skill XP and yield bonuses
+keep working normally (see the note above about who gets the XP).
 
-## Alimentação automática de animais
+## Automatic animal feeding
 
-Animais domesticáveis (javali, lobo, lox, e qualquer outro com o
-componente de domesticação do próprio jogo) que estiverem com fome puxam
-comida compatível de um baú próximo automaticamente — tanto durante o
-processo de domesticação de um bicho selvagem quanto depois, pra manter a
-reprodução ativa num curral. O mod cria o item de comida de verdade perto
-do bicho (não faz o bicho "ficar alimentado" magicamente): o animal anda
-até lá e come normalmente, com a mesma animação de sempre — só a origem da
-comida (baú em vez de você jogando no chão manualmente) é automática. Cada
-espécie só recebe o item que ela mesma aceita (a mesma lista que o jogo já
-usa pra decidir o que aquele bicho come).
+Tameable animals (boar, wolf, lox, and any other creature with the game's
+own taming component) that are hungry automatically pull compatible food
+from a nearby chest — both while taming a wild animal and afterward, to
+keep breeding active in a pen. The mod spawns the actual food item near
+the animal (it doesn't magically make the animal "fed"): the animal walks
+over and eats it normally, with the same animation as always — only the
+food's source (a chest instead of you manually dropping it) is automated.
+Each species only ever receives an item it actually accepts (the same list
+the game itself already uses to decide what that animal eats).
 
-Atenção: essa automação também alimenta bichos selvagens ainda não
-domados, ou qualquer criatura domesticável que não esteja em modo de
-alerta/combate, desde que tenha um baú com comida compatível dentro do
-raio — não distingue "esse eu quero alimentar" de "esse tá só passando
-perto do baú".
+Note: this automation also feeds wild animals that aren't tamed yet, or
+any tameable creature that isn't in alert/combat mode, as long as there's
+a chest with compatible food within range — it doesn't distinguish "this
+one I want to feed" from "this one's just passing by the chest."
 
-## Configuração
+## Configuration
 
-Todas as opções ficam no [Configuration Manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/)
-do BepInEx, divididas em quatro seções.
+All options live in BepInEx's [Configuration Manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/),
+split into four sections.
 
-**Raios** (guardar/restock/craft-de-baú):
+**Radii** (storage/restock/crafting-from-chest):
 
-| Opção | Padrão | Descrição |
+| Option | Default | Description |
 |---|---|---|
-| `QuickStackRadius` | 20m | Raio em que quick-stack e restock procuram baús |
-| `CraftingChestRadius` | 20m | Raio em que craft/construção considera itens de baús próximos |
+| `QuickStackRadius` | 20m | Radius in which quick-stack and restock search for chests |
+| `CraftingChestRadius` | 20m | Radius in which crafting/building considers items from nearby chests |
 
-**Estações** (raios e liga/desliga por comportamento):
+**Stations** (radii and per-behavior on/off):
 
-| Opção | Padrão | Descrição |
+| Option | Default | Description |
 |---|---|---|
-| `FireplaceRadius` | 10m | Raio de fogueiras/tochas/lareiras |
-| `SmelterKilnRadius` | 10m | Raio compartilhado entre fundição e carvoaria |
-| `CookingStationRadius` | 10m | Raio das estações de cozinha |
-| `FireplaceAutoRefuel` | ligado | Fogueiras puxam combustível automaticamente |
-| `SmelterAutoRefuel` | ligado | Fundições puxam minério/combustível automaticamente |
-| `SmelterAutoCollect` | ligado | Fundições guardam a produção no baú |
-| `KilnAutoRefuel` | ligado | Carvoarias puxam madeira automaticamente |
-| `KilnAutoCollect` | ligado | Carvoarias guardam/redirecionam o carvão produzido |
-| `CookingStationAutoRefuel` | ligado | Estações de cozinha puxam comida crua/combustível automaticamente |
-| `CookingStationAutoCollect` | ligado | Estações de cozinha coletam e guardam sozinhas |
+| `FireplaceRadius` | 10m | Radius for fireplaces/torches/hearths |
+| `SmelterKilnRadius` | 10m | Radius shared between smelters and charcoal kilns |
+| `CookingStationRadius` | 10m | Radius for cooking stations |
+| `FireplaceAutoRefuel` | on | Fireplaces automatically pull fuel |
+| `SmelterAutoRefuel` | on | Smelters automatically pull ore/fuel |
+| `SmelterAutoCollect` | on | Smelters store their output in a chest |
+| `KilnAutoRefuel` | on | Kilns automatically pull wood |
+| `KilnAutoCollect` | on | Kilns store/redirect the coal they produce |
+| `CookingStationAutoRefuel` | on | Cooking stations automatically pull raw food/fuel |
+| `CookingStationAutoCollect` | on | Cooking stations collect and store on their own |
 
-**Carvoaria** (ajuste fino específico dela):
+**Charcoal kiln** (kiln-specific tuning):
 
-| Opção | Padrão | Descrição |
+| Option | Default | Description |
 |---|---|---|
-| `KilnWoodBuffer` | 3 | Nível de madeira mantido na fila interna (não é a capacidade máxima) |
-| `KilnMaxCoalInChest` | 50 | Teto de carvão nos baús próximos antes de pausar reposição de madeira |
-| `KilnFeedStrategy` | `LeastFuelFirst` | Como escolher qual fundição próxima alimentar primeiro: `LeastFuelFirst` (menos combustível) ou `Nearest` (mais próxima) |
+| `KilnWoodBuffer` | 3 | Wood level kept in the internal queue (not the kiln's max capacity) |
+| `KilnMaxCoalInChest` | 50 | Coal cap in nearby chests before pausing new wood pulls |
+| `KilnFeedStrategy` | `LeastFuelFirst` | How to pick which nearby smelter to feed first: `LeastFuelFirst` or `Nearest` |
 
-**Animais** (alimentação automática):
+**Animals** (automatic feeding):
 
-| Opção | Padrão | Descrição |
+| Option | Default | Description |
 |---|---|---|
-| `AnimalFeederRadius` | 20m | Raio em que animais domesticáveis famintos procuram comida em baús próximos |
-| `AnimalAutoFeed` | ligado | Animais domesticáveis puxam comida compatível de baús próximos automaticamente |
+| `AnimalFeederRadius` | 20m | Radius in which hungry tameable animals search nearby chests for food |
+| `AnimalAutoFeed` | on | Tameable animals automatically pull compatible food from nearby chests |
 
-Cada opção também tem uma descrição própria dentro do Configuration
+Every option also has its own description inside the Configuration
 Manager.
