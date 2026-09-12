@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.2
+- Set the website link (GitHub repo) in the package metadata
+- Trimmed the README down to a quick reference; full docs moved to the wiki
+
 ## 0.1.1
 - Declared BepInExPack_Valheim as an explicit dependency (was only pulled transitively through Jotunn)
 
