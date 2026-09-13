@@ -29,6 +29,21 @@ rules exactly like opening a chest manually would, and claims ownership of
 a chest's ZDO before writing to it if another player currently owns it —
 the same mechanism the game itself uses.
 
+If the server also has this mod installed, its configuration wins: the
+server's settings are pushed to every client on connect, so everyone
+plays with the same radii and automations. Hotkeys are never synced. If
+the server doesn't have the mod, nothing is synced and your own settings
+apply as usual.
+
+## Why are my settings locked (or ignored) on a server?
+
+Because the server has this mod installed and sets them for everyone. Its
+values are pushed to you on connect and the entries are locked in the
+Configuration Manager unless you're a server admin. Your config file is
+never written to, and your own values come back when you disconnect.
+Hotkeys stay yours either way. Server admins can retune these live from
+in-game: an admin's edits go back to the server and out to everyone else.
+
 ## Why isn't a specific chest being used by the automation?
 
 Check, in order: is it within the configured radius? Is it currently open
