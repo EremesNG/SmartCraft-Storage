@@ -10,6 +10,12 @@ animals from a nearby chest, and repairing all your gear at once.
 Requires [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/)
 and [Jotunn](https://valheim.thunderstore.io/package/ValheimModding/Jotunn/).
 
+**Install this on your client, not the server.** Every feature runs
+client-side and is gated on there being a local player — a dedicated
+server never has one, so installing it there alone won't enable anything.
+Each player who wants the automation installs it on their own client; the
+server doesn't need it at all.
+
 - **Quick-stack:** Press `Shift + E` to stash matching items into nearby chests.
 - **Lock and restock:** `Alt + left-click` locks an item so quick-stack never moves it. `Alt + Ctrl + left-click` marks it for restock instead.
 - **Restock:** Press `Ctrl + E` to refill every marked item to a full stack from nearby chests, even from zero.

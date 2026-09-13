@@ -16,12 +16,18 @@ yet, the mod won't load at all.
 
 ## Does this work in multiplayer / on dedicated servers?
 
-Yes. Every automation respects ward/permission rules exactly like opening
-a chest manually would, and claims ownership of a chest's ZDO before
-writing to it if another player currently owns it — the same mechanism
-the game itself uses. On a dedicated server with no player logged in
-nearby, automation for that area simply doesn't run (nothing is actively
-simulated there), the same as vanilla behavior.
+Yes, but **install it on the client, not the server.** Every feature runs
+client-side and is gated on there being a local player — a headless
+dedicated server never has one, so installing the mod only on the server
+enables nothing at all, even with players connected. Each player who
+wants the automation installs it on their own client; the server doesn't
+need it. (It's harmless to also leave it on the server if it's already
+there — it just won't do anything on its own.)
+
+Once installed on the right side, every automation respects ward/permission
+rules exactly like opening a chest manually would, and claims ownership of
+a chest's ZDO before writing to it if another player currently owns it —
+the same mechanism the game itself uses.
 
 ## Why isn't a specific chest being used by the automation?
 
