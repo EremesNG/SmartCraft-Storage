@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+- Fixed a beehive item duplication bug: if the automatic honey collection could only partially fit the harvested honey into nearby chests, the leftover was also duplicated on the ground instead of just the leftover being dropped
+- Automatic beehive collection now leaves the honey queued in the hive (instead of dropping any of it) when no nearby chest can fit it all; manually interacting with the hive still drops the leftover on the ground as usual
+
 ## 0.4.1
 - Fixed a performance issue where crafting/building from nearby chests could re-scan for chests dozens of times per frame while the crafting panel or the build piece list was open, potentially stalling the host long enough to disconnect other players. Nearby-chest results are now cached for 0.1s and refreshed immediately after an actual consumption, instead of re-scanning on every check
 
