@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.4.1
+- Fixed a performance issue where crafting/building from nearby chests could re-scan for chests dozens of times per frame while the crafting panel or the build piece list was open, potentially stalling the host long enough to disconnect other players. Nearby-chest results are now cached for 0.1s and refreshed immediately after an actual consumption, instead of re-scanning on every check
+
 ## 0.4.0
 - Fermenters now auto-pull any mead/potion base from nearby chests and auto-collect the finished product once ready, with their own radius (`FermenterRadius`, max 25m) and an optional duration override (`FermenterDurationOverride`, 0 = keep the vanilla duration)
 - New experimental feature, off by default: `PlantAutoHarvest` auto-harvests ripe cultivated crops near the player into the nearest chest (its own radius, `PlantHarvestRadius`, max 25m); marked in test since the game only exposes one flag to tell a farmed crop apart from a wild pickable
