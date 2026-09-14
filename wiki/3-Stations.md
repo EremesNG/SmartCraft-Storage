@@ -56,3 +56,34 @@ As soon as a beehive has any honey ready, it's harvested automatically and
 stored in the nearest chest with space — no need to walk up and interact.
 If no nearby chest has room, the honey drops on the ground as usual
 (default game behavior, nothing is lost). Has its own configurable radius.
+
+## Fermenter
+
+Covers every base it can process — mead, all the resistances, poison
+resistance, anything defined by the fermenter itself, nothing hardcoded to
+a specific recipe. When empty (and already covered/not exposed to rain, so
+nothing is wasted on a base that can't progress yet), it pulls a
+compatible base from the nearest chest. When ready, it taps itself and
+stores the result in the nearest chest instead of dropping it on the
+ground; if no chest has room, it falls back to the ground like usual.
+
+Has its own radius (`FermenterRadius`, capped at 25m) and its own duration
+override: `FermenterDurationOverride` lets you set how long (in seconds) a
+fermenter takes to finish. Leave it at `0` to keep the fermenter's own
+vanilla duration untouched — that's the default, and it's guaranteed to
+match the real value since the mod simply doesn't touch it.
+
+## Plant harvest (in test, off by default)
+
+Unlike everything else on this page, this isn't a placed station — it
+watches for ripe, cultivated crops near the player and harvests them
+automatically into the nearest chest, the same partial-fallback-to-ground
+behavior as everywhere else if no chest has room.
+
+It's marked in test and shipped **off** on purpose: the game only exposes
+one flag to tell a cultivated crop apart from a wild pickable (mushroom,
+berry bush, loose rock), and that can't be double-checked outside of
+actually playing with it. Turn on `PlantAutoHarvest` and watch what it
+picks up before trusting it on a base you care about. Has its own radius,
+`PlantHarvestRadius`, capped at 25m, measured from the player instead of
+from a fixed structure.

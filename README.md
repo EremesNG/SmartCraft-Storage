@@ -23,7 +23,9 @@ server doesn't need it at all.
 - **Repair-all:** The station's Repair button fixes every repairable equipped item in one click instead of one at a time.
 - **Fuel and ingredients:** Fireplaces, smelters, charcoal kilns, and cooking stations pull fuel/ingredients from nearby chests and store their output automatically — each behavior toggleable on its own.
 - **Beehives:** Honey is harvested automatically as soon as it's ready and stored in the nearest chest, no need to visit the hive.
+- **Fermenter:** Automatically pulls any mead/potion base from nearby chests and stores the finished product once ready.
 - **Animal feeding:** Automatically feeds hungry tameable animals from nearby chests, taming or already-tamed.
+- **Plant harvest (in test, off by default):** Optionally auto-harvests ripe crops near the player into the nearest chest.
 
 ## Hotkeys
 

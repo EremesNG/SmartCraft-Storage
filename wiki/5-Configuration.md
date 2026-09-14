@@ -1,8 +1,8 @@
 # Configuration
 
 All options live in BepInEx's [Configuration Manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/),
-split into five sections. Every option also has its own description
-inside the Configuration Manager itself.
+split into sections. Every option also has its own description inside the
+Configuration Manager itself.
 
 On a server that also has this mod installed, every section except
 **Hotkeys** is set by the server: its values are pushed to each client on
@@ -34,6 +34,7 @@ mod, use your own settings throughout.
 | `SmelterKilnRadius` | 10m | Radius shared between smelters and charcoal kilns |
 | `CookingStationRadius` | 10m | Radius for cooking stations |
 | `BeehiveRadius` | 10m | Radius in which beehives search for a chest to store honey |
+| `FermenterRadius` | 10m (max 25m) | Radius in which fermenters search for bases and store the finished product |
 | `FireplaceAutoRefuel` | on | Fireplaces automatically pull fuel |
 | `SmelterAutoRefuel` | on | Smelters automatically pull ore/fuel |
 | `SmelterAutoCollect` | on | Smelters store their output in a chest |
@@ -42,6 +43,7 @@ mod, use your own settings throughout.
 | `CookingStationAutoRefuel` | on | Cooking stations automatically pull raw food/fuel |
 | `CookingStationAutoCollect` | on | Cooking stations collect and store on their own |
 | `BeehiveAutoCollect` | on | Beehives harvest honey on their own and store it in a chest |
+| `FermenterAutoProcess` | on | Fermenters auto-pull a base and auto-collect the finished product |
 
 ## Charcoal kiln (kiln-specific tuning)
 
@@ -58,3 +60,18 @@ mod, use your own settings throughout.
 |---|---|---|
 | `AnimalFeederRadius` | 20m | Radius in which hungry tameable animals search nearby chests for food |
 | `AnimalAutoFeed` | on | Tameable animals automatically pull compatible food from nearby chests |
+
+## Fermenter (fermenter-specific tuning)
+
+| Option | Default | Description |
+|---|---|---|
+| `FermenterDurationOverride` | 0 (off) | Override the fermenting time in seconds; `0` keeps the fermenter's own vanilla duration |
+
+## Plant Harvest (In Test)
+
+Off by default on purpose — see the note on the [Stations](3-Stations.md) page.
+
+| Option | Default | Description |
+|---|---|---|
+| `PlantHarvestRadius` | 10m (max 25m) | Radius around the player in which ripe crops are auto-harvested |
+| `PlantAutoHarvest` | **off** | Automatically harvests ripe cultivated crops near the player into the nearest chest |

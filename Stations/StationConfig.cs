@@ -14,6 +14,7 @@ namespace SmartCraftStorage.Stations
         public static ConfigEntry<float> SmelterKilnRadius;
         public static ConfigEntry<float> CookingStationRadius;
         public static ConfigEntry<float> BeehiveRadius;
+        public static ConfigEntry<float> FermenterRadius;
 
         public static ConfigEntry<bool> FireplaceAutoRefuel;
         public static ConfigEntry<bool> SmelterAutoRefuel;
@@ -23,11 +24,14 @@ namespace SmartCraftStorage.Stations
         public static ConfigEntry<bool> CookingStationAutoRefuel;
         public static ConfigEntry<bool> CookingStationAutoCollect;
         public static ConfigEntry<bool> BeehiveAutoCollect;
+        public static ConfigEntry<bool> FermenterAutoProcess;
 
         public static ConfigEntry<int> KilnWoodBuffer;
         public static ConfigEntry<int> KilnMaxCoalInChest;
         public static ConfigEntry<KilnFeedStrategy> KilnFeedStrategyConfig;
         public static ConfigEntry<bool> KilnRegularWoodOnly;
+
+        public static ConfigEntry<float> FermenterDurationOverride;
 
         public static void Bind(ConfigFile config)
         {
@@ -67,6 +71,15 @@ namespace SmartCraftStorage.Stations
                     new AcceptableValueRange<float>(0f, 100f),
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
+            FermenterRadius = config.Bind(
+                "Stations",
+                "FermenterRadius",
+                10f,
+                new ConfigDescription(
+                    "Radius (in meters) in which fermenters search nearby chests for mead/potion bases and to store the finished product.",
+                    new AcceptableValueRange<float>(0f, 25f),
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
+
             FireplaceAutoRefuel = config.Bind("Stations", "FireplaceAutoRefuel", true,
                 new ConfigDescription("Fireplaces/torches automatically pull fuel from nearby chests.",
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
@@ -90,6 +103,9 @@ namespace SmartCraftStorage.Stations
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             BeehiveAutoCollect = config.Bind("Stations", "BeehiveAutoCollect", true,
                 new ConfigDescription("Beehives harvest honey on their own as soon as it's ready and store it in the nearest chest, without needing to interact.",
+                    null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            FermenterAutoProcess = config.Bind("Stations", "FermenterAutoProcess", true,
+                new ConfigDescription("Fermenters automatically pull any mead/potion base from nearby chests (mead, resistances, etc.) and store the finished product in the nearest chest once ready.",
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             KilnWoodBuffer = config.Bind(
@@ -124,6 +140,15 @@ namespace SmartCraftStorage.Stations
                 new ConfigDescription(
                     "The kiln only pulls regular Wood from nearby chests, skipping Fine Wood and Core Wood (all three convert to coal at the same rate in vanilla, so burning the better ones is pure waste). Disable to let it pull any wood type it accepts.",
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+
+            FermenterDurationOverride = config.Bind(
+                "Fermenter",
+                "FermenterDurationOverride",
+                0f,
+                new ConfigDescription(
+                    "Overrides how long (in seconds) a fermenter takes to finish, for every base it processes. 0 means don't override: the fermenter keeps its own vanilla duration.",
+                    new AcceptableValueRange<float>(0f, 86400f),
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
         }
     }
 }

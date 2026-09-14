@@ -25,6 +25,7 @@ namespace SmartCraftStorage
             SmartCraftStorage.Stations.StationConfig.Bind(Config);
             SmartCraftStorage.AnimalFeeder.AnimalFeederConfig.Bind(Config);
             SmartCraftStorage.Hotkeys.HotkeyConfig.Bind(Config);
+            SmartCraftStorage.PlantHarvest.PlantHarvestConfig.Bind(Config);
 
             SmartCraftStorage.Translations.ModTranslations.Setup();
 
