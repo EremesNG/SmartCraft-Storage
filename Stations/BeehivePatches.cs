@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using HarmonyLib;
 using SmartCraftStorage.Shared;
 using UnityEngine;
@@ -6,6 +7,11 @@ namespace SmartCraftStorage.Stations
 {
     internal static class BeehivePatches
     {
+        // Set right before an auto-triggered Extract() call, and consumed (read and
+        // cleared) at the top of CollectRedirectPatch. Lets that patch tell apart an
+        // automatic collection from the player manually pressing E on the hive.
+        private static bool _autoTriggered;
+
         [HarmonyPatch(typeof(Beehive), "UpdateBees")]
         private static class AutoCollectTriggerPatch
         {
@@ -23,6 +29,7 @@ namespace SmartCraftStorage.Stations
                     int honeyLevel = __instance.GetHoneyLevel();
                     if (honeyLevel > 0)
                     {
+                        _autoTriggered = true;
                         __instance.Extract();
                         // Mirrors what a manual interaction does in Beehive.Interact(),
                         // so the "bees harvested" stat keeps tracking correctly.
@@ -41,6 +48,11 @@ namespace SmartCraftStorage.Stations
         {
             private static bool Prefix(Beehive __instance, long caller)
             {
+                // Always consume the flag exactly once per call, before any early
+                // return, so it can never leak into an unrelated later call.
+                bool isAutoTriggered = _autoTriggered;
+                _autoTriggered = false;
+
                 try
                 {
                     if (!StationConfig.BeehiveAutoCollect.Value)
@@ -70,6 +82,7 @@ namespace SmartCraftStorage.Stations
 
                     int remaining = totalHoney;
                     string itemName = __instance.m_honeyItem.m_itemData.m_shared.m_name;
+                    var stored = new List<(Container container, int amount)>();
 
                     foreach (var container in NearbyContainers.Find(__instance.transform.position, StationConfig.BeehiveRadius.Value, player))
                     {
@@ -90,6 +103,7 @@ namespace SmartCraftStorage.Stations
                         if (added > 0)
                         {
                             remaining -= added;
+                            stored.Add((container, added));
                         }
                     }
 
@@ -100,8 +114,36 @@ namespace SmartCraftStorage.Stations
                         return false;
                     }
 
-                    // No chest had room: fall back to vanilla, which drops everything on the ground.
-                    return true;
+                    if (isAutoTriggered)
+                    {
+                        // Couldn't fit everything nearby: undo whatever partial storage
+                        // just happened and leave the hive's honey queued as-is instead
+                        // of ever dropping any of it on the ground, where nobody may be
+                        // around to notice it despawn.
+                        foreach (var (container, amount) in stored)
+                        {
+                            container.GetInventory().RemoveItem(itemName, amount);
+                        }
+
+                        return false;
+                    }
+
+                    // Manual interaction: keep whatever was already stored above, and
+                    // drop only the leftover ourselves. RPC_Extract takes no adjustable
+                    // count to hand back to vanilla, so falling through here would
+                    // duplicate whatever was already stored.
+                    __instance.m_spawnEffect.Create(__instance.m_spawnPoint.position, Quaternion.identity);
+                    for (int i = 0; i < remaining; i++)
+                    {
+                        var offset = Random.insideUnitCircle * 0.5f;
+                        var position = __instance.m_spawnPoint.position + new Vector3(offset.x, 0.25f * i, offset.y);
+                        var spawned = Object.Instantiate(__instance.m_honeyItem, position, Quaternion.identity).GetComponent<ItemDrop>();
+                        spawned.SetStack(1);
+                        ItemDrop.OnCreateNew(spawned);
+                    }
+
+                    __instance.ResetLevel();
+                    return false;
                 }
                 catch (System.Exception ex)
                 {
