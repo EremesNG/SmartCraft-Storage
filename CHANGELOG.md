@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.0
+- Beehives now harvest honey automatically as soon as it's ready and store it in the nearest chest, no need to visit the hive (`BeehiveRadius`/`BeehiveAutoCollect`)
+- Charcoal kilns now default to pulling only regular Wood from nearby chests instead of any wood type, since Fine Wood and Core Wood convert to coal at the same rate and burning them was pure waste (configurable via `KilnRegularWoodOnly`)
+
 ## 0.2.0
 - Nearby chests are now searched nearest-first, so automations that stop at the first usable chest prefer the closest one (community contribution by [BearFlinn](https://github.com/Zellds/SmartCraft-Storage/pull/1))
 - Servers running this mod can now set gameplay config (radii, all station toggles, kiln settings, animal feeder) for every connecting client; hotkeys always stay per-player (community contribution by [BearFlinn](https://github.com/Zellds/SmartCraft-Storage/pull/2))
