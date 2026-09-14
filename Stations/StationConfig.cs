@@ -101,7 +101,7 @@ namespace SmartCraftStorage.Stations
             CookingStationAutoCollect = config.Bind("Stations", "CookingStationAutoCollect", true,
                 new ConfigDescription("Cooking stations collect finished food on their own and store it in the nearest chest, without needing to interact.",
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            BeehiveAutoCollect = config.Bind("Stations", "BeehiveAutoCollect", true,
+            BeehiveAutoCollect = config.Bind("Stations", "BeehiveAutoCollect", false,
                 new ConfigDescription("Beehives harvest honey on their own as soon as it's ready and store it in the nearest chest, without needing to interact.",
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             FermenterAutoProcess = config.Bind("Stations", "FermenterAutoProcess", true,

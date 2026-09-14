@@ -42,7 +42,7 @@ mod, use your own settings throughout.
 | `KilnAutoCollect` | on | Kilns store/redirect the coal they produce |
 | `CookingStationAutoRefuel` | on | Cooking stations automatically pull raw food/fuel |
 | `CookingStationAutoCollect` | on | Cooking stations collect and store on their own |
-| `BeehiveAutoCollect` | on | Beehives harvest honey on their own and store it in a chest |
+| `BeehiveAutoCollect` | off | Beehives harvest honey on their own and store it in a chest |
 | `FermenterAutoProcess` | on | Fermenters auto-pull a base and auto-collect the finished product |
 
 ## Charcoal kiln (kiln-specific tuning)

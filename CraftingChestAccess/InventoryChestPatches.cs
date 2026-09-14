@@ -30,7 +30,7 @@ namespace SmartCraftStorage.CraftingChestAccess
                         return;
                     }
 
-                    foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
+                    foreach (var container in NearbyChestCache.Get(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
                     {
                         __result += container.GetInventory().CountItems(name, quality, matchWorldLevel);
                     }
@@ -54,7 +54,7 @@ namespace SmartCraftStorage.CraftingChestAccess
                         return;
                     }
 
-                    foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
+                    foreach (var container in NearbyChestCache.Get(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
                     {
                         if (container.GetInventory().HaveItem(name, matchWorldLevel))
                         {
@@ -112,6 +112,7 @@ namespace SmartCraftStorage.CraftingChestAccess
                             chestInventory.RemoveItem(name, takeFromChest, itemQuality, worldLevelBased);
                             remaining -= takeFromChest;
                             amount += takeFromChest;
+                            NearbyChestCache.Invalidate();
                         }
                     }
                 }
