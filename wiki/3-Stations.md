@@ -34,6 +34,13 @@ produces first tries to feed nearby smelters that are low on fuel
 (configurable strategy: prioritize the one with the least fuel, or the
 nearest one); only the leftover goes to a chest.
 
+By default it only pulls regular Wood from nearby chests, never Fine Wood
+or Core Wood — the kiln converts all three to coal at the same rate, so
+burning the better ones is a straight waste. If a chest only has Fine
+Wood/Core Wood available, the kiln simply won't pull from it; keep some
+regular Wood nearby, or turn off `KilnRegularWoodOnly` to let it use
+whatever wood type is available.
+
 ## Cooking station (fire spit, cauldron, etc.)
 
 Pulls raw food (and its own fuel, if the station uses one) from nearby
@@ -42,3 +49,10 @@ automatically and stored in the nearest chest — no need to interact with
 the station to take the finished food. Automatic collection goes through
 the same code path as a manual interaction, so skill XP and yield bonuses
 keep working normally (see the note above about who gets the XP).
+
+## Beehive
+
+As soon as a beehive has any honey ready, it's harvested automatically and
+stored in the nearest chest with space — no need to walk up and interact.
+If no nearby chest has room, the honey drops on the ground as usual
+(default game behavior, nothing is lost). Has its own configurable radius.

@@ -33,6 +33,7 @@ mod, use your own settings throughout.
 | `FireplaceRadius` | 10m | Radius for fireplaces/torches/hearths |
 | `SmelterKilnRadius` | 10m | Radius shared between smelters and charcoal kilns |
 | `CookingStationRadius` | 10m | Radius for cooking stations |
+| `BeehiveRadius` | 10m | Radius in which beehives search for a chest to store honey |
 | `FireplaceAutoRefuel` | on | Fireplaces automatically pull fuel |
 | `SmelterAutoRefuel` | on | Smelters automatically pull ore/fuel |
 | `SmelterAutoCollect` | on | Smelters store their output in a chest |
@@ -40,6 +41,7 @@ mod, use your own settings throughout.
 | `KilnAutoCollect` | on | Kilns store/redirect the coal they produce |
 | `CookingStationAutoRefuel` | on | Cooking stations automatically pull raw food/fuel |
 | `CookingStationAutoCollect` | on | Cooking stations collect and store on their own |
+| `BeehiveAutoCollect` | on | Beehives harvest honey on their own and store it in a chest |
 
 ## Charcoal kiln (kiln-specific tuning)
 
@@ -48,6 +50,7 @@ mod, use your own settings throughout.
 | `KilnWoodBuffer` | 3 | Wood level kept in the internal queue (not the kiln's max capacity) |
 | `KilnMaxCoalInChest` | 50 | Coal cap in nearby chests before pausing new wood pulls |
 | `KilnFeedStrategy` | `LeastFuelFirst` | How to pick which nearby smelter to feed first: `LeastFuelFirst` or `Nearest` |
+| `KilnRegularWoodOnly` | on | Only pull regular Wood, skipping Fine Wood/Core Wood (all convert at the same rate) |
 
 ## Animals (automatic feeding)
 

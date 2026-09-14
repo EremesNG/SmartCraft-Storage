@@ -53,18 +53,43 @@ namespace SmartCraftStorage.Stations
                         break;
                     }
 
-                    if (!TryPullOneOre(smelter, containers))
+                    if (!TryPullOneOre(smelter, isKiln, containers))
                     {
                         break;
                     }
                 }
             }
 
-            private static bool TryPullOneOre(Smelter smelter, List<Container> containers)
+            private static bool TryPullOneOre(Smelter smelter, bool isKiln, List<Container> containers)
             {
+                ItemDrop requiredWood = null;
+                if (isKiln && StationConfig.KilnRegularWoodOnly.Value)
+                {
+                    requiredWood = KilnDetection.GetRegularWoodItem(smelter);
+                }
+
                 foreach (var container in containers)
                 {
                     var chestInventory = container.GetInventory();
+
+                    if (requiredWood != null)
+                    {
+                        string woodName = requiredWood.m_itemData.m_shared.m_name;
+                        if (!chestInventory.HaveItem(woodName))
+                        {
+                            continue;
+                        }
+
+                        if (!NearbyContainers.TryClaimWriteAccess(container))
+                        {
+                            continue;
+                        }
+
+                        chestInventory.RemoveItem(woodName, 1);
+                        smelter.m_nview.InvokeRPC("RPC_AddOre", requiredWood.gameObject.name, false);
+                        return true;
+                    }
+
                     var item = smelter.FindCookableItem(chestInventory);
                     if (item == null || !smelter.IsItemAllowed(item.m_dropPrefab.name))
                     {

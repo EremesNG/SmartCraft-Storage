@@ -19,5 +19,23 @@ namespace SmartCraftStorage.Stations
 
             return null;
         }
+
+        /// <summary>
+        /// The kiln's own "regular Wood" input, read straight from its actual conversion
+        /// list (not a guessed item name), so a differently configured kiln just falls
+        /// back to accepting any wood type instead of never pulling anything.
+        /// </summary>
+        public static ItemDrop GetRegularWoodItem(Smelter smelter)
+        {
+            foreach (var conversion in smelter.m_conversion)
+            {
+                if (conversion.m_from != null && conversion.m_from.gameObject.name == "Wood")
+                {
+                    return conversion.m_from;
+                }
+            }
+
+            return null;
+        }
     }
 }

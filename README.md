@@ -22,6 +22,7 @@ server doesn't need it at all.
 - **Crafting and building:** Use materials from nearby chests within a configurable radius (default 20m) — no need to open them.
 - **Repair-all:** The station's Repair button fixes every repairable equipped item in one click instead of one at a time.
 - **Fuel and ingredients:** Fireplaces, smelters, charcoal kilns, and cooking stations pull fuel/ingredients from nearby chests and store their output automatically — each behavior toggleable on its own.
+- **Beehives:** Honey is harvested automatically as soon as it's ready and stored in the nearest chest, no need to visit the hive.
 - **Animal feeding:** Automatically feeds hungry tameable animals from nearby chests, taming or already-tamed.
 
 ## Hotkeys

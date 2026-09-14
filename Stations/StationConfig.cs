@@ -13,6 +13,7 @@ namespace SmartCraftStorage.Stations
         public static ConfigEntry<float> FireplaceRadius;
         public static ConfigEntry<float> SmelterKilnRadius;
         public static ConfigEntry<float> CookingStationRadius;
+        public static ConfigEntry<float> BeehiveRadius;
 
         public static ConfigEntry<bool> FireplaceAutoRefuel;
         public static ConfigEntry<bool> SmelterAutoRefuel;
@@ -21,10 +22,12 @@ namespace SmartCraftStorage.Stations
         public static ConfigEntry<bool> KilnAutoCollect;
         public static ConfigEntry<bool> CookingStationAutoRefuel;
         public static ConfigEntry<bool> CookingStationAutoCollect;
+        public static ConfigEntry<bool> BeehiveAutoCollect;
 
         public static ConfigEntry<int> KilnWoodBuffer;
         public static ConfigEntry<int> KilnMaxCoalInChest;
         public static ConfigEntry<KilnFeedStrategy> KilnFeedStrategyConfig;
+        public static ConfigEntry<bool> KilnRegularWoodOnly;
 
         public static void Bind(ConfigFile config)
         {
@@ -55,6 +58,15 @@ namespace SmartCraftStorage.Stations
                     new AcceptableValueRange<float>(0f, 100f),
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
+            BeehiveRadius = config.Bind(
+                "Stations",
+                "BeehiveRadius",
+                10f,
+                new ConfigDescription(
+                    "Radius (in meters) in which beehives search nearby chests to store harvested honey.",
+                    new AcceptableValueRange<float>(0f, 100f),
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
+
             FireplaceAutoRefuel = config.Bind("Stations", "FireplaceAutoRefuel", true,
                 new ConfigDescription("Fireplaces/torches automatically pull fuel from nearby chests.",
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
@@ -75,6 +87,9 @@ namespace SmartCraftStorage.Stations
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             CookingStationAutoCollect = config.Bind("Stations", "CookingStationAutoCollect", true,
                 new ConfigDescription("Cooking stations collect finished food on their own and store it in the nearest chest, without needing to interact.",
+                    null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            BeehiveAutoCollect = config.Bind("Stations", "BeehiveAutoCollect", true,
+                new ConfigDescription("Beehives harvest honey on their own as soon as it's ready and store it in the nearest chest, without needing to interact.",
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             KilnWoodBuffer = config.Bind(
@@ -100,6 +115,14 @@ namespace SmartCraftStorage.Stations
                 "KilnFeedStrategy",
                 KilnFeedStrategy.LeastFuelFirst,
                 new ConfigDescription("How the kiln picks which nearby smelter to feed first with the coal it produces.",
+                    null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+
+            KilnRegularWoodOnly = config.Bind(
+                "Charcoal Kiln",
+                "KilnRegularWoodOnly",
+                true,
+                new ConfigDescription(
+                    "The kiln only pulls regular Wood from nearby chests, skipping Fine Wood and Core Wood (all three convert to coal at the same rate in vanilla, so burning the better ones is pure waste). Disable to let it pull any wood type it accepts.",
                     null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
         }
     }
