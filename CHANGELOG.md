@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.1
+- Fixed an edge case where undoing a partial automatic beehive collection (when a nearby chest couldn't fit everything) could remove honey that was already sitting in the chest instead of just the honey that had been added (community contribution by [ManuelROAL](https://github.com/Zellds/SmartCraft-Storage/pull/9))
+
 ## 0.5.0
 Community contribution by [uy8Uk4N56G](https://github.com/Zellds/SmartCraft-Storage/pull/6):
 - Further reduced stutter/freezing while crafting or building near chests, building on the fix from 0.4.1
