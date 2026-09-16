@@ -27,6 +27,7 @@ server doesn't need it at all.
 - **Fermenter:** Automatically pulls any mead/potion base from nearby chests and stores the finished product once ready.
 - **Animal feeding:** Automatically feeds hungry tameable animals from nearby chests, taming or already-tamed.
 - **Plant harvest (in test, off by default):** Optionally auto-harvests ripe crops near the player into the nearest chest.
+- **Epic Loot compatibility (optional):** If [Epic Loot](https://valheim.thunderstore.io/package/RandyKnapp/EpicLoot/) is also installed, the Enchanter can use materials from nearby chests too.
 
 ## Hotkeys
 

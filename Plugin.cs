@@ -6,6 +6,10 @@ namespace SmartCraftStorage
 {
     [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid)]
+    // Optional: if Epic Loot is present, we register as one of its inventory providers
+    // (see Integrations/EpicLootProvider.cs). Soft so the mod still loads fine without
+    // it; declaring it still orders our Awake() after Epic Loot's when both are present.
+    [BepInDependency("randyknapp.mods.epicloot", BepInDependency.DependencyFlags.SoftDependency)]
     // Gameplay settings are bound as admin-only so a server dictates them to its
     // clients. IfOnServer limits that to servers actually running this mod; the
     // default (Always) would also lock and reset them for players joining a server
@@ -15,7 +19,7 @@ namespace SmartCraftStorage
     {
         public const string PluginGuid = "com.zellds.smartcraftstorage";
         public const string PluginName = "SmartCraft-Storage";
-        public const string PluginVersion = "0.5.1";
+        public const string PluginVersion = "0.6.0";
 
         internal static Harmony HarmonyInstance;
 
@@ -28,6 +32,7 @@ namespace SmartCraftStorage
             SmartCraftStorage.PlantHarvest.PlantHarvestConfig.Bind(Config);
 
             SmartCraftStorage.Translations.ModTranslations.Setup();
+            SmartCraftStorage.Integrations.EpicLootProvider.Setup();
 
             HarmonyInstance = new Harmony(PluginGuid);
             HarmonyInstance.PatchAll();

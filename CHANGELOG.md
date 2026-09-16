@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.6.0
+- If you also have Epic Loot installed, the Enchanter can now use materials from nearby chests too, the same way crafting and building already do. Not required, only kicks in when Epic Loot is present
+
 ## 0.5.1
 - Fixed an edge case where undoing a partial automatic beehive collection (when a nearby chest couldn't fit everything) could remove honey that was already sitting in the chest instead of just the honey that had been added (community contribution by [ManuelROAL](https://github.com/Zellds/SmartCraft-Storage/pull/9))
 
