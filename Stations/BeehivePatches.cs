@@ -29,6 +29,11 @@ namespace SmartCraftStorage.Stations
                     int honeyLevel = __instance.GetHoneyLevel();
                     if (honeyLevel > 0)
                     {
+                        // TEMPORARY diagnostic for the "honey dropped instead of stored"
+                        // report. Remove once the cause is confirmed.
+                        Debug.Log($"[SmartCraftStorage] Beehive: auto-trigger firing, honeyLevel={honeyLevel}, "
+                            + $"position={__instance.transform.position}");
+
                         _autoTriggered = true;
                         __instance.Extract();
                         // Mirrors what a manual interaction does in Beehive.Interact(),
@@ -69,6 +74,10 @@ namespace SmartCraftStorage.Stations
                     var player = Player.m_localPlayer;
                     if (player == null)
                     {
+                        // TEMPORARY diagnostic for the "honey dropped instead of stored"
+                        // report. Remove once the cause is confirmed.
+                        Debug.Log("[SmartCraftStorage] Beehive: RPC_Extract fired with no local "
+                            + $"player (autoTriggered={isAutoTriggered}), falling back to vanilla drop.");
                         return true;
                     }
 
@@ -84,7 +93,14 @@ namespace SmartCraftStorage.Stations
                     string itemName = __instance.m_honeyItem.m_itemData.m_shared.m_name;
                     var stored = new List<(Container container, int amount)>();
 
-                    foreach (var container in NearbyContainers.Find(__instance.transform.position, StationConfig.BeehiveRadius.Value, player))
+                    // TEMPORARY diagnostic for the "honey dropped instead of stored"
+                    // report. Remove once the cause is confirmed.
+                    var nearbyContainers = new List<Container>(NearbyContainers.Find(__instance.transform.position, StationConfig.BeehiveRadius.Value, player));
+                    Debug.Log($"[SmartCraftStorage] Beehive: RPC_Extract autoTriggered={isAutoTriggered}, "
+                        + $"honeyLevel={honeyLevel}, totalHoney={totalHoney}, foundContainers={nearbyContainers.Count}, "
+                        + $"radius={StationConfig.BeehiveRadius.Value}, position={__instance.transform.position}");
+
+                    foreach (var container in nearbyContainers)
                     {
                         if (remaining <= 0)
                         {
@@ -116,10 +132,16 @@ namespace SmartCraftStorage.Stations
                         }
                     }
 
+                    // TEMPORARY diagnostic for the "honey dropped instead of stored"
+                    // report. Remove once the cause is confirmed.
+                    Debug.Log($"[SmartCraftStorage] Beehive: after storage attempt, remaining={remaining}, "
+                        + $"storedInto={stored.Count} container(s), autoTriggered={isAutoTriggered}");
+
                     if (remaining <= 0)
                     {
                         __instance.m_spawnEffect.Create(__instance.m_spawnPoint.position, Quaternion.identity);
                         __instance.ResetLevel();
+                        Debug.Log("[SmartCraftStorage] Beehive: fully stored, no drop.");
                         return false;
                     }
 
@@ -134,6 +156,8 @@ namespace SmartCraftStorage.Stations
                             container.GetInventory().RemoveItem(itemName, amount);
                         }
 
+                        Debug.Log("[SmartCraftStorage] Beehive: auto-triggered, couldn't fit everything, "
+                            + "rolled back partial storage, honey stays queued (no drop).");
                         return false;
                     }
 
@@ -141,6 +165,8 @@ namespace SmartCraftStorage.Stations
                     // drop only the leftover ourselves. RPC_Extract takes no adjustable
                     // count to hand back to vanilla, so falling through here would
                     // duplicate whatever was already stored.
+                    Debug.Log($"[SmartCraftStorage] Beehive: NOT auto-triggered (manual path), "
+                        + $"dropping {remaining} leftover on the ground.");
                     __instance.m_spawnEffect.Create(__instance.m_spawnPoint.position, Quaternion.identity);
                     for (int i = 0; i < remaining; i++)
                     {
