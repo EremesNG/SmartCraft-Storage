@@ -12,7 +12,7 @@ work with a free cursor (no need to have a chest open).
 |---|---|
 | `Shift + E` | **Quick-stack**: stashes items from your inventory into nearby chests that already contain that item. Locked (🔒) and equipped items are never moved. |
 | `Ctrl + E` | **Restock**: pulls from nearby chest(s) enough of each item marked for restock to fill a full stack in your inventory — even if you currently have none of that item. |
-| `Alt + left-click` on an inventory item | Toggles the **lock** (🔒) on that item — a locked item is never moved by quick-stack. |
+| `Alt + left-click` on an inventory item | Toggles the **lock** (🔒) on that stack — locked player stacks are not quick-stacked, and locked chest stacks are reserved from crafting and automatic station inputs. |
 | `Alt + Ctrl + left-click` on an inventory item | Toggles the **restock** mark (🔵) on that item — defines the list the restock hotkey uses. |
 
 Both modifier-clicks replace the normal click (they don't open/move the
@@ -52,10 +52,21 @@ where that item already lives."
 
 ## Item lock
 
-`Alt + left-click` on an item marks it with an orange border. A locked
-item is never moved by quick-stack, even if a chest with that same item is
-nearby. Useful for keeping ammo, food, or building material always in your
-inventory.
+`Alt + left-click` on a stack marks it with an orange border. In your player
+inventory, a locked stack is never moved by quick-stack. In a chest, a locked
+stack is also reserved from crafting, building, cooking, smelting, kiln and
+fireplace fuel, fermenting, and Epic Loot enchanting. Other unlocked stacks of
+the same material remain available. Manual transfers, restocking, animal
+feeding, and stacking station output keep their existing behavior.
+
+With a supported Epic Loot version, locked equipment is also excluded from the
+**Sacrifice** list, including items in your player inventory. Unlock an item and
+refresh the list to make it available again. If a selected item becomes locked
+before sacrifice finishes, the whole selection is canceled and refreshed;
+no selected items are consumed and no sacrifice materials or socketed gems are
+returned. Select the remaining unlocked items to continue. This protection is
+specific to Sacrifice; other player crafting and equipment operations retain
+their existing behavior.
 
 ## Restock
 
