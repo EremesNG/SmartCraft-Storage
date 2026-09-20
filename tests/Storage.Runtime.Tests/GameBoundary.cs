@@ -11,6 +11,8 @@ public struct ZDOID : IEquatable<ZDOID>
 {
     public static readonly ZDOID None = default;
     public int Generation, Number;
+    public ZDOID(long user, uint id) { Generation = (int)user; Number = (int)id; }
+    public override string ToString() => Generation + ":" + Number;
     public bool Equals(ZDOID other) => Generation == other.Generation && Number == other.Number;
     public override bool Equals(object other) => other is ZDOID id && Equals(id);
     public override int GetHashCode() => HashCode.Combine(Generation, Number);

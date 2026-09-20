@@ -113,6 +113,9 @@ public sealed class NetworkHarness : BaseUnityPlugin
                 "reconnect restores only unfinished work and requests fresh admission without the old delay");
             CheckServerProgress(socket, peer);
             CheckServerStatus(socket, peer);
+            LocalRecoveryScenario.Run(Check);
+            ParticipantRecoveryScenario.Run(Check);
+            DurableOrphanRecoveryScenario.Run(Check);
         }
         catch (Exception error) { _failures++; File.AppendAllText(_report, "ERROR " + error + "\n"); }
         File.AppendAllText(_report, "DONE failures=" + _failures + "\n");
@@ -163,6 +166,9 @@ public sealed class NetworkHarness : BaseUnityPlugin
         for (var i = 0; i < 100; i++) DeliverPlayerAck(routed, 456, 77, 0);
         Check(progress == 1, "duplicate participant receipts do not repeatedly bypass the retry deadline");
         DeliverPlayerAck(routed, 456, 77, 1);
+        Check(progress == 1 && !participant.Receipt("server-op").IsAccepted, "an unsolicited phase acknowledgement cannot advance a transaction");
+        participant.Apply("server-op", "");
+        DeliverPlayerAck(routed, 456, 77, 1);
         Check(progress == 2 && participant.Receipt("server-op").IsAccepted, "the next acknowledged phase can advance immediately");
         socket.QueuedBytes = 256 * 1024;
         var before = socket.Sent.Count;
@@ -182,6 +188,7 @@ public sealed class NetworkHarness : BaseUnityPlugin
 
     private void CheckServerStatus(RecordingSocket socket, ZNetPeer peer)
     {
+        LocalRecoveryScenario.SetupWorld();
         var routed = new ZRoutedRpc(true); routed.SetUID(ZDOMan.GetSessionID()); routed.AddPeer(peer);
         var service = new StorageService(() => new StorageSettings(true, 32f, 64, 128, 4), () => 0);
         socket.Sent.Clear(); socket.QueuedBytes = 0;
@@ -236,7 +243,7 @@ public sealed class NetworkHarness : BaseUnityPlugin
         Deliver(routed, sender, "SCS_StorageResult_v1", response);
     }
 
-    private static void Deliver(ZRoutedRpc routed, long sender, string method, ZPackage response)
+    internal static void Deliver(ZRoutedRpc routed, long sender, string method, ZPackage response)
     {
         var parameters = new ZPackage(); parameters.Write(response); parameters.SetPos(0);
         routed.HandleRoutedRPC(new ZRoutedRpc.RoutedRPCData
@@ -252,7 +259,7 @@ public sealed class NetworkHarness : BaseUnityPlugin
         File.AppendAllText(_report, (condition ? "PASS " : "FAIL ") + message + "\n");
     }
 
-    private sealed class RecordingSocket : ISocket
+    internal sealed class RecordingSocket : ISocket
     {
         public readonly List<byte[]> Sent = new List<byte[]>();
         public int QueuedBytes;

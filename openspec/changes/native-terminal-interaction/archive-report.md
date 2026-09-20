@@ -1,19 +1,13 @@
 # Archive Report: Native terminal interaction and reliable linking
 
-**Status**: deferred; change remains active
+**Status**: deferred; combined distribution checks pending
 
-T014 has no independent verdict because the required fresh Oracle could not be
-created (native agent thread limit reached). Therefore T015 is not executed,
-no requirement deltas are synchronized to openspec/specs, and this change is not
-moved to the archive. The previous 0.7.0 audit trail remains intact.
+Fresh `oracle_storage_busy_079_round2` returns independent PASS for the 0.7.9
+source, closes all three prior recovery findings and covers all FR/buildable SC.
+SC-007 local live acceptance and SC-008 matching two-client acceptance remain
+explicit residual risks. Earlier Oracle capacity failures remain historical.
 
-The 0.7.8 candidate adds bounded network recovery to the previous 0.7.7 fixes.
-Fresh oracle_storage_network_078_final again could not start because of the
-native thread limit. The user's matching-version server acceptance is pending;
-the pre-storage rollback comparison is diagnostic evidence, not a 0.7.8 PASS.
-
-The preceding 0.7.7 local test package (including native scrollbar baseline
-initialization, adaptive occupied-entry cells, native network weight, configurable
-Alt+N shortcut, search input gate and reliable toolbar clicks) and focused evidence are recorded in
-verify-report.md. Resume with a fresh Oracle and the user's local game results;
-repair any findings, verify the resulting candidate, then archive only on PASS.
+T026 still requires source/local-merge package integrity and combined tests.
+T031 preserves the newer ALT-lock changes in local-merge and requires independent
+review of any product conflict resolution. T015 will run only after those gates
+pass; no canonical deltas have yet been synchronized or audit trail moved.

@@ -20,7 +20,7 @@ namespace SmartCraftStorage
     {
         public const string PluginGuid = "com.zellds.smartcraftstorage";
         public const string PluginName = "SmartCraft-Storage";
-        public const string PluginVersion = "0.7.8";
+        public const string PluginVersion = "0.7.9";
 
         internal static Harmony HarmonyInstance;
 

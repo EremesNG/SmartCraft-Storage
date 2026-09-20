@@ -14,6 +14,9 @@ internal static class Program
         Cases.Add(("pooled ZDO objects cannot redirect a journal write into a chest", JournalIgnoresReusedObjects));
         Cases.Add(("world changes isolate records and returning reloads them", JournalSeparatesWorlds));
         Cases.Add(("display and installed layout retain complete item metadata", ItemRoundTrip));
+        Cases.Add(("journal preserves stable identities and requires durable writes", DurableIdentityScenarios.Run));
+        Cases.Add(("legacy root migration cannot identify a different object with a reused ID", LegacyReferenceScenarios.EmbeddedRootNeverClaimsReusedId));
+        Cases.Add(("legacy records keep unproven references unresolved without losing custody", LegacyReferenceScenarios.SeparateRecordsNeverClaimReusedId));
         var failed = 0;
         foreach (var test in Cases) { try { test.Body(); Console.WriteLine("PASS " + test.Name); } catch (Exception error) { failed++; Console.Error.WriteLine("FAIL " + test.Name + ": " + error.Message); } }
         Console.WriteLine($"{Cases.Count - failed}/{Cases.Count} passed");

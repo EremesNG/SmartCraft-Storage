@@ -44,7 +44,7 @@ spawn agents or mutate another lane's files.
 
 - [x] T012 Simplify and integrate both terminal-completed lanes for FR-001 through FR-008 and SC-001 through SC-006 in `Storage/UI/NativeTerminalInventory.cs` | Verify: no ownership overlap or unused compatibility path remains, both test executables and the composed plugin build pass.
 - [x] T013 Update correction metadata, operating instructions and installable package for FR-008 and SC-006 in `README.md` | Verify: native gestures, incompatible-slot behavior, single-player regression steps and remaining live risks match version 0.7.1 code and package.
-- [~] T014 Record fresh independent completeness/correctness/coherence verification for all FR and SC in `openspec/changes/native-terminal-interaction/verify-report.md` | Verify: every buildable criterion has actual evidence; live outcomes have observed PASS or explicit ID-matched RISK and actionable findings drive convergence.
+- [x] T014 Record fresh independent completeness/correctness/coherence verification for all FR and SC in `openspec/changes/native-terminal-interaction/verify-report.md` | Verify: every buildable criterion has actual evidence; live outcomes have observed PASS or explicit ID-matched RISK and actionable findings drive convergence.
 - [ ] T015 Archive only the independently passing correction and declared deltas in `openspec/changes/native-terminal-interaction/archive-report.md` | Verify: closeout validation and canonical requirement synchronization succeed without altering the prior archived audit trail.
 - [x] T016 [US1] Change network naming to configurable Alt+T for FR-001/FR-002/FR-008 and SC-001/SC-006 in `Hotkeys/HotkeyPatch.cs` | Verify: hovered eligible chest/terminal naming retains access gates, old Alt+E naming hook is absent, UI focus suppresses the action, configured help and the 0.7.2 package agree.
 - [x] T017 [US2] Resolve live finding UI-001 (partial FR-001: query succeeds but native cells are hidden) with a Unity regression fixture for FR-001/FR-008 and SC-003/SC-006/SC-007 in `Storage/UI/NativeTerminalInventory.cs` | Verify: reproduce native viewport collapse before the fix, render a usable native grid after external inset reapplication, preserve ordinary-chest layout on restoration, and package a separate correction without modifying the user's game installation.
@@ -57,7 +57,7 @@ spawn agents or mutate another lane's files.
 ## Convergence: NET-001 remote send saturation
 
 - [x] T023 [US3] Correct NET-001 (contradicts FR-007, partial FR-003/FR-008) with root-owned elapsed-time retries, admitted-request status polling and transport backpressure for SC-005/SC-006/SC-009 in `Storage/Runtime/StorageService.cs` | Verify: observe red before the fix at the clock/socket seams, preserve pending requests and custody, allow new authenticated progress, and keep repeated-frame traffic bounded on client and server.
-- [~] T024 [US3] Exercise NET-001 corrected runtime wiring and package the 0.7.8 source and local-merge candidates with root-owned tests/artifacts and fresh Oracle judgment for FR-008 and SC-006/SC-008/SC-009 in `openspec/changes/native-terminal-interaction/verify-report.md` | Verify: focused suites/build/Harmony/package checks pass, prior packages are retained, source branch remains isolated, remote live acceptance and unavailable independent review stay explicit.
+- [x] T024 [US3] Exercise NET-001 corrected runtime wiring and package the 0.7.8 source and local-merge candidates with root-owned tests/artifacts and fresh Oracle judgment for FR-008 and SC-006/SC-008/SC-009 in `openspec/changes/native-terminal-interaction/verify-report.md` | Verify: focused suites/build/Harmony/package checks pass, prior packages are retained, source branch remains isolated, remote live acceptance and unavailable independent review stay explicit.
 
 NET-001 evidence: user reports no error with the prior local-merge DLL installed
 on both client and server, unlike 0.7.7 with idle automatic processing. Diagnostic
@@ -72,6 +72,40 @@ oracle_storage_network_078_final failed to start (agent thread limit reached),
 so T024's independent judgment and T014/T015 remain open, not self-approved.
 The bounded deep implementation dispatch could not start (agent thread limit);
 root owns the same declared surfaces sequentially. T014/T015 remain open.
+
+## Convergence: BUSY-001 acknowledgements lost during recovery
+
+- [x] T025 [US3] Correct BUSY-001 (contradicts FR-003/FR-007, partial FR-008) for SC-005/SC-006/SC-009 with root-owned runtime acknowledgement lifetime and recovery wiring in `Storage/Runtime/StorageRpc.cs` | Verify: reproduce a complete local output delivery remaining busy across service resumes, then finish exactly once and release chest/station reservations; retain authentication, concurrent-operation isolation, owner-change recovery and 0.7.8 backoff.
+- [~] T026 [US3] Verify BUSY-001 against real native service/RPC participant lifecycles, existing suites, a fresh Oracle and source/local-merge 0.7.9 packages in `openspec/changes/native-terminal-interaction/verify-report.md` | Verify: preserve old packages and saves, distinguish synthetic execution from live acceptance, and obtain independent final findings before closeout.
+- [x] T027 [US3] Correct BUSY-001 durable-reference and orphan-custody recovery for FR-003/FR-006/FR-007 and SC-005/SC-006/SC-009 with deep-owned journal and service changes in `Storage/Runtime/StorageJournal.cs` | Verify: native world ID remapping preserves participant identity; journal availability gates mutations; exact profile/world capture proof permits bounded recovery, conflicting or absent proof preserves custody; fresh operations remain valid after identity stamping.
+
+T025 pre-fix evidence: actual native service Resume/GetOperation/IsBusy failed
+four assertions with a Preparing delivery after 40 recovery attempts. The RPC
+fix passes complete local delivery, conservation and release. A second qualified
+red proves applied receipts were ignored after reservations were released;
+that case now passes without replaying the inventory layout. Delayed replies,
+rebinds, interleaved operations, changed owners, runtime/anchor participants and
+the host player are exercised through native RPC dispatch. The current combined
+network fixture has 53 passing checks; final candidate validation is pending.
+
+T027 evidence: readonly native v41 parsing of copied Pruebas .46/.47 saves
+finds three applied captures, three matching prepare-only delivery reservations,
+and no matching journal records. Native Load remaps ZDO IDs; SCS string references
+remain stale. A separate readonly profile decode proves exact world/actor,
+pending output, profile escrow, source outbox and capture-data agreement for all
+three operations. Root owns artifacts and RPC tests; the deep recovery writer
+owns journal/service and unique durability fixtures. Diagnostic inspectors own
+only ignored helper directories. See evidence/busy-implementation-checks.md.
+
+User observes both chests and cooking stations permanently busy after entering
+the local test world with the matching 0.7.8 DLL. Root owns production/tests and
+artifacts for continuity. Independent oracle_storage_busy_local_diagnosis owns
+read-only code diagnosis; deep_busy_world_inspection owns only ignored diagnostic
+tooling and read-only saved-world evidence. Neither owns product edits.
+Oracle identifies acknowledgement HashSets discarded when ResumeTransaction
+rebinds participants; host output delivery also uses this remote RPC path.
+Root first tests the public service Resume/GetOperation/IsBusy and native
+inventory boundaries using a restored journal, not a mocked participant.
 
 ## Parallel execution
 
@@ -215,3 +249,43 @@ and explicit native initialization without mutating external private state.
 The 0.7.6 ZIP remains unchanged. Fresh oracle_native_terminal_077_final could
 not start because of the native agent thread limit; T014/T015 remain open and
 no independent verdict or corrected live-game PASS is claimed.
+
+## Convergence: BUSY-001 independent review round 1
+
+Fresh independent review `oracle_storage_busy_079_final` returned FAIL. The
+61 native checks pass but do not close the following three gaps. These are
+same-intent recovery corrections, not permission to broaden storage behavior.
+
+- [x] T028 [US3] Correct BUSY-079-001 (contradicts FR-003/FR-007, SC-005) with deep-owned restart-safe legacy cleanup in `Storage/Runtime/StorageService.cs` | Verify: a durable recovered effect without its cleanup record resumes and releases only proven reservations after a failure/restart between writes.
+- [x] T029 [US3] Correct BUSY-079-002 (contradicts FR-003/FR-006, SC-005) with deep-owned independently authenticated legacy custody in `Storage/Runtime/StorageService.cs` | Verify: host profile intent and escrow bind the actor independently of RPC fields; remote legacy claims without actor-bound source proof fail closed; future capture records persist actor/world proof.
+- [x] T030 [US3] Correct BUSY-079-003 (contradicts FR-003/FR-006/FR-007, SC-005) with root-owned missing-reference provenance handling in `Storage/Runtime/StorageJournal.cs` | Verify: loading a legacy transaction/effect without a stable reference trailer never binds or stamps a different object occupying its stale raw ID; unavailable references stay unresolved.
+
+T030 implementation evidence: two qualified behavior failures reproduce both
+embedded-root migration and separate legacy records resolving a reused raw ID.
+The corrected loader marks every unproven native reference unresolved before
+migration can persist it, preserving effect identity/custody and leaving the
+unrelated current object unstamped. Runtime suite now passes 7/7. See
+busy-legacy-reference-red.log and busy-legacy-reference-green.log. The independent
+finding remains subject to a fresh verification round; this checkbox records
+completed implementation evidence, not root approval of the composed candidate.
+
+T028/T029 implementation evidence: qualified native failures cover an incorrect
+persisted actor, a recovered effect missing cleanup, and future source authority.
+The service now records cleanup before reconstructed custody, reconstructs an
+interrupted cleanup from exact durable source evidence, and checks old delivery
+receipts beyond the active reservation set. Legacy host recovery compares the
+independently read saved intent/body/escrow/descriptor; RPC claims are not proof.
+New capture authority binds operation/world/actor in one fixed source field,
+matching the single current capture-intent field and clearing only its own
+operation. This avoids introducing a new per-output dictionary key. Root ran a
+qualified red/green refinement for that bounded source field. Native suite is
+67/67; Release has 0 errors/3 known warnings. Writer checks are complete;
+a fresh independent verdict and combined package checks remain pending.
+
+## Integration after independent source PASS
+
+Fresh `oracle_storage_busy_079_round2` closes BUSY-079-001/002/003 and approves
+all source FR/buildable SC, preserving live SC-007/008 risks. T014/T024/T025/T027
+now have independent evidence; T026 distribution checks and T015 closeout remain.
+
+- [~] T031 Preserve the independently updated local-merge ALT-lock, cart and overlay changes while integrating reviewed storage-net 0.7.9 for FR-006/FR-008 and SC-005/SC-006 in `Stations/CookingStationPatches.cs` | Verify: resolve any product conflicts without losing either protection, run storage/cart/overlay/protected-input/Epic Loot regressions and obtain a fresh independent judgment if product resolution is required.

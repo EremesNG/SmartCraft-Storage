@@ -416,8 +416,62 @@ installed into that game session and no 0.7.1 screenshot/gameplay PASS is claime
 
 ## Constitution Check (post-design)
 
+### BUSY-001 convergence (0.7.9)
+
+The matching 0.7.8 local test leaves ordinary chests and cooking stations busy.
+The independent diagnostic review finds that every recovery attempt rebinds
+remote participants while their acknowledgements are stored only in the replaced
+instances. Host processor outputs use this same path. Root owns bounded runtime
+and native fixture implementation because the ordered diagnosis/test context is
+already loaded; Oracle independently reviews and the isolated save inspector has
+a separate ignored-only diagnostic surface.
+
+First reproduce complete output recovery via StorageService Resume/GetOperation/
+IsBusy with native routed RPCs, real inventories and a pending effect/transaction.
+Then preserve acknowledgement progress across binding lifetimes, scoped to its
+operation, participant, actor and owner; completed phases must remain idempotent.
+Check local inline acknowledgements and delayed remote replies, interleaved
+operations, changed owners, already-applied receipts and reservation release.
+Do not clear locks by timeout, discard pending work, change saves, or remove
+permissions. Preserve 0.7.8 retry/backpressure behavior. Follow with fresh Oracle
+verification and matching source/combined 0.7.9 artifacts; live acceptance stays
+separate. Same-intent FR-003/007/008 correction; no new product choice or route.
+
+Readonly native save inspection also establishes that current Valheim world
+loads remap ZDO IDs while persisted SCS strings remain unchanged. The old
+capture and prepare markers survive, but their journals are absent. Delegate
+the disjoint journal/service persistence surface to a fresh deep specialist:
+gate native mutation on durable journal availability, persist stable object
+references, and recover legacy captured outputs only from matching profile and
+world custody evidence. Root retains RPC, fixture orchestration, artifact and
+integration ownership. No inspector or implementation may write live saves.
+Identity stamping must not invalidate the first operation's revision snapshot.
+Recovery must not reuse an old delivery ID or clear unrelated reservations.
+Missing or conflicting proof stays pending with no capture replay. Final Oracle
+must assess these additions together with the acknowledgement fix.
+
+Independent review round 1 failed BUSY-079-001/002/003. Root owns journal legacy
+reference provenance and runtime tests; a fresh deep specialist owns service
+cleanup restart safety, actor/world source proof and native orphan tests.
+Legacy producer-derived operation IDs contain no actor: never infer one from
+their numeric prefix. Missing independent host profile or actor-bound source
+proof must stop remote legacy recovery. Reconstruct interrupted cleanup only
+from persisted verified custody and exact operation markers, checking all known
+receipts before any new delivery. Missing reference trailers must never bless
+a raw ID that now points to another object. Obtain a fresh final Oracle verdict
+after these regressions and implementation corrections.
+
 - **User-value first**: PASS — the design removes select-plus-button transfers and directly repairs confirmed local acknowledgement and lifecycle failure paths.
 - **Simplicity and bounded scope**: PASS — it reuses native controls and existing finite transactions with one backward-compatible destination parameter; incompatible swap remains excluded.
 - **Testable contracts**: PASS — production planner, naming dispatch, journal APIs and native action/state seams have explicit red-first scenarios; live acceptance stays separate.
 - **Independent assurance**: PASS — deep/runtime and designer/UI own disjoint mutable surfaces after the root-frozen facade, with an explicit root fallback for unavailable capacity; a fresh Oracle reviews the composed change, including capability limits.
 - **Traceable delivery**: PASS — every FR maps to concrete files and tests; versioned package, prior failures and residual live risks will be retained in the audit trail.
+
+### Combined integration ownership after source PASS
+
+The target branch independently moved to 70ea14d and now includes issue-8
+ALT-lock input/crafting/Epic Loot protections alongside cart/overlay fixes.
+Root owns merge reconciliation and focused combined tests (T031); continuity
+outweighs a new implementation handoff. Preserve every unrelated protection and
+storage conservation/busy guard. Product conflict resolution requires a fresh
+Oracle integration review; the source PASS does not approve merge choices.

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.7.9
+
+- Fix processor transfers keeping chests and cooking stations occupied. Owner
+  confirmations now survive recovery retries, including immediate single-player
+  replies, and completed transfers release their reservations.
+- Recover completed inventory receipts without applying the same transfer again.
+- Preserve pending storage references when Valheim changes object IDs on world
+  reload. Start mutations only when their recovery journal is available.
+- Recover older captured processor outputs only when character and world custody
+  records agree; retain pending items when the proof is missing or inconsistent.
+  Legacy records without an actor-bound source require independent host-profile
+  proof; remote claims alone do not unlock them.
+
 ## 0.7.8
 
 - Limit storage recovery retries by elapsed time, with increasing delays up to

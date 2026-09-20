@@ -1,8 +1,77 @@
 # Verification Report: Native terminal interaction and reliable linking
 
-**Reviewer**: unavailable — native agent capacity<br>
-**Independent from implementer**: independent review was not executed<br>
-**Verdict**: NOT RUN — no final approval issued
+**Reviewer**: oracle_storage_busy_079_round2<br>
+**Independent from implementer**: Yes<br>
+**Verdict**: PASS — reviewed 0.7.9 source and recovery scope; combined distribution checks pending
+
+## Current independent review: BUSY-001 round 2
+
+Fresh read-only Oracle `oracle_storage_busy_079_round2` returned PASS for
+completeness, correctness and coherence. BUSY-079-001/002/003 are closed:
+cleanup is durable before recovered custody and reconstructs after interruption;
+legacy actor custody comes from independently verified host profile or exact
+operation/world/actor source authority; unproven native references become
+unresolved before migration can stamp a different object. No blocking product
+finding remains in the reviewed source.
+
+| Requirement | Independent result | Evidence |
+| --- | --- | --- |
+| FR-001 | PASS | Unchanged native terminal and prior focused presentation checks |
+| FR-002 | PASS | Naming path and contract checks |
+| FR-003 | PASS | Durable identity, cleanup, receipts, rebinds and journal gating |
+| FR-004 | PASS | Finite sequential deposit behavior retained |
+| FR-005 | PASS | Directed and automatic withdrawal contracts retained |
+| FR-006 | PASS | Exact custody, conservation, no replay and unresolved legacy references |
+| FR-007 | PASS | Bounded retries retained; pending, busy and final states distinguished |
+| FR-008 | PASS for source | Version/build/docs agree; final merged package equality pending |
+| SC-001 | PASS | Naming checks |
+| SC-002 | PASS | Stable references and world/manager replacement checks |
+| SC-003 | PASS | Projection and hydration guards |
+| SC-004 | PASS | Exact-slot checks |
+| SC-005 | PASS | 67 native checks include interruption, duplicate prevention and exact release |
+| SC-006 | PASS for source | 40 contracts, 7 runtime, 67 native checks; Release 0 errors/3 known warnings; 39 Harmony targets/5 lifecycle signatures |
+| SC-007 | RISK | Corrected 0.7.9 live local Steam/UI acceptance is unobserved |
+| SC-008 | RISK | Matching two-client Steam acceptance and live owner propagation are unobserved |
+| SC-009 | PASS | Timing, status polling, backpressure, authenticated progress and reconnect checks |
+
+The actual protected profile/world diagnostic confirms all three local orphan
+captures satisfy the reviewed host proof. This is readonly custody evidence,
+not observation of the corrected game. Remote legacy captures without actor-bound
+source proof intentionally remain pending. Native owner serialization preserves
+the newer identity marker; live replication remains an explicit SC-008 risk.
+
+Distribution still requires a clean merge, combined checks and exact package
+inspection. During review `local-merge` was independently reset/rebuilt at
+`70ea14db5e5b09e2cf348f8ee6ca71d9d2b5f937` with additional ALT-lock protections.
+Root must preserve those changes. Any product conflict resolution requires a
+fresh independent integration review rather than treating this as a mechanical
+merge. No candidate was installed and no live save was modified.
+
+## Historical independent review: BUSY-001 round 1
+
+Completeness and correctness FAIL; artifact/code coherence PASS. Native checks
+61/61, existing contracts 40/40 and Release 0 errors/3 known warnings establish
+the successful paths but do not close these independent findings:
+
+| ID | Severity | Dimension | Evidence | Remediation anchor |
+| --- | --- | --- | --- | --- |
+| BUSY-079-001 | HIGH | Restart safety | Recovered effect may persist without its cleanup record; LegacyCleanupComplete returns false forever | T028, service legacy cleanup |
+| BUSY-079-002 | HIGH | Authorization | RPC-supplied actor/world fields do not bind the original legacy actor; actual producer-derived IDs contain no actor | T029, independent host profile or source proof |
+| BUSY-079-003 | CRITICAL | Conservation/authorization | A missing reference trailer leaves stale raw IDs intact; legacy migration may stamp the wrong current object | T030, journal reference provenance |
+
+FR-003/FR-007 and SC-005 FAIL on 001/003; FR-006 FAIL on 003; permission boundary
+FAIL on 002. SC-009 and prior traffic limits PASS at the focused native seam.
+FR-008/SC-006, combined integration and final packaging remain pending. SC-007
+live UI and SC-008 Steam/two-client acceptance remain explicit RISK. Native
+owner snapshot deserialization preserves the newer server identity marker;
+the earlier hypothesized deletion is not supported by current evidence.
+
+The independent next action is to converge all three findings, add failure/
+restart, wrong-actor and missing-trailer/stale-valid-ID tests, rerun focused
+checks and obtain a fresh Oracle verdict. No candidate was installed or offered
+as independently passing.
+
+## Historical verification and capacity limits
 
 The fresh oracle_native_terminal_final dispatch returned `agent thread limit
 reached`. There is no Oracle result to persist. Root does not substitute its own

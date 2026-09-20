@@ -15,6 +15,8 @@ namespace SmartCraftStorage.Storage.Runtime
         private const string PendingRequestsKey = "scs.storage.pending.requests.v1";
         private const string PlayerEffectActiveKey = "scs.storage.effect.active.v1";
         private const string OperationSequenceKey = "scs.storage.operation.sequence.v1";
+        private const string ProfileProofMarker = "scs.storage.profile-proof.v1";
+        private const string CaptureAuthorityKey = "scs.storage.capture.authority.v1";
         internal const string CaptureIntentKey = "scs.storage.capture.intent.v1";
         private readonly Func<StorageSettings> _settings;
         private readonly StorageDiscovery _discovery = new StorageDiscovery();
@@ -114,6 +116,7 @@ namespace SmartCraftStorage.Storage.Runtime
             if (!Valid(context) || item == null || amount <= 0 || item.m_equipped || !PlayerOwnsItem(context.Actor, item)) return Reject(operationKey, amount, "Invalid deposit");
             var existing = Existing(operationKey); if (existing != null) return existing;
             var members = _discovery.Find(context, _settings()); if (_discovery.LastUnavailableReason.Length != 0) return Reject(operationKey, amount, _discovery.LastUnavailableReason); if (members.Count == 0) return Reject(operationKey, amount, "No available members");
+            EnsureStableIdentities(members.Select(x => x.m_nview.GetZDO()).Concat(ContextAnchors(context)));
             var plan = StoragePlanner.Deposit(members.Select(Snapshot), GameInventoryAdapter.ToStack(item, 0), amount);
             if (plan.Accepted == 0) return Confirm(operationKey, amount, 0, "Storage full");
             var playerBefore = PlayerSnapshot(context.Actor);
@@ -132,6 +135,7 @@ namespace SmartCraftStorage.Storage.Runtime
             var existing = Existing(operationKey); if (existing != null) return existing;
             var members = _discovery.Find(context, _settings());
             if (_discovery.LastUnavailableReason.Length != 0) return Reject(operationKey, amount, _discovery.LastUnavailableReason);
+            EnsureStableIdentities(members.Select(x => x.m_nview.GetZDO()).Concat(ContextAnchors(context)));
             var plan = StoragePlanner.Withdraw(members.Select(Snapshot), PlayerSnapshot(context.Actor), identity, amount, destinationSlot);
             if (plan.Accepted == 0) return Confirm(operationKey, amount, 0, "No item or player capacity");
             return ExecuteLayouts(operationKey, "withdraw", context.Actor, context.Anchor, members, plan.Inventories, amount, plan.Accepted);
@@ -142,7 +146,9 @@ namespace SmartCraftStorage.Storage.Runtime
             if (ZNet.instance != null && !ZNet.instance.IsServer()) return QueueSimple("organize", context, operationKey, package => { });
             if (!Valid(context) || context.Scope != StorageScope.Terminal) return Reject(operationKey, 0, "Organize requires a terminal context");
             var existing = Existing(operationKey); if (existing != null) return existing;
-            var members = _discovery.Find(context, _settings()); if (_discovery.LastUnavailableReason.Length != 0) return Reject(operationKey, 0, _discovery.LastUnavailableReason); var plan = StoragePlanner.Organize(members.Select(Snapshot));
+            var members = _discovery.Find(context, _settings()); if (_discovery.LastUnavailableReason.Length != 0) return Reject(operationKey, 0, _discovery.LastUnavailableReason);
+            EnsureStableIdentities(members.Select(x => x.m_nview.GetZDO()).Concat(ContextAnchors(context)));
+            var plan = StoragePlanner.Organize(members.Select(Snapshot));
             if (plan.Moves == 0) return Confirm(operationKey, 0, 0, "Already organized");
             return ExecuteLayouts(operationKey, "organize", context.Actor, context.Anchor, members, plan.Inventories, plan.Moves, plan.Moves);
         }
@@ -158,6 +164,7 @@ namespace SmartCraftStorage.Storage.Runtime
             var existing = Existing(operationKey); if (existing != null) return existing;
             var members = _discovery.Find(context, _settings()).ToList();
             if (_discovery.LastUnavailableReason.Length != 0) return Reject(operationKey, 0, _discovery.LastUnavailableReason);
+            EnsureStableIdentities(members.Select(x => x.m_nview.GetZDO()).Concat(ContextAnchors(context)));
             var sources = members.Select(Snapshot).ToList(); if (includePlayer) sources.Add(PlayerSnapshot(context.Actor));
             var final = sources.ToDictionary(x => x.Id, StringComparer.Ordinal); var escrowItems = new List<StorageStack>(); var requested = 0;
             foreach (var requirement in requirements ?? Array.Empty<StorageRequirement>())
@@ -202,6 +209,9 @@ namespace SmartCraftStorage.Storage.Runtime
                 captureEffect == null || !_effects.ContainsKey(captureEffect.Kind) || context.Anchor == null ||
                 !context.Anchor.IsValid() || !context.Anchor.IsOwner())
                 return Reject(operationKey, amount, "Producer owner unavailable");
+            if (ZNet.instance != null && ZNet.instance.IsServer() && !_journal.Available)
+                return Reject(operationKey, amount, "Durable storage journal unavailable");
+            if (ZNet.instance != null && ZNet.instance.IsServer()) StorageJournal.EnsureStableIdentity(context.Anchor.GetZDO());
             var existing = Existing(operationKey);
             if (existing != null) { Resume(operationKey); return GetOperation(operationKey); }
             var outbox = new StorageInventory("outbox:" + operationKey, "1", 1, 1,
@@ -217,6 +227,8 @@ namespace SmartCraftStorage.Storage.Runtime
                 PersistEscrow(context.Actor, operationKey, outbox, captureEffect);
                 context.Anchor.GetZDO().Set(OutputOutboxKey(operationKey), StorageRpc.Encode(outbox));
                 context.Anchor.GetZDO().Set(CaptureIntentKey, operationKey + "\n" + captureEffect.Data);
+                context.Anchor.GetZDO().Set(CaptureAuthorityKey,
+                    CaptureAuthority(operationKey, context.Actor.GetPlayerID()));
                 AddActiveEffect(context.Anchor.GetZDO(), operationKey);
                 return pending;
             }, () => ApplyLocalEffect(operationKey, StorageEffectStage.CapturePending, captureEffect, StorageRpc.Encode(outbox)),
@@ -244,7 +256,8 @@ namespace SmartCraftStorage.Storage.Runtime
             foreach (var encoded in _pendingRequests.Values)
             {
                 var intent = StorageRequestIntent.Decode(encoded);
-                if (!intent.MatchesTarget(WorldIdentity(), target, kind)) continue;
+                if (intent.WorldId != WorldIdentity() || (!string.IsNullOrEmpty(kind) && intent.Kind != kind) ||
+                    (intent.AnchorId != target && !HasOperationSourceMarker(participant.GetZDO(), intent.Id))) continue;
                 var pending = GetOperation(intent.Id);
                 if (!pending.IsFinal) return pending;
             }
@@ -310,6 +323,14 @@ namespace SmartCraftStorage.Storage.Runtime
                 participants.Add(_rpc.BindRemote(zdo, actorId, plan.ExpectedRevision, plan.ExpectedPayload, network, anchor));
             }
             if (participants == null || participants.Count == 0) return;
+            var normalizedPlans = record.Participants.Select(plan => NormalizePlanIdentity(plan)).ToList();
+            if (normalizedPlans.Where((plan, index) => plan.ParticipantId != record.Participants[index].ParticipantId ||
+                    plan.Payload != record.Participants[index].Payload || plan.ExpectedPayload != record.Participants[index].ExpectedPayload).Any())
+            {
+                record = new StorageTransactionRecord(record.Id, record.Kind, record.Status, normalizedPlans, record.Message,
+                    record.Requested, record.Accepted, record.ActorId);
+                if (!_journal.TrySave(record)) return;
+            }
             Remember(new StorageTransactions(_journal, participants).Resume(operationId));
         }
 
@@ -452,8 +473,41 @@ namespace SmartCraftStorage.Storage.Runtime
             (requirement.Identity == null || item.Identity == requirement.Identity) && item.SharedName == requirement.SharedName &&
             (requirement.Quality < 0 || item.Quality == requirement.Quality) && (requirement.WorldLevel < 0 || item.WorldLevel >= requirement.WorldLevel);
         private static bool IsEquippedAt(Player player, int slot) => player.GetInventory().GetAllItems().Any(x => x.m_equipped && x.m_gridPos.y * player.GetInventory().GetWidth() + x.m_gridPos.x == slot);
-        private bool Valid(StorageContext context) => Ready && context?.Actor != null &&
+        private bool Valid(StorageContext context) => Ready && context?.Actor != null && _journal.Available &&
             _journal.Pending.Count + _journal.PendingEffects.Count < _settings().MaxPendingOperations;
+
+        private static IEnumerable<ZDO> ContextAnchors(StorageContext context)
+        {
+            if (context?.Anchor != null && context.Anchor.IsValid()) yield return context.Anchor.GetZDO();
+        }
+
+        private static bool EnsureStableIdentities(IEnumerable<ZDO> zdos)
+        {
+            var changed = false;
+            foreach (var zdo in (zdos ?? Enumerable.Empty<ZDO>()).Where(x => x != null).GroupBy(x => x.m_uid).Select(x => x.First()))
+                changed |= StorageJournal.EnsureStableIdentity(zdo);
+            return changed;
+        }
+
+        private static StorageParticipantPlan NormalizePlanIdentity(StorageParticipantPlan plan)
+        {
+            if (plan == null || plan.ParticipantId.StartsWith("player:", StringComparison.Ordinal)) return plan;
+            return new StorageParticipantPlan(plan.ParticipantId, plan.ExpectedRevision,
+                NormalizeInventoryIdentity(plan.Payload, plan.ParticipantId),
+                NormalizeInventoryIdentity(plan.ExpectedPayload, plan.ParticipantId));
+        }
+
+        private static string NormalizeInventoryIdentity(string encoded, string participantId)
+        {
+            if (string.IsNullOrEmpty(encoded) || encoded == "anchor") return encoded;
+            try
+            {
+                var layout = StorageRpc.Decode(encoded);
+                if (layout.Id == participantId) return encoded;
+                return StorageRpc.Encode(new StorageInventory(participantId, layout.Revision, layout.Width, layout.Height, layout.Items));
+            }
+            catch { return encoded; }
+        }
         private StorageOperation Existing(string key)
         {
             if (string.IsNullOrEmpty(key)) return null;
@@ -484,11 +538,12 @@ namespace SmartCraftStorage.Storage.Runtime
             _operations.TryGetValue(operation.Id, out var previous);
             operation = StorageEffects.AcceptStatus(previous, operation);
             _operations[operation.Id] = operation;
-            if (ZNet.instance != null && ZNet.instance.IsServer() && operation.IsFinal && _journal.Load(operation.Id) == null && _journal.LoadEffect(operation.Id) == null)
+            if (ZNet.instance != null && ZNet.instance.IsServer() && operation.IsFinal && _journal.Available &&
+                _journal.Load(operation.Id) == null && _journal.LoadEffect(operation.Id) == null)
                 _journal.Save(new StorageTransactionRecord(operation.Id, "outcome", operation.Status, Array.Empty<StorageParticipantPlan>(),
                     operation.Message, operation.Requested, operation.Accepted));
             if (ZNet.instance != null && ZNet.instance.IsServer() && _requestPeers.TryGetValue(operation.Id, out var peer)) _rpc.Reply(peer, operation);
-            if (operation.IsFinal) { _requestPeers.Remove(operation.Id); _retries.Forget(operation.Id); }
+            if (operation.IsFinal) { _requestPeers.Remove(operation.Id); _retries.Forget(operation.Id); _rpc.ForgetProgress(operation.Id); }
             var excess = _operations.Count - (_settings().MaxPendingOperations + 256);
             if (excess > 0)
                 foreach (var retired in _operations.Values.Where(x => x.IsFinal).Take(excess).Select(x => x.Id).ToList()) _operations.Remove(retired);
@@ -748,6 +803,8 @@ namespace SmartCraftStorage.Storage.Runtime
         private static StorageOperation OperationFromEffect(StorageEffectRecord record) => StorageEffects.PublicStatus(record);
 
         private static string OutputOutboxKey(string operationId) => "scs.output.outbox.v1." + operationId;
+        private static string CaptureAuthority(string operationId, long actorId) =>
+            operationId + "\n" + WorldIdentity() + "\n" + actorId.ToString(CultureInfo.InvariantCulture);
 
         private static void AddActiveEffect(ZDO zdo, string operationId)
         {
@@ -770,6 +827,8 @@ namespace SmartCraftStorage.Storage.Runtime
             var active = new HashSet<string>((zdo.GetString(EffectActiveKey, "") ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.Ordinal);
             active.Remove(operationId); zdo.Set(EffectActiveKey, string.Join("\n", active.OrderBy(x => x, StringComparer.Ordinal)));
             zdo.Set(OutputOutboxKey(operationId), "");
+            if (zdo.GetString(CaptureAuthorityKey, "").StartsWith(operationId + "\n", StringComparison.Ordinal))
+                zdo.Set(CaptureAuthorityKey, "");
             if (zdo.GetString(CaptureIntentKey, "").StartsWith(operationId + "\n", StringComparison.Ordinal))
                 zdo.Set(CaptureIntentKey, "");
         }
@@ -975,13 +1034,18 @@ namespace SmartCraftStorage.Storage.Runtime
                     RequestStatus(id);
                     return;
                 }
-                var anchor = intent.AnchorId == "none" ? null : ResolveTarget(intent.AnchorId);
+                var anchor = ResolvePendingAnchor(intent);
                 if (intent.AnchorId != "none" && (anchor == null || !anchor.IsValid()))
                     throw new InvalidOperationException("Operation anchor is not loaded");
                 var context = new StorageContext(Player.m_localPlayer, new UnityEngine.Vector3(intent.X, intent.Y, intent.Z),
                     intent.Radius, intent.Scope, anchor);
-                var request = intent.Rebuild(() => CurrentRequestHeader(intent, context));
-                _rpc.Submit(new ZPackage(request));
+                var request = new ZPackage(intent.Rebuild(() => CurrentRequestHeader(intent, context)));
+                if (intent.Kind == "output")
+                {
+                    request.SetPos(request.Size()); request.Write(ProfileProofMarker); request.Write(intent.WorldId);
+                    request.Write(Player.m_localPlayer.GetPlayerID());
+                }
+                _rpc.Submit(request);
             }
             catch (Exception error)
             {
@@ -999,6 +1063,27 @@ namespace SmartCraftStorage.Storage.Runtime
         {
             var status = new ZPackage(); status.Write("status"); status.Write(id);
             _rpc.Submit(status);
+        }
+
+        private static ZNetView FindOperationSource(string operationId)
+        {
+            var matches = StorageJournal.WorldObjects().Where(x => HasOperationSourceMarker(x, operationId))
+                .Select(x => ZNetScene.instance != null ? ZNetScene.instance.FindInstance(x) : null)
+                .Where(x => x != null && x.IsValid()).Take(2).ToList();
+            return matches.Count == 1 ? matches[0] : null;
+        }
+
+        internal static ZNetView ResolvePendingAnchor(StorageRequestIntent intent) => intent == null ? null :
+            intent.Kind == "output" ? FindOperationSource(intent.Id) :
+            intent.AnchorId == "none" ? null : ResolveTarget(intent.AnchorId);
+
+        private static bool HasOperationSourceMarker(ZDO zdo, string operationId)
+        {
+            if (zdo == null || string.IsNullOrEmpty(operationId)) return false;
+            var active = (zdo.GetString(EffectActiveKey, "") ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            return active.Contains(operationId, StringComparer.Ordinal) &&
+                zdo.GetString(CaptureIntentKey, "").StartsWith(operationId + "\n", StringComparison.Ordinal) &&
+                !string.IsNullOrEmpty(zdo.GetString(OutputOutboxKey(operationId), ""));
         }
 
         private bool NeedsFreshOutputIntent(StorageEffectRecord effect) => effect == null ||
@@ -1127,22 +1212,20 @@ namespace SmartCraftStorage.Storage.Runtime
                 var context = new AuthorityContext(actor, origin, radius, scope, anchor, candidates, proofs);
                 if (!ValidateServerContext(context))
                 {
-                    if (kind == "output" && admitted == null)
-                    {
-                        var invalidOutput = StorageRpc.Decode(package.ReadString()).Items.Single(); var invalidAmount = package.ReadInt();
-                        var invalidCapture = ReadEffect(package); var invalidRemainder = ReadEffect(package); var invalidRequireAll = package.ReadBool();
-                        if (invalidCapture != null && invalidCapture.ActorId == actor.ActorId && anchor != null && invalidCapture.TargetId == anchor.m_uid.ToString() &&
-                            ValidateCapturedOutput(anchor, id, invalidOutput, invalidAmount))
-                        {
-                            var outbox = new StorageInventory("outbox:" + id, "1", 1, 1, new[] { invalidOutput.At(0, invalidAmount) });
-                            _journal.SaveEffect(new StorageEffectRecord(1, WorldIdentity(), id, actor.ActorId, invalidCapture.TargetId, AuthorityContextIdentity(context), invalidCapture, null,
-                                invalidRemainder, StorageRpc.Encode(outbox), DerivedOperationId(id, "delivery"), invalidAmount, 0, invalidAmount,
-                                StorageEffectStage.CapturePending, message: "Captured output awaits valid authority context", requireAll: invalidRequireAll));
-                            Remember(OperationFromEffect(_journal.LoadEffect(id))); return;
-                        }
-                    }
                     Remember(admitted ?? new StorageOperation(id, kind == "output" ? StorageOperationStatus.RecoveryPending : StorageOperationStatus.Rejected,
                         message: "Invalid or unavailable operation context", captured: kind == "output")); return;
+                }
+                if (!_journal.Available)
+                {
+                    Remember(admitted ?? new StorageOperation(id, kind == "output" ? StorageOperationStatus.RecoveryPending : StorageOperationStatus.Rejected,
+                        message: "Durable storage journal unavailable", captured: kind == "output")); return;
+                }
+                if (EnsureStableIdentities(context.Candidates.Select(x => x.Zdo)
+                    .Concat(context.TerminalProofs).Concat(context.Anchor != null ? new[] { context.Anchor } : Array.Empty<ZDO>())))
+                {
+                    Remember(new StorageOperation(id, StorageOperationStatus.Requested,
+                        message: "Durable participant identities initialized; retry with current revisions", captured: kind == "output"));
+                    return;
                 }
                 if (admitted == null && kind != "output" && _journal.Pending.Count + _journal.PendingEffects.Count >= _settings().MaxPendingOperations)
                 { Remember(new StorageOperation(id, StorageOperationStatus.Rejected, message: "Storage operation limit reached")); return; }
@@ -1183,6 +1266,8 @@ namespace SmartCraftStorage.Storage.Runtime
                 else if (kind == "output")
                 {
                     var output = StorageRpc.Decode(package.ReadString()).Items.Single(); var amount = package.ReadInt(); var capture = ReadEffect(package); var remainder = ReadEffect(package); var requireAll = package.ReadBool();
+                    if (package.GetPos() < package.Size() && package.ReadString() == ProfileProofMarker)
+                    { package.ReadString(); package.ReadLong(); }
                     Remember(PrepareRemoteOutput(id, context, playerSnapshot, output, amount, capture, remainder, requireAll));
                 }
                 else Remember(new StorageOperation(id, StorageOperationStatus.Rejected, message: "Unsupported request"));
@@ -1327,12 +1412,29 @@ namespace SmartCraftStorage.Storage.Runtime
         private StorageOperation PrepareRemoteOutput(string id, AuthorityContext context, StorageInventory player, StorageStack output,
             int amount, StorageEffectDescriptor capture, StorageEffectDescriptor remainder, bool requireAll)
         {
-            if (capture == null || capture.ActorId != context.Actor.ActorId || context.Anchor == null || capture.TargetId != context.Anchor.m_uid.ToString() ||
-                (remainder != null && (remainder.ActorId != context.Actor.ActorId || remainder.TargetId != capture.TargetId)) || amount <= 0 || output.Amount != amount ||
+            if (capture == null || capture.ActorId != context.Actor.ActorId || context.Anchor == null ||
+                (remainder != null && remainder.ActorId != context.Actor.ActorId) || amount <= 0 || output.Amount != amount ||
                 !ValidateCapturedOutput(context.Anchor, id, output, amount))
                 return new StorageOperation(id, StorageOperationStatus.RecoveryPending, amount, 0, amount, "Awaiting valid source capture state", true);
             var outbox = new StorageInventory("outbox:" + id, "1", 1, 1, new[] { output.At(0, amount) });
             var existing = _journal.LoadEffect(id);
+            var recoveredLegacy = false;
+            if (existing == null && capture.TargetId != context.Anchor.m_uid.ToString())
+            {
+                existing = RecoverLegacyCapturedOutput(id, context, output, amount, capture, remainder, requireAll);
+                if (existing == null)
+                    return new StorageOperation(id, StorageOperationStatus.RecoveryPending, amount, 0, amount,
+                        "Legacy captured output lacks exact durable recovery evidence", true);
+                recoveredLegacy = true;
+            }
+            if (existing != null && !LegacyCleanupComplete(existing))
+                return OperationFromEffect(existing.At(StorageEffectStage.Captured, message: "Releasing proven legacy reservations"));
+            if (recoveredLegacy) return OperationFromEffect(existing);
+            if (capture.TargetId != context.Anchor.m_uid.ToString())
+            {
+                capture = new StorageEffectDescriptor(capture.Kind, context.Anchor.m_uid.ToString(), capture.ActorId, capture.Data);
+                if (remainder != null) remainder = new StorageEffectDescriptor(remainder.Kind, capture.TargetId, remainder.ActorId, remainder.Data);
+            }
             var captured = existing ?? new StorageEffectRecord(1, WorldIdentity(), id, context.Actor.ActorId, capture.TargetId, AuthorityContextIdentity(context), capture, null, remainder,
                 StorageRpc.Encode(outbox), NextDeliveryId(id), amount, 0, amount, StorageEffectStage.CapturePending, requireAll: requireAll);
             if (existing == null) _journal.SaveEffect(captured);
@@ -1361,6 +1463,143 @@ namespace SmartCraftStorage.Storage.Runtime
         private static bool ValidateCapturedOutput(ZDO anchor, string operationId, StorageStack item, int amount)
         {
             try { var captured = StorageRpc.Decode(anchor.GetString(OutputOutboxKey(operationId), "")).Items.Single(); return captured.Amount == amount && captured.Identity == item.Identity; }
+            catch { return false; }
+        }
+
+        private StorageEffectRecord RecoverLegacyCapturedOutput(string id, AuthorityContext context, StorageStack output, int amount,
+            StorageEffectDescriptor capture, StorageEffectDescriptor remainder, bool requireAll)
+        {
+            var source = context.Anchor;
+            if (source == null || !HasIndependentCaptureAuthority(id, context, output, amount, capture, remainder,
+                    requireAll) ||
+                source.GetString(CaptureIntentKey, "") != id + "\n" + capture.Data ||
+                !(source.GetString(EffectActiveKey, "") ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Contains(id, StringComparer.Ordinal) || !ValidateCapturedOutput(source, id, output, amount) ||
+                !HasAppliedCaptureReceipt(source, id)) return null;
+
+            var oldDelivery = DerivedOperationId(id, "delivery-0");
+            if (!EnsureLegacyCleanup(oldDelivery, context.Actor.ActorId, source)) return null;
+
+            var currentTarget = source.m_uid.ToString();
+            var currentCapture = new StorageEffectDescriptor(capture.Kind, currentTarget, capture.ActorId, capture.Data);
+            var currentRemainder = remainder == null ? null : new StorageEffectDescriptor(remainder.Kind, currentTarget, remainder.ActorId, remainder.Data);
+            var outbox = new StorageInventory("outbox:" + id, "1", 1, 1, new[] { output.At(0, amount) });
+            var recovered = new StorageEffectRecord(1, WorldIdentity(), id, context.Actor.ActorId, currentTarget,
+                AuthorityContextIdentity(context), currentCapture, null, currentRemainder, StorageRpc.Encode(outbox),
+                DerivedOperationId(id, "delivery-1"), amount, 0, amount, StorageEffectStage.Captured,
+                new[] { "capture" }, "legacy-orphan-recovery", requireAll);
+            return _journal.TrySaveEffect(recovered) ? recovered : null;
+        }
+
+        private bool LegacyCleanupComplete(StorageEffectRecord record)
+        {
+            if (record == null || record.Message != "legacy-orphan-recovery") return true;
+            var oldDelivery = DerivedOperationId(record.OperationId, "delivery-0");
+            var cleanup = _journal.Load(oldDelivery);
+            if (cleanup == null)
+            {
+                var source = ResolveTarget(record.TargetId)?.GetZDO();
+                if (record.Capture == null || record.WorldId != WorldIdentity() || record.ActorId == 0L || source == null ||
+                    source.m_uid.ToString() != record.TargetId ||
+                    source.GetString(CaptureIntentKey, "") != record.OperationId + "\n" + record.Capture.Data ||
+                    !(source.GetString(EffectActiveKey, "") ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Contains(record.OperationId, StringComparer.Ordinal) ||
+                    !ValidateCapturedEscrow(source, record) || !HasAppliedCaptureReceipt(source, record.OperationId) ||
+                    !EnsureLegacyCleanup(oldDelivery, record.ActorId, source)) return false;
+                cleanup = _journal.Load(oldDelivery);
+            }
+            if (cleanup.Status != StorageOperationStatus.Rejected && cleanup.Status != StorageOperationStatus.Aborted)
+            { ResumeTransaction(oldDelivery); cleanup = _journal.Load(oldDelivery); }
+            return cleanup != null && (cleanup.Status == StorageOperationStatus.Rejected || cleanup.Status == StorageOperationStatus.Aborted);
+        }
+
+        private bool EnsureLegacyCleanup(string oldDelivery, long actorId, ZDO source)
+        {
+            var existing = _journal.Load(oldDelivery);
+            if (existing == null)
+            {
+                var world = StorageJournal.WorldObjects().ToList();
+                if (world.Any(x => HasParticipantReceipt(x, oldDelivery))) return false;
+                var reservations = world.Where(x => x.GetString("scs.storage.active.v1", "") == oldDelivery).ToList();
+                if (reservations.Count == 0) return false;
+                var plans = reservations.Select(zdo => new StorageParticipantPlan(zdo.m_uid.ToString(),
+                    zdo.DataRevision.ToString(), zdo == source ? "anchor" : "legacy-reservation")).ToList();
+                existing = new StorageTransactionRecord(oldDelivery, "legacy-orphan", StorageOperationStatus.RecoveryPending,
+                    plans, "Abort pending: recovered prepare-only reservation", actorId: actorId);
+                if (!_journal.TrySave(existing)) return false;
+            }
+            if (existing.Status != StorageOperationStatus.Rejected && existing.Status != StorageOperationStatus.Aborted)
+            { ResumeTransaction(oldDelivery); existing = _journal.Load(oldDelivery); }
+            return existing != null && (existing.Status == StorageOperationStatus.Rejected || existing.Status == StorageOperationStatus.Aborted);
+        }
+
+        private static bool ValidateCapturedEscrow(ZDO source, StorageEffectRecord record)
+        {
+            try
+            {
+                var sourceOutbox = source.GetString(OutputOutboxKey(record.OperationId), "");
+                return sourceOutbox == record.Escrow && StorageRpc.Decode(sourceOutbox).Items.Sum(x => x.Amount) == record.Requested;
+            }
+            catch { return false; }
+        }
+
+        private static bool HasIndependentCaptureAuthority(string id, AuthorityContext context, StorageStack output, int amount,
+            StorageEffectDescriptor capture, StorageEffectDescriptor remainder, bool requireAll)
+        {
+            if (context.Anchor.GetString(CaptureAuthorityKey, "") == CaptureAuthority(id, context.Actor.ActorId)) return true;
+            if (context.Actor.PeerId != ZDOMan.GetSessionID() || Player.m_localPlayer == null ||
+                Player.m_localPlayer.GetPlayerID() != context.Actor.ActorId) return false;
+
+            var player = Player.m_localPlayer;
+            if (!TryReadPersistedIntent(player, id, out var intent) || intent.Kind != "output" || intent.Id != id ||
+                intent.WorldId != WorldIdentity() || intent.AnchorId != capture.TargetId) return false;
+            var encodedOutbox = StorageRpc.Encode(new StorageInventory("outbox:" + id, "1", 1, 1,
+                new[] { output.At(0, amount) }));
+            var body = new ZPackage(); body.Write(encodedOutbox); body.Write(amount);
+            WriteEffect(body, capture); WriteEffect(body, remainder); body.Write(requireAll);
+            if (!intent.Body.SequenceEqual(body.GetArray())) return false;
+            var escrowKey = EscrowPrefix + id;
+            var effectKey = escrowKey + ".effect";
+            return player.m_customData.TryGetValue(escrowKey, out var escrow) && escrow == encodedOutbox &&
+                   player.m_customData.TryGetValue(effectKey, out var effect) && effect == EncodeEffect(capture);
+        }
+
+        private static bool TryReadPersistedIntent(Player player, string id, out StorageRequestIntent intent)
+        {
+            intent = null;
+            if (player == null || !player.m_customData.TryGetValue(PendingRequestsKey, out var persisted) || string.IsNullOrEmpty(persisted)) return false;
+            try
+            {
+                using (var reader = new System.IO.BinaryReader(new System.IO.MemoryStream(Convert.FromBase64String(persisted))))
+                {
+                    var count = reader.ReadInt32(); if (count < 0 || count > 1024) return false;
+                    for (var i = 0; i < count; i++)
+                    {
+                        var candidateId = reader.ReadString(); var length = reader.ReadInt32();
+                        if (length < 0 || length > 8 * 1024 * 1024) return false;
+                        var encoded = reader.ReadBytes(length); if (encoded.Length != length) return false;
+                        var candidate = StorageRequestIntent.Decode(encoded);
+                        if (candidateId == id && candidate.Id == id) { intent = candidate; return true; }
+                    }
+                }
+            }
+            catch { return false; }
+            return false;
+        }
+
+        private static bool HasAppliedCaptureReceipt(ZDO source, string operationId)
+        {
+            var receipt = operationId + ":" + StorageEffectStage.CapturePending;
+            var receipts = ReadEffectReceipts(source);
+            return (receipts.TryGetValue(receipt, out var persisted) && persisted.Applied) ||
+                ReadEffectReceiptWatermarks(source).Contains(ReceiptWatermarkId(operationId, StorageEffectStage.CapturePending));
+        }
+
+        private static bool HasParticipantReceipt(ZDO zdo, string operationId)
+        {
+            if ((zdo.GetString("scs.storage.receipts.v1", "") ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                .Contains(operationId, StringComparer.Ordinal)) return true;
+            try { return new StorageReplayFilter(zdo.GetString("scs.storage.receipt.watermarks.v1", "")).Contains(operationId); }
             catch { return false; }
         }
 

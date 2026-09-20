@@ -67,6 +67,9 @@ As a player, I can search, organize and use bulk actions while confirmed invento
 3. **Given** a bulk transfer, **When** one step is pending or the UI closes, **Then** only the submitted operation persists and unsubmitted entries are not moved; later steps require confirmed preceding results and fresh capacity.
 4. **Given** ordinary chests, crafting, processing and direct quick-stack, **When** the terminal UI is used or closed, **Then** prior finite-network, permission, compaction and direct-feature boundaries remain intact.
 5. **Given** delayed or lost remote replies, **When** automatic stations and UI updates resume pending work, **Then** retries use elapsed time instead of frame rate, admitted requests poll status without repeating inventory snapshots, and a congested connection defers retryable payloads while preserving operation identity and custody.
+6. **Given** an output delivery with inline or delayed owner acknowledgements, **When** recovery rebuilds its participants, **Then** authenticated phase receipts survive that rebind and a confirmed delivery releases both chest and source reservations exactly once.
+7. **Given** a saved world whose native ZDO identifiers change during load, **When** pending work resumes, **Then** durable participant references reconnect to the same objects; legacy captured output may be recovered only from matching world, actor, pending intent, escrow and native custody proofs. Missing or conflicting evidence must not clear reservations or replay capture.
+8. **Given** that the durable operation journal is unavailable, **When** a new mutation is requested, **Then** no native capture or participant reservation starts with only an in-memory record.
 
 ## Edge cases
 

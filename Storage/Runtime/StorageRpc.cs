@@ -29,6 +29,7 @@ namespace SmartCraftStorage.Storage.Runtime
         private const string ReceiptWatermarksKey = "scs.storage.receipt.watermarks.v1";
         private const string PlayerEffectActiveKey = "scs.storage.effect.active.v1";
         private readonly Dictionary<string, IStorageTransactionParticipant> _participants = new Dictionary<string, IStorageTransactionParticipant>(StringComparer.Ordinal);
+        private readonly Dictionary<string, Dictionary<string, ParticipantProgress>> _progress = new Dictionary<string, Dictionary<string, ParticipantProgress>>(StringComparer.Ordinal);
         private ZRoutedRpc _registeredRpc;
         internal Action<long, ZPackage> RequestReceived;
         internal Action<StorageOperation> ResultReceived;
@@ -43,12 +44,13 @@ namespace SmartCraftStorage.Storage.Runtime
             EnsureRegistered();
         }
 
-        internal void ResetParticipants() => _participants.Clear();
+        internal void ResetParticipants() { _participants.Clear(); _progress.Clear(); }
+        internal void ForgetProgress(string operationId) => _progress.Remove(operationId);
 
         internal void EnsureRegistered()
         {
             if (ZRoutedRpc.instance == null || ReferenceEquals(_registeredRpc, ZRoutedRpc.instance)) return;
-            _participants.Clear();
+            ResetParticipants();
             TryRegister(PrepareRpc, OnPrepare);
             TryRegister(ApplyRpc, OnApply);
             TryRegister(ReleaseRpc, OnRelease);
@@ -150,11 +152,10 @@ namespace SmartCraftStorage.Storage.Runtime
         {
             if (ZNet.instance == null || !ZNet.instance.IsServer()) return;
             var operationId = package.ReadString(); var actorId = package.ReadLong(); var phase = package.ReadInt(); var accepted = package.ReadBool();
-            var peer = ZNet.instance.GetPeers().FirstOrDefault(x => x.m_uid == sender && x.m_playerID == actorId);
-            if (peer == null || !_participants.TryGetValue("player:" + actorId, out var value)) return;
-            var changed = value is PlayerParticipant participant ? participant.Acknowledge(operationId, phase, accepted)
-                : value is RemotePlayerParticipant remote && remote.Acknowledge(operationId, phase, accepted);
-            if (changed) ProgressReceived?.Invoke(operationId);
+            var local = sender == ZDOMan.GetSessionID() && Player.m_localPlayer != null && Player.m_localPlayer.GetPlayerID() == actorId;
+            var peer = ZNet.instance.GetPeers().FirstOrDefault(x => x.m_uid == sender && x.m_playerID == actorId && x.IsReady());
+            if (!local && peer == null) return;
+            Acknowledge(operationId, "player:" + actorId, sender, phase, accepted, "Player preparation rejected", actorId);
         }
         private void OnEffectApply(long sender, ZPackage package)
         {
@@ -214,33 +215,33 @@ namespace SmartCraftStorage.Storage.Runtime
             foreach (var container in containers)
             {
                 var id = StorageDiscovery.Id(container.m_nview);
-                var participant = new RuntimeParticipant(container, actor, container.m_nview.GetZDO().GetString(StorageFacade.NetworkNameKey, ""));
+                var participant = new RuntimeParticipant(this, container, actor, container.m_nview.GetZDO().GetString(StorageFacade.NetworkNameKey, ""));
                 _participants[id] = participant; bound.Add(participant);
             }
             return bound;
         }
         internal IStorageTransactionParticipant BindAnchor(ZNetView anchor, Player actor)
         {
-            var participant = new AnchorParticipant(anchor, actor);
+            var participant = new AnchorParticipant(this, anchor, actor);
             _participants[participant.Id] = participant;
             return participant;
         }
         internal IStorageTransactionParticipant BindPlayer(Player actor, string expectedRevision = null, string expectedPayload = "")
         {
             var id = "player:" + actor.GetPlayerID();
-            var participant = new PlayerParticipant(actor, expectedRevision, expectedPayload);
+            var participant = new PlayerParticipant(this, actor, expectedRevision, expectedPayload);
             _participants[id] = participant;
             return participant;
         }
         internal IStorageTransactionParticipant BindRemote(ZDO zdo, long actorId, string expectedRevision,
             string expectedPayload, string expectedNetworkName, bool anchor = false)
         {
-            var participant = new RemoteParticipant(zdo, actorId, expectedRevision, expectedPayload, expectedNetworkName, anchor);
+            var participant = new RemoteParticipant(this, zdo, actorId, expectedRevision, expectedPayload, expectedNetworkName, anchor);
             _participants[participant.Id] = participant; return participant;
         }
         internal IStorageTransactionParticipant BindRemotePlayer(long actorId, long peerId, string expectedRevision, string expectedPayload)
         {
-            var participant = new RemotePlayerParticipant(actorId, peerId, expectedRevision, expectedPayload);
+            var participant = new RemotePlayerParticipant(this, actorId, peerId, expectedRevision, expectedPayload);
             _participants[participant.Id] = participant; return participant;
         }
         internal IStorageTransactionParticipant Find(string id) { _participants.TryGetValue(id, out var value); return value; }
@@ -258,7 +259,7 @@ namespace SmartCraftStorage.Storage.Runtime
             var view = zdo != null ? ZNetScene.instance?.FindInstance(zdo) : null;
             var container = view != null ? view.GetComponent<Container>() : null;
             if (container == null || actor == null) return null;
-            var participant = new RuntimeParticipant(container, actor, zdo.GetString(StorageFacade.NetworkNameKey, ""));
+            var participant = new RuntimeParticipant(this, container, actor, zdo.GetString(StorageFacade.NetworkNameKey, ""));
             _participants[id] = participant; return participant;
         }
         internal bool Busy(ZNetView view) => view != null && view.IsValid() && !string.IsNullOrEmpty(view.GetZDO().GetString(ActiveKey, ""));
@@ -293,14 +294,16 @@ namespace SmartCraftStorage.Storage.Runtime
             var id = package.ReadZDOID(); var view = Resolve(id); var operationId = package.ReadString(); var actorId = package.ReadLong(); var payload = package.ReadString();
             var container = view != null ? view.GetComponent<Container>() : null;
             var anchor = payload == "anchor";
-            if (view == null || !view.IsOwner() || view.GetZDO().GetString(ActiveKey, "") != operationId ||
+            if (view == null || !view.IsOwner()) return;
+            // A completed receipt remains valid after release or owner migration.
+            // Reply without touching the inventory or a newer reservation.
+            if (RuntimeParticipant.HasReceipt(view.GetZDO(), operationId))
+            { SendParticipantAck(operationId, id.ToString(), 1, true, ""); return; }
+            if (view.GetZDO().GetString(ActiveKey, "") != operationId ||
                 (anchor ? !StorageAccess.HasWardAccess(view.transform.position, actorId) : container == null || !StorageAccess.CanUse(container, actorId))) return;
             var receipts = RuntimeParticipant.ReadReceipts(view.GetZDO());
-            if (!RuntimeParticipant.HasReceipt(view.GetZDO(), operationId))
-            {
-                try { if (!anchor) GameInventoryAdapter.ApplyLayout(container.GetInventory(), Decode(payload)); receipts.Add(operationId); RuntimeParticipant.WriteReceipts(view.GetZDO(), receipts); }
-                catch (Exception error) { ZLog.LogWarning("[SmartCraft-Storage] Owner apply remains pending: " + error.Message); }
-            }
+            try { if (!anchor) GameInventoryAdapter.ApplyLayout(container.GetInventory(), Decode(payload)); receipts.Add(operationId); RuntimeParticipant.WriteReceipts(view.GetZDO(), receipts); }
+            catch (Exception error) { ZLog.LogWarning("[SmartCraft-Storage] Owner apply remains pending: " + error.Message); }
             var applied = RuntimeParticipant.HasReceipt(view.GetZDO(), operationId);
             SendParticipantAck(operationId, id.ToString(), 1, applied, applied ? "" : "Apply pending");
         }
@@ -320,10 +323,8 @@ namespace SmartCraftStorage.Storage.Runtime
             if (ZNet.instance == null || !ZNet.instance.IsServer()) return;
             var id = package.ReadZDOID(); var operationId = package.ReadString(); var accepted = package.ReadBool();
             var zdo = ZDOMan.instance?.GetZDO(id);
-            if (zdo == null || zdo.GetOwner() != sender || !_participants.TryGetValue(id.ToString(), out var value)) return;
-            var changed = value is RuntimeParticipant participant ? participant.AcknowledgeRelease(operationId, accepted)
-                : value is RemoteParticipant remote && remote.Acknowledge(operationId, 2, accepted, "");
-            if (changed) ProgressReceived?.Invoke(operationId);
+            if (zdo == null || zdo.GetOwner() != sender) return;
+            Acknowledge(operationId, id.ToString(), sender, 2, accepted, "Release pending");
         }
 
         private void OnParticipantAck(long sender, ZPackage package)
@@ -331,8 +332,62 @@ namespace SmartCraftStorage.Storage.Runtime
             if (ZNet.instance == null || !ZNet.instance.IsServer()) return;
             var operationId = package.ReadString(); var participantId = package.ReadString(); var phase = package.ReadInt();
             var accepted = package.ReadBool(); var message = package.ReadString();
-            if (!_participants.TryGetValue(participantId, out var value) || !(value is RemoteParticipant participant) || participant.Owner != sender) return;
-            if (participant.Acknowledge(operationId, phase, accepted, message)) ProgressReceived?.Invoke(operationId);
+            Acknowledge(operationId, participantId, sender, phase, accepted, message);
+        }
+
+        // Bindings are rebuilt from the journal on each recovery attempt. Receipts
+        // belong to the operation and participant, not to one binding instance.
+        private ParticipantProgress Progress(string operationId, string participantId, long actorId, long owner, ZDO zdo = null)
+        {
+            if (!_progress.TryGetValue(operationId, out var participants))
+                _progress[operationId] = participants = new Dictionary<string, ParticipantProgress>(StringComparer.Ordinal);
+            if (!participants.TryGetValue(participantId, out var value) || value.Owner != owner ||
+                value.ActorId != actorId || !ReferenceEquals(value.Zdo, zdo))
+                participants[participantId] = value = new ParticipantProgress(actorId, owner, zdo);
+            return value;
+        }
+
+        private StorageParticipantResult Exchange(string operationId, string participantId, long actorId, long owner,
+            int phase, string method, ZPackage package, ZDO zdo = null)
+        {
+            var progress = Progress(operationId, participantId, actorId, owner, zdo);
+            var result = progress.Result(phase);
+            if (result.IsAccepted || result.IsRejected) return result;
+            progress.Requested[phase] = true;
+            Send(owner, method, package);
+            return progress.Result(phase); // Self-routed acknowledgements can arrive inline.
+        }
+
+        private void Acknowledge(string operationId, string participantId, long sender, int phase, bool accepted,
+            string message, long? actorId = null)
+        {
+            if (phase < 0 || phase > 2 || !_progress.TryGetValue(operationId, out var participants) ||
+                !participants.TryGetValue(participantId, out var progress) || progress.Owner != sender ||
+                (actorId.HasValue && progress.ActorId != actorId.Value)) return;
+            if (progress.Zdo != null && (ZDOMan.instance?.GetZDO(progress.Zdo.m_uid) != progress.Zdo || progress.Zdo.GetOwner() != sender)) return;
+            if (progress.Acknowledge(phase, accepted, message)) ProgressReceived?.Invoke(operationId);
+        }
+
+        private sealed class ParticipantProgress
+        {
+            internal readonly long ActorId, Owner;
+            internal readonly ZDO Zdo;
+            internal readonly bool[] Requested = new bool[3];
+            private readonly bool[] _accepted = new bool[3];
+            private bool _prepareRejected;
+            private string _rejection = "";
+            internal ParticipantProgress(long actorId, long owner, ZDO zdo) { ActorId = actorId; Owner = owner; Zdo = zdo; }
+            internal StorageParticipantResult Result(int phase) => _accepted[phase] ? StorageParticipantResult.Accepted()
+                : phase == 0 && _prepareRejected ? StorageParticipantResult.Rejected(_rejection)
+                : StorageParticipantResult.Unknown(phase == 0 ? "Awaiting participant preparation" : phase == 1 ? "Awaiting participant receipt" : "Awaiting participant release");
+            internal bool Acknowledge(int phase, bool accepted, string message)
+            {
+                if (!Requested[phase] || _accepted[phase] || (phase == 0 && _prepareRejected)) return false;
+                if (accepted) { _accepted[phase] = true; return true; }
+                // An unsuccessful apply/release is retryable, not permanent proof.
+                if (phase != 0) return false;
+                _prepareRejected = true; _rejection = message ?? "Participant rejected preparation"; return true;
+            }
         }
 
         private static void SendParticipantAck(string operationId, string participantId, int phase, bool accepted, string message)
@@ -405,9 +460,9 @@ namespace SmartCraftStorage.Storage.Runtime
 
         private sealed class RuntimeParticipant : IStorageTransactionParticipant
         {
+            private readonly StorageRpc _rpc;
             private readonly Container _container; private readonly Player _actor; private readonly string _expectedNetworkName;
-            private readonly HashSet<string> _released = new HashSet<string>(StringComparer.Ordinal);
-            internal RuntimeParticipant(Container container, Player actor, string expectedNetworkName) { _container = container; _actor = actor; _expectedNetworkName = expectedNetworkName; }
+            internal RuntimeParticipant(StorageRpc rpc, Container container, Player actor, string expectedNetworkName) { _rpc = rpc; _container = container; _actor = actor; _expectedNetworkName = expectedNetworkName; }
             public string Id => StorageDiscovery.Id(_container.m_nview);
             public string Revision => _container.m_nview.GetZDO().DataRevision.ToString();
             public StorageParticipantResult Prepare(string operationId, string expectedRevision)
@@ -417,14 +472,13 @@ namespace SmartCraftStorage.Storage.Runtime
                 if (active.Length != 0 && active != operationId) return StorageParticipantResult.Rejected("Participant busy");
                 if (active == operationId) return StorageParticipantResult.Accepted();
                 if (zdo.GetString(StorageFacade.NetworkNameKey, "") != _expectedNetworkName) return StorageParticipantResult.Rejected("Network membership changed");
-                if (Revision != expectedRevision) return StorageParticipantResult.Rejected("Participant revision changed");
                 if (!_container.m_nview.IsOwner())
                 {
                     var package = new ZPackage(); package.Write(_container.m_nview.GetZDO().m_uid); package.Write(operationId); package.Write(expectedRevision); package.Write(_actor.GetPlayerID()); package.Write(_expectedNetworkName);
                     package.Write(Encode(GameInventoryAdapter.Snapshot(Id, expectedRevision, _container.GetInventory())));
-                    Send(_container.m_nview.GetZDO().GetOwner(), PrepareRpc, package);
-                    return StorageParticipantResult.Unknown("Awaiting participant owner");
+                    return _rpc.Exchange(operationId, Id, _actor.GetPlayerID(), zdo.GetOwner(), 0, PrepareRpc, package, zdo);
                 }
+                if (Revision != expectedRevision) return StorageParticipantResult.Rejected("Participant revision changed");
                 zdo.Set(ActiveKey, operationId); return StorageParticipantResult.Accepted();
             }
             public StorageParticipantResult Apply(string operationId, string payload)
@@ -434,8 +488,8 @@ namespace SmartCraftStorage.Storage.Runtime
                 if (!_container.m_nview.IsOwner())
                 {
                     var package = new ZPackage(); package.Write(_container.m_nview.GetZDO().m_uid); package.Write(operationId); package.Write(_actor.GetPlayerID()); package.Write(payload);
-                    Send(_container.m_nview.GetZDO().GetOwner(), ApplyRpc, package);
-                    return StorageParticipantResult.Unknown("Awaiting owner receipt");
+                    var zdo = _container.m_nview.GetZDO();
+                    return _rpc.Exchange(operationId, Id, _actor.GetPlayerID(), zdo.GetOwner(), 1, ApplyRpc, package, zdo);
                 }
                 if (_container.m_nview.GetZDO().GetString(ActiveKey, "") != operationId) return StorageParticipantResult.Unknown("Reservation missing");
                 try
@@ -446,7 +500,8 @@ namespace SmartCraftStorage.Storage.Runtime
                 }
                 catch (Exception error) { return StorageParticipantResult.Unknown(error.Message); }
             }
-            public StorageParticipantResult Receipt(string operationId) => HasReceipt(_container.m_nview.GetZDO(), operationId) ? StorageParticipantResult.Accepted() : StorageParticipantResult.Unknown("No receipt");
+            public StorageParticipantResult Receipt(string operationId) => HasReceipt(_container.m_nview.GetZDO(), operationId) ? StorageParticipantResult.Accepted()
+                : _rpc.Progress(operationId, Id, _actor.GetPlayerID(), _container.m_nview.GetZDO().GetOwner(), _container.m_nview.GetZDO()).Result(1);
             public StorageParticipantResult Release(string operationId)
             {
                 if (_container.m_nview.IsOwner())
@@ -454,11 +509,10 @@ namespace SmartCraftStorage.Storage.Runtime
                     if (_container.m_nview.GetZDO().GetString(ActiveKey, "") == operationId) _container.m_nview.GetZDO().Set(ActiveKey, "");
                     return StorageParticipantResult.Accepted();
                 }
-                if (_released.Contains(operationId)) return StorageParticipantResult.Accepted();
-                var package = new ZPackage(); package.Write(_container.m_nview.GetZDO().m_uid); package.Write(operationId); Send(_container.m_nview.GetZDO().GetOwner(), ReleaseRpc, package);
-                return StorageParticipantResult.Unknown("Awaiting participant release");
+                var zdo = _container.m_nview.GetZDO();
+                var package = new ZPackage(); package.Write(zdo.m_uid); package.Write(operationId);
+                return _rpc.Exchange(operationId, Id, _actor.GetPlayerID(), zdo.GetOwner(), 2, ReleaseRpc, package, zdo);
             }
-            internal bool AcknowledgeRelease(string operationId, bool accepted) => accepted && _released.Add(operationId);
             internal static HashSet<string> ReadReceipts(ZDO zdo) => new HashSet<string>((zdo.GetString(ReceiptsKey, "") ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.Ordinal);
             internal static bool HasReceipt(ZDO zdo, string operationId)
             {
@@ -477,9 +531,10 @@ namespace SmartCraftStorage.Storage.Runtime
 
         private sealed class AnchorParticipant : IStorageTransactionParticipant
         {
+            private readonly StorageRpc _rpc;
             private readonly ZNetView _view;
             private readonly Player _actor;
-            internal AnchorParticipant(ZNetView view, Player actor) { _view = view; _actor = actor; }
+            internal AnchorParticipant(StorageRpc rpc, ZNetView view, Player actor) { _rpc = rpc; _view = view; _actor = actor; }
             public string Id => StorageDiscovery.Id(_view);
             public string Revision => _view.GetZDO().DataRevision.ToString();
             public StorageParticipantResult Prepare(string operationId, string expectedRevision)
@@ -492,8 +547,8 @@ namespace SmartCraftStorage.Storage.Runtime
                 if (!_view.IsOwner())
                 {
                     var package = new ZPackage(); package.Write(zdo.m_uid); package.Write(operationId); package.Write(expectedRevision);
-                    package.Write(_actor.GetPlayerID()); package.Write("@anchor"); package.Write(""); Send(zdo.GetOwner(), PrepareRpc, package);
-                    return StorageParticipantResult.Unknown("Awaiting anchor owner");
+                    package.Write(_actor.GetPlayerID()); package.Write("@anchor"); package.Write("");
+                    return _rpc.Exchange(operationId, Id, _actor.GetPlayerID(), zdo.GetOwner(), 0, PrepareRpc, package, zdo);
                 }
                 zdo.Set(ActiveKey, operationId); return StorageParticipantResult.Accepted();
             }
@@ -505,138 +560,102 @@ namespace SmartCraftStorage.Storage.Runtime
                 if (!_view.IsOwner())
                 {
                     var package = new ZPackage(); package.Write(zdo.m_uid); package.Write(operationId); package.Write(_actor.GetPlayerID()); package.Write("anchor");
-                    Send(zdo.GetOwner(), ApplyRpc, package); return StorageParticipantResult.Unknown("Awaiting anchor receipt");
+                    return _rpc.Exchange(operationId, Id, _actor.GetPlayerID(), zdo.GetOwner(), 1, ApplyRpc, package, zdo);
                 }
                 if (zdo.GetString(ActiveKey, "") != operationId) return StorageParticipantResult.Unknown("Anchor reservation missing");
                 var receipts = RuntimeParticipant.ReadReceipts(zdo); receipts.Add(operationId); RuntimeParticipant.WriteReceipts(zdo, receipts);
                 return StorageParticipantResult.Accepted();
             }
             public StorageParticipantResult Receipt(string operationId) => RuntimeParticipant.HasReceipt(_view.GetZDO(), operationId)
-                ? StorageParticipantResult.Accepted() : StorageParticipantResult.Unknown("No anchor receipt");
+                ? StorageParticipantResult.Accepted() : _rpc.Progress(operationId, Id, _actor.GetPlayerID(), _view.GetZDO().GetOwner(), _view.GetZDO()).Result(1);
             public StorageParticipantResult Release(string operationId)
             {
                 var zdo = _view.GetZDO();
                 if (_view.IsOwner()) { if (zdo.GetString(ActiveKey, "") == operationId) zdo.Set(ActiveKey, ""); return StorageParticipantResult.Accepted(); }
-                var package = new ZPackage(); package.Write(zdo.m_uid); package.Write(operationId); Send(zdo.GetOwner(), ReleaseRpc, package);
-                return StorageParticipantResult.Unknown("Awaiting anchor release");
+                var package = new ZPackage(); package.Write(zdo.m_uid); package.Write(operationId);
+                return _rpc.Exchange(operationId, Id, _actor.GetPlayerID(), zdo.GetOwner(), 2, ReleaseRpc, package, zdo);
             }
         }
 
         private sealed class RemoteParticipant : IStorageTransactionParticipant
         {
+            private readonly StorageRpc _rpc;
             private readonly ZDO _zdo;
             private readonly long _actorId;
             private readonly string _expectedRevision, _expectedPayload, _expectedNetwork;
             private readonly bool _anchor;
-            private readonly HashSet<string> _prepared = new HashSet<string>(StringComparer.Ordinal);
-            private readonly HashSet<string> _applied = new HashSet<string>(StringComparer.Ordinal);
-            private readonly HashSet<string> _released = new HashSet<string>(StringComparer.Ordinal);
-            private readonly Dictionary<string, string> _failures = new Dictionary<string, string>(StringComparer.Ordinal);
-            internal RemoteParticipant(ZDO zdo, long actorId, string expectedRevision, string expectedPayload, string expectedNetwork, bool anchor)
-            { _zdo = zdo; _actorId = actorId; _expectedRevision = expectedRevision; _expectedPayload = expectedPayload ?? ""; _expectedNetwork = expectedNetwork ?? ""; _anchor = anchor; }
+            internal RemoteParticipant(StorageRpc rpc, ZDO zdo, long actorId, string expectedRevision, string expectedPayload, string expectedNetwork, bool anchor)
+            { _rpc = rpc; _zdo = zdo; _actorId = actorId; _expectedRevision = expectedRevision; _expectedPayload = expectedPayload ?? ""; _expectedNetwork = expectedNetwork ?? ""; _anchor = anchor; }
             public string Id => _zdo.m_uid.ToString();
             public string Revision => _expectedRevision;
             internal long Owner => _zdo.GetOwner();
             public StorageParticipantResult Prepare(string operationId, string expectedRevision)
             {
-                if (_failures.TryGetValue(operationId + ":0", out var failure)) return StorageParticipantResult.Rejected(failure);
-                if (_prepared.Contains(operationId)) return StorageParticipantResult.Accepted();
                 if (Owner == 0L) return StorageParticipantResult.Unknown("Participant owner unavailable");
                 var package = new ZPackage(); package.Write(_zdo.m_uid); package.Write(operationId); package.Write(expectedRevision);
                 package.Write(_actorId); package.Write(_anchor ? "@anchor" : _expectedNetwork); package.Write(_anchor ? "" : _expectedPayload);
-                Send(Owner, PrepareRpc, package); return StorageParticipantResult.Unknown("Awaiting participant owner");
+                return _rpc.Exchange(operationId, Id, _actorId, Owner, 0, PrepareRpc, package, _zdo);
             }
             public StorageParticipantResult Apply(string operationId, string payload)
             {
-                if (_failures.TryGetValue(operationId + ":1", out var failure)) return StorageParticipantResult.Rejected(failure);
-                if (_applied.Contains(operationId)) return StorageParticipantResult.Accepted();
                 if (Owner == 0L) return StorageParticipantResult.Unknown("Participant owner unavailable");
                 var package = new ZPackage(); package.Write(_zdo.m_uid); package.Write(operationId); package.Write(_actorId); package.Write(_anchor ? "anchor" : payload);
-                Send(Owner, ApplyRpc, package); return StorageParticipantResult.Unknown("Awaiting participant receipt");
+                return _rpc.Exchange(operationId, Id, _actorId, Owner, 1, ApplyRpc, package, _zdo);
             }
-            public StorageParticipantResult Receipt(string operationId) => _applied.Contains(operationId)
-                ? StorageParticipantResult.Accepted() : StorageParticipantResult.Unknown("No owner receipt");
+            public StorageParticipantResult Receipt(string operationId) => _rpc.Progress(operationId, Id, _actorId, Owner, _zdo).Result(1);
             public StorageParticipantResult Release(string operationId)
             {
-                if (_released.Contains(operationId)) return StorageParticipantResult.Accepted();
                 if (Owner == 0L) return StorageParticipantResult.Unknown("Participant owner unavailable during release");
-                var package = new ZPackage(); package.Write(_zdo.m_uid); package.Write(operationId); Send(Owner, ReleaseRpc, package);
-                return StorageParticipantResult.Unknown("Awaiting participant release");
-            }
-            internal bool Acknowledge(string operationId, int phase, bool accepted, string message)
-            {
-                if (!accepted)
-                {
-                    var key = operationId + ":" + phase;
-                    var changed = !_failures.ContainsKey(key);
-                    _failures[key] = message ?? "Owner rejected participant";
-                    return changed;
-                }
-                return phase == 0 ? _prepared.Add(operationId) : phase == 1 ? _applied.Add(operationId) : phase == 2 && _released.Add(operationId);
+                var package = new ZPackage(); package.Write(_zdo.m_uid); package.Write(operationId);
+                return _rpc.Exchange(operationId, Id, _actorId, Owner, 2, ReleaseRpc, package, _zdo);
             }
         }
 
         private sealed class RemotePlayerParticipant : IStorageTransactionParticipant
         {
+            private readonly StorageRpc _rpc;
             private readonly long _actorId, _peerId;
             private readonly string _revision, _payload;
-            private readonly HashSet<string> _prepared = new HashSet<string>(StringComparer.Ordinal);
-            private readonly HashSet<string> _applied = new HashSet<string>(StringComparer.Ordinal);
-            private readonly HashSet<string> _released = new HashSet<string>(StringComparer.Ordinal);
-            private readonly HashSet<string> _prepareRejected = new HashSet<string>(StringComparer.Ordinal);
-            internal RemotePlayerParticipant(long actorId, long peerId, string revision, string payload)
-            { _actorId = actorId; _peerId = peerId; _revision = revision; _payload = payload ?? ""; }
+            internal RemotePlayerParticipant(StorageRpc rpc, long actorId, long peerId, string revision, string payload)
+            { _rpc = rpc; _actorId = actorId; _peerId = peerId; _revision = revision; _payload = payload ?? ""; }
             public string Id => "player:" + _actorId;
             public string Revision => _revision;
             public StorageParticipantResult Prepare(string operationId, string expectedRevision)
             {
-                if (_prepareRejected.Contains(operationId)) return StorageParticipantResult.Rejected("Player inventory changed before preparation");
-                if (_prepared.Contains(operationId)) return StorageParticipantResult.Accepted();
                 var package = new ZPackage(); package.Write(operationId); package.Write(expectedRevision); package.Write(_payload); package.Write(_actorId);
-                Send(_peerId, PlayerPrepareRpc, package); return StorageParticipantResult.Unknown("Awaiting player preparation");
+                return _rpc.Exchange(operationId, Id, _actorId, _peerId, 0, PlayerPrepareRpc, package);
             }
             public StorageParticipantResult Apply(string operationId, string payload)
             {
-                if (_applied.Contains(operationId)) return StorageParticipantResult.Accepted();
                 var package = new ZPackage(); package.Write(operationId); package.Write(_actorId); package.Write(payload);
-                Send(_peerId, PlayerApplyRpc, package); return StorageParticipantResult.Unknown("Awaiting player receipt");
+                return _rpc.Exchange(operationId, Id, _actorId, _peerId, 1, PlayerApplyRpc, package);
             }
-            public StorageParticipantResult Receipt(string operationId) => _applied.Contains(operationId)
-                ? StorageParticipantResult.Accepted() : StorageParticipantResult.Unknown("No player receipt");
+            public StorageParticipantResult Receipt(string operationId) => _rpc.Progress(operationId, Id, _actorId, _peerId).Result(1);
             public StorageParticipantResult Release(string operationId)
             {
-                if (_released.Contains(operationId)) return StorageParticipantResult.Accepted();
-                var package = new ZPackage(); package.Write(operationId); Send(_peerId, PlayerReleaseRpc, package);
-                return StorageParticipantResult.Unknown("Awaiting player release");
-            }
-            internal bool Acknowledge(string operationId, int phase, bool accepted)
-            {
-                if (!accepted) return phase == 0 && _prepareRejected.Add(operationId);
-                return phase == 0 ? _prepared.Add(operationId) : phase == 1 ? _applied.Add(operationId) : phase == 2 && _released.Add(operationId);
+                var package = new ZPackage(); package.Write(operationId);
+                return _rpc.Exchange(operationId, Id, _actorId, _peerId, 2, PlayerReleaseRpc, package);
             }
         }
 
         private sealed class PlayerParticipant : IStorageTransactionParticipant
         {
+            private readonly StorageRpc _rpc;
             internal const string PlayerActiveKey = "scs.storage.active.v1";
             private const string PlayerReceiptsKey = "scs.storage.receipts.v1";
             private readonly Player _player;
             private readonly string _expectedRevision;
             private readonly string _expectedPayload;
-            private readonly HashSet<string> _prepared = new HashSet<string>(StringComparer.Ordinal);
-            private readonly HashSet<string> _remoteReceipts = new HashSet<string>(StringComparer.Ordinal);
-            private readonly HashSet<string> _released = new HashSet<string>(StringComparer.Ordinal);
-            internal PlayerParticipant(Player player, string expectedRevision, string expectedPayload) { _player = player; _expectedRevision = expectedRevision; _expectedPayload = expectedPayload ?? ""; }
+            internal PlayerParticipant(StorageRpc rpc, Player player, string expectedRevision, string expectedPayload) { _rpc = rpc; _player = player; _expectedRevision = expectedRevision; _expectedPayload = expectedPayload ?? ""; }
             public string Id => "player:" + _player.GetPlayerID();
             public string Revision => _expectedRevision ?? ComputeRevision();
             public StorageParticipantResult Prepare(string operationId, string expectedRevision)
             {
                 if (_player != Player.m_localPlayer)
                 {
-                    if (_prepared.Contains(operationId)) return StorageParticipantResult.Accepted();
                     var peer = ZNet.instance.GetPeers().FirstOrDefault(x => x.m_playerID == _player.GetPlayerID() && x.IsReady()); if (peer == null) return StorageParticipantResult.Unknown("Player owner unavailable");
-                    var package = new ZPackage(); package.Write(operationId); package.Write(expectedRevision); package.Write(_expectedPayload); package.Write(_player.GetPlayerID()); Send(peer.m_uid, PlayerPrepareRpc, package);
-                    return StorageParticipantResult.Unknown("Awaiting player preparation");
+                    var package = new ZPackage(); package.Write(operationId); package.Write(expectedRevision); package.Write(_expectedPayload); package.Write(_player.GetPlayerID());
+                    return _rpc.Exchange(operationId, Id, _player.GetPlayerID(), peer.m_uid, 0, PlayerPrepareRpc, package);
                 }
                 _player.m_customData.TryGetValue(PlayerActiveKey, out var active);
                 _player.m_customData.TryGetValue(PlayerEffectActiveKey, out var activeEffects);
@@ -657,8 +676,8 @@ namespace SmartCraftStorage.Storage.Runtime
                 if (_player != Player.m_localPlayer)
                 {
                     var peer = ZNet.instance.GetPeers().FirstOrDefault(x => x.m_playerID == _player.GetPlayerID() && x.IsReady()); if (peer == null) return StorageParticipantResult.Unknown("Player owner unavailable");
-                    var package = new ZPackage(); package.Write(operationId); package.Write(_player.GetPlayerID()); package.Write(payload); Send(peer.m_uid, PlayerApplyRpc, package);
-                    return StorageParticipantResult.Unknown("Awaiting player receipt");
+                    var package = new ZPackage(); package.Write(operationId); package.Write(_player.GetPlayerID()); package.Write(payload);
+                    return _rpc.Exchange(operationId, Id, _player.GetPlayerID(), peer.m_uid, 1, PlayerApplyRpc, package);
                 }
                 _player.m_customData.TryGetValue(PlayerActiveKey, out var active);
                 if (active != operationId) return StorageParticipantResult.Unknown("Player reservation missing");
@@ -670,7 +689,12 @@ namespace SmartCraftStorage.Storage.Runtime
                 }
                 catch (Exception error) { return StorageParticipantResult.Unknown(error.Message); }
             }
-            public StorageParticipantResult Receipt(string operationId) => (_player == Player.m_localPlayer ? HasPlayerReceipt(_player, operationId) : _remoteReceipts.Contains(operationId)) ? StorageParticipantResult.Accepted() : StorageParticipantResult.Unknown("No receipt");
+            public StorageParticipantResult Receipt(string operationId)
+            {
+                if (_player == Player.m_localPlayer) return HasPlayerReceipt(_player, operationId) ? StorageParticipantResult.Accepted() : StorageParticipantResult.Unknown("No receipt");
+                var peer = ZNet.instance.GetPeers().FirstOrDefault(x => x.m_playerID == _player.GetPlayerID() && x.IsReady());
+                return peer == null ? StorageParticipantResult.Unknown("Player owner unavailable") : _rpc.Progress(operationId, Id, _player.GetPlayerID(), peer.m_uid).Result(1);
+            }
             public StorageParticipantResult Release(string operationId)
             {
                 if (_player == Player.m_localPlayer)
@@ -680,12 +704,9 @@ namespace SmartCraftStorage.Storage.Runtime
                 }
                 var peer = ZNet.instance.GetPeers().FirstOrDefault(x => x.m_playerID == _player.GetPlayerID() && x.IsReady());
                 if (peer == null) return StorageParticipantResult.Unknown("Player owner unavailable during release");
-                if (_released.Contains(operationId)) return StorageParticipantResult.Accepted();
-                var package = new ZPackage(); package.Write(operationId); Send(peer.m_uid, PlayerReleaseRpc, package);
-                return StorageParticipantResult.Unknown("Awaiting player release");
+                var package = new ZPackage(); package.Write(operationId);
+                return _rpc.Exchange(operationId, Id, _player.GetPlayerID(), peer.m_uid, 2, PlayerReleaseRpc, package);
             }
-            internal bool Acknowledge(string operationId, int phase, bool accepted) => accepted &&
-                (phase == 0 ? _prepared.Add(operationId) : phase == 1 ? _remoteReceipts.Add(operationId) : phase == 2 && _released.Add(operationId));
             private HashSet<string> ReceiptSet() => ReadPlayerReceipts(_player);
             internal static HashSet<string> ReadPlayerReceipts(Player player) { player.m_customData.TryGetValue(PlayerReceiptsKey, out var value); return new HashSet<string>((value ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.Ordinal); }
             internal static bool HasPlayerReceipt(Player player, string operationId)
