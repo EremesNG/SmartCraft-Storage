@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <RestoreIgnoreFailedSources>true</RestoreIgnoreFailedSources>
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Shared/NearbyContainers.cs" Link="Production/NearbyContainers.cs" />
+    <Compile Include="../../Shared/ChestCountCache.cs" Link="Production/ChestCountCache.cs" />
+    <Compile Include="../../Shared/UnlockedInventory.cs" Link="Production/UnlockedInventory.cs" />
+    <Compile Include="../../ItemMarking/ItemFlags.cs" Link="Production/ItemFlags.cs" />
+    <Compile Include="../../CraftingChestAccess/InventoryChestPatches.cs" Link="Production/InventoryChestPatches.cs" />
+    <Compile Include="../../Stations/CookingStationPatches.cs" Link="Production/CookingStationPatches.cs" />
+    <Compile Include="../../Stations/SmelterPatches.cs" Link="Production/SmelterPatches.cs" />
+    <Compile Include="../../Stations/KilnDetection.cs" Link="Production/KilnDetection.cs" />
+    <Compile Include="../../Stations/FermenterPatches.cs" Link="Production/FermenterPatches.cs" />
+    <Compile Include="../../Stations/FireplacePatch.cs" Link="Production/FireplacePatch.cs" />
+    <Compile Include="../../Integrations/EpicLootProvider.cs" Link="Production/EpicLootProvider.cs" />
+    <Compile Include="../../ItemMarking/AltClickPatch.cs" Link="Production/AltClickPatch.cs" />
+  </ItemGroup>
+</Project>

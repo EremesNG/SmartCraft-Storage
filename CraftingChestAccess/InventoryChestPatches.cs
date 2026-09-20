@@ -41,7 +41,7 @@ namespace SmartCraftStorage.CraftingChestAccess
                     int chestTotal = 0;
                     foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
                     {
-                        chestTotal += container.GetInventory().CountItems(name, quality, matchWorldLevel);
+                        chestTotal += UnlockedInventory.CountItems(container.GetInventory(), name, quality, matchWorldLevel);
                     }
 
                     ChestCountCache.Store(name, quality, matchWorldLevel, chestTotal);
@@ -68,7 +68,7 @@ namespace SmartCraftStorage.CraftingChestAccess
 
                     foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
                     {
-                        if (container.GetInventory().HaveItem(name, matchWorldLevel))
+                        if (UnlockedInventory.HaveItem(container.GetInventory(), name, matchWorldLevel))
                         {
                             __result = true;
                             return;
@@ -94,7 +94,7 @@ namespace SmartCraftStorage.CraftingChestAccess
                         return;
                     }
 
-                    int haveInInventory = SumMatchingStack(__instance, name, itemQuality);
+                    int haveInInventory = SumMatchingStack(__instance, name, itemQuality, worldLevelBased);
                     if (amount <= haveInInventory)
                     {
                         return;
@@ -116,15 +116,18 @@ namespace SmartCraftStorage.CraftingChestAccess
                         }
 
                         var chestInventory = container.GetInventory();
-                        int haveInChest = SumMatchingStack(chestInventory, name, itemQuality);
+                        int haveInChest = UnlockedInventory.CountItems(chestInventory, name, itemQuality, worldLevelBased);
                         int takeFromChest = Math.Min(remaining, haveInChest);
 
                         if (takeFromChest > 0)
                         {
-                            chestInventory.RemoveItem(name, takeFromChest, itemQuality, worldLevelBased);
-                            ChestCountCache.Invalidate();
-                            remaining -= takeFromChest;
-                            amount += takeFromChest;
+                            int removed = UnlockedInventory.RemoveItems(chestInventory, name, takeFromChest, itemQuality, worldLevelBased);
+                            if (removed > 0)
+                            {
+                                ChestCountCache.Invalidate();
+                                remaining -= removed;
+                                amount += removed;
+                            }
                         }
                     }
                 }
@@ -134,12 +137,13 @@ namespace SmartCraftStorage.CraftingChestAccess
                 }
             }
 
-            private static int SumMatchingStack(Inventory inventory, string name, int quality)
+            private static int SumMatchingStack(Inventory inventory, string name, int quality, bool matchWorldLevel)
             {
                 int total = 0;
                 foreach (var item in inventory.GetAllItems())
                 {
-                    if (item.m_shared.m_name == name && (quality < 0 || item.m_quality == quality))
+                    if (item.m_shared.m_name == name && (quality < 0 || item.m_quality == quality)
+                        && (!matchWorldLevel || item.m_worldLevel >= Game.m_worldLevel))
                     {
                         total += item.m_stack;
                     }
