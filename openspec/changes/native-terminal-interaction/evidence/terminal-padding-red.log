@@ -1,0 +1,29 @@
+START
+control width=560; height=210; elements=10; visible=10
+PASS control: native inventory creates ten visible cells
+PASS empty terminal exposes native cells without other layout mods
+viewport width=560; height=280; elements=10; visible=10; toolbarWidth=600
+PASS terminal cells stay visible after an external native right-inset update
+PASS populated terminal draws four native item icons and stack counts
+compact width=560; height=280; visible=32
+PASS compact terminal displays eight columns and four complete rows without widening side gutters
+PASS the eighth cell in the fourth row is fully visible
+PASS scrollbar stays beside the four rows and above the action buttons
+PASS native scrolling reaches the last row without the footer covering it
+PASS repeated external inset updates neither drift columns nor reset scrolling
+PASS closing restores the native scrollbar parent, anchors and size
+PASS restoring the terminal layout leaves all ordinary chest cells visible
+after first terminal: panel=600; scrollbar X=284
+PASS opening the terminal first preserves the ordinary chest's cached scrollbar baseline
+PASS repeated terminal/chest alternation preserves native cached coordinates
+FAIL sixteen grouped entries use two rows without extra empty rows
+FAIL rectangular padding does not display an empty capacity cell
+FAIL an empty network or search keeps one deposit row without visible empty cells
+PASS new configuration defaults to Alt+N
+PASS upgrade migrates only the previous default: T + LeftAlt
+PASS a later explicit Alt+T choice persists across reload: T + LeftAlt
+PASS upgrade migrates only the previous default: K + LeftControl
+PASS a later explicit Alt+T choice persists across reload: K + LeftControl
+PASS upgrade migrates only the previous default: Not set
+PASS a later explicit Alt+T choice persists across reload: Not set
+DONE failures=3

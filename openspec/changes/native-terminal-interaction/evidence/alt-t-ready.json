@@ -1,0 +1,1 @@
+{"valid":true,"route":"full","through":"ready","changeRoot":"C:\\DEV\\Proyectos\\RiderProjects\\SmartCraft-Storage\\openspec\\changes\\native-terminal-interaction","errors":[],"warnings":[{"code":"SDD-CHECKLIST-CONDITIONAL","artifact":"checklists/requirements.md","message":"No requirements checklist exists; confirm that risk did not activate the conditional checklist gate."}]}

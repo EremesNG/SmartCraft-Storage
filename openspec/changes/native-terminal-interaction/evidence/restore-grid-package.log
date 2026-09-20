@@ -1,0 +1,25 @@
+Game references: C:\Users\EremesNG\AppData\Local\Temp\SCS-game-references-20260919
+Building Release...
+  Skipping Jotunn Prebuild Task
+C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(13,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\SmartCraftStorage.csproj]
+C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(14,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\SmartCraftStorage.csproj]
+C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(15,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\SmartCraftStorage.csproj]
+  SmartCraftStorage -> C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\bin\Release\net48\SmartCraftStorage.dll
+
+Compilación correcta.
+
+C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(13,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\SmartCraftStorage.csproj]
+C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(14,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\SmartCraftStorage.csproj]
+C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(15,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\SmartCraftStorage.csproj]
+    3 Advertencia(s)
+    0 Errores
+
+Tiempo transcurrido 00:00:00.92
+
+Packaged C:\DEV\Proyectos\RiderProjects\SmartCraft-Storage\dist\SmartCraftStorage-0.7.7.zip
+  plugins/SmartCraftStorage.dll            275456 bytes
+  CHANGELOG.md                               9405 bytes
+  icon.png                                  69093 bytes
+  manifest.json                               517 bytes
+  README.md                                 16818 bytes
+  SHA256 A67691D1CE238658FEED14A6821C2C739AAF64C59EBC13E195338B55A2850BF8

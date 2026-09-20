@@ -1,0 +1,6 @@
+START
+control width=560; height=210; elements=10; visible=10
+PASS control: native inventory creates ten visible cells
+viewport width=-40; height=210; elements=10; visible=2; toolbarWidth=420
+FAIL terminal cells stay visible after an external native right-inset update
+DONE failures=1

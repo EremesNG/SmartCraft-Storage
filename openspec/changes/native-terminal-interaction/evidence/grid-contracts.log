@@ -1,0 +1,41 @@
+PASS query deduplicates physical inventories and exact identities
+PASS local naming confirmation survives inline RPC reply
+PASS remote naming waits for confirmation and preserves a final rejection
+PASS retrying a confirmed owner name cannot overwrite a later name
+PASS deposit reports finite partial acceptance and preserves payload
+PASS withdraw preserves metadata and destination capacity
+PASS directed withdrawal uses only the clicked compatible player slot
+PASS directed withdrawal intent rejects a changed slot after reconnect
+PASS four ten-slot members compact to three and repeat is unchanged
+PASS durable transaction resumes after lost acknowledgement without duplicate effect
+PASS unknown prepare remains resumable without effects
+PASS competing transaction cannot reserve the same participant
+PASS transaction preserves exact quantities through delayed completion
+PASS transaction retries a lost release before final confirmation
+PASS aborted preparation retries release without applying layouts
+PASS duplicate participant identities are rejected before prepare
+PASS compacted completed identifiers remain replay-rejected
+PASS scene-free authority rejects spoofed radius members and anchors
+PASS persisted public status reconstructs exact partial quantities
+PASS combined direct and overlapping networks enforce one deduplicated limit
+PASS production capture persists intent before mutation and retains uncertain custody
+PASS persisted request intent survives reconnect without freezing inventory snapshots
+PASS public status keeps native payment pending and ignores late downgrades
+PASS effect recovery receipts lost acknowledgements without duplicate output
+PASS rejected captured delivery remains recoverable and is never completed
+PASS captured require-all output survives restart until full capacity exists
+PASS prepared cost effect waits for durable payment commit across restart
+PASS discovery policy excludes wrong network range access and reservations
+PASS discovery policy deduplicates overlap and preserves direct mobile scope
+PASS A craft with an incomplete prepared cost creates no result
+PASS A network-only single ingredient preserves its real quality and payload
+PASS Native crafting receives paid resources before producing its result
+PASS Repeated processor ticks resume the existing operation and respect input capacity
+PASS Unknown output stays pending and partial output uses only its confirmed remainder
+PASS Native reconciliation recognizes committed state after an exception without replay
+PASS Native reconciliation preserves uncertain or metadata-divergent effects
+PASS Bulk deposit survives replaced item instances without taking newly added quantities
+PASS native grid shows aggregate counts with legal movable stacks and exact identities
+PASS native bulk submits once, waits for confirmation and discards only unsent work on close
+PASS unknown replies retain custody and bulk rejection stops remaining steps
+40/40 passed

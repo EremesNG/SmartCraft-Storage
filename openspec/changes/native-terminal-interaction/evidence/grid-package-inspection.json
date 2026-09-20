@@ -1,0 +1,15 @@
+{
+  "version": "0.7.3",
+  "fileVersion": "0.7.3.0",
+  "zipSHA256": "2F935A422CF79D564364C6151F62B16BCBF4FDC010E21E118592C13D01FA9182",
+  "dllSHA256": "62FDC0C0DF9FC3F4963C0E42284C1F1E22B60EF4BC023A795B1B7F993F07C78C",
+  "entries": [
+    "CHANGELOG.md",
+    "icon.png",
+    "manifest.json",
+    "plugins/SmartCraftStorage.dll",
+    "README.md"
+  ],
+  "previousCandidateUnchanged": true,
+  "installedDLLSHA256": "0895F0F93B25DB347CF57398C4942815ABFC3A3C2A5D26B116E59CE00C3F9ACC"
+}

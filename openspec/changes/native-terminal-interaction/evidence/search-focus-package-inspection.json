@@ -1,0 +1,15 @@
+{
+  "version": "0.7.4",
+  "fileVersion": "0.7.4.0",
+  "assemblyVersion": "0.7.4.0",
+  "zipSHA256": "5E69AC8EE5A5B984183681F6E12930DD55CE9DB2F09FE8E12F8489A1FAC8D968",
+  "dllSHA256": "BAA8A00BAE21DE5D38D61A848DBB86346620F656018695404C018F482534A746",
+  "entries": [
+    "CHANGELOG.md",
+    "icon.png",
+    "manifest.json",
+    "plugins/SmartCraftStorage.dll",
+    "README.md"
+  ],
+  "previousCandidateUnchanged": true
+}

@@ -1,0 +1,11 @@
+START
+control width=560; height=210; elements=10; visible=10
+PASS control: native inventory creates ten visible cells
+PASS empty terminal exposes native cells without other layout mods
+viewport width=560; height=210; elements=10; visible=10; toolbarWidth=600
+PASS terminal cells stay visible after an external native right-inset update
+PASS populated terminal draws four native item icons and stack counts
+compact width=568; height=210; visible=24
+FAIL compact terminal displays eight columns and four complete rows without widening side gutters
+PASS restoring the terminal layout leaves all ordinary chest cells visible
+DONE failures=1
