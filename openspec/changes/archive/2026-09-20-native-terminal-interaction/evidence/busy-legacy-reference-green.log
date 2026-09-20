@@ -1,0 +1,8 @@
+PASS journal reloads durable operations after same-world manager replacement
+PASS pooled ZDO objects cannot redirect a journal write into a chest
+PASS world changes isolate records and returning reloads them
+PASS display and installed layout retain complete item metadata
+PASS journal preserves stable identities and requires durable writes
+PASS legacy root migration cannot identify a different object with a reused ID
+PASS legacy records keep unproven references unresolved without losing custody
+7/7 passed

@@ -1,0 +1,31 @@
+{
+  "Branch": "local-merge",
+  "Commit": "a406c53f5b2532086656959a1eda81fb8dd82aa7",
+  "SourceCommit": "5aa72dbb2b41b8fe0619e23e0ea1e1cb46e1d398",
+  "FileVersion": "0.7.9.0",
+  "ProductVersion": "0.7.9+a406c53f5b2532086656959a1eda81fb8dd82aa7",
+  "DllSHA256": "61109CC2E35F4A472CB5D590D0B7A2EEA6EC523B20AEDF79F1C50B5B607BDDA3",
+  "ZipSHA256": "65E5A741BF397505D3AFC1BE0D1F285FB824A05C17BA95B6F4EC152256C5531A",
+  "ZipEntries": [
+    "CHANGELOG.md",
+    "icon.png",
+    "manifest.json",
+    "plugins/SmartCraftStorage.dll",
+    "README.md"
+  ],
+  "Tests": {
+    "Cart": 15,
+    "ProtectedInputs": 4,
+    "Runtime": 7,
+    "Native": 73,
+    "Overlays": 18,
+    "Total": 171,
+    "EpicLoot": 14,
+    "Contracts": 40
+  },
+  "HarmonyTargets": 39,
+  "UnityLifecycle": 5,
+  "IndependentSourceReview": "oracle_storage_busy_079_round2 PASS",
+  "IndependentCombinedReview": "oracle_storage_combined_079 PASS",
+  "GameInstallationModified": false
+}

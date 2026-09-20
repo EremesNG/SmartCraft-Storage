@@ -8,31 +8,43 @@ Durable behavioral contract for `storage-network`.
 
 ### Requirement: Named membership
 
-The system MUST support assigning a network name to eligible ordinary physical chests and select members by normalized matching name, terminal radius and valid loaded world state, excluding terminals, graves and transport inventories as backing members.
+The system MUST assign and persist normalized network names on eligible ordinary chests and terminals with reliable local and remote confirmation, preserve an unconfirmed naming draft, and select members by matching name, terminal radius, access and loaded-world state while excluding terminals, graves and transport inventories as backing members.
 
-#### Scenario: US1 - Manage one inventory across linked chests 1
+#### Scenario: US1 - Link a chest and use it after reloading 1
 
-- **GIVEN** accessible loaded chests with the terminal's network name within its configured radius
-- **WHEN** the network is queried
-- **THEN** the combined quantities and finite slot capacity are shown without opening any backing chest
+- **GIVEN** an accessible idle chest in single player
+- **WHEN** its name is submitted and the local acknowledgement arrives immediately
+- **THEN** the final confirmed status and stored name survive return from the submission call and reopening
 
-#### Scenario: US1 - Manage one inventory across linked chests 2
+#### Scenario: US1 - Link a chest and use it after reloading 2
 
-- **GIVEN** a same-named chest outside the radius or inaccessible through a ward
-- **WHEN** the player opens the terminal
-- **THEN** its contents and capacity are excluded
+- **GIVEN** a name request waiting for its owner
+- **WHEN** the same dialog is reopened
+- **THEN** the current request and draft remain visible and a second request is not created
 
-#### Scenario: US1 - Manage one inventory across linked chests 3
+#### Scenario: US1 - Link a chest and use it after reloading 3
 
-- **GIVEN** compatible partial stacks and free slots across members
-- **WHEN** the player deposits or withdraws a quantity
-- **THEN** only confirmed quantities move and any unaccepted quantity remains accounted for
+- **GIVEN** a pending operation for another chest or another world
+- **WHEN** a naming dialog is opened
+- **THEN** the unrelated marker does not disable linking and its durable inventory custody is not erased
 
-#### Scenario: US1 - Manage one inventory across linked chests 4
+#### Scenario: US1 - Link a chest and use it after reloading 4
 
-- **GIVEN** items with different quality, variant or custom metadata
-- **WHEN** the terminal groups or moves them
-- **THEN** their identity and metadata remain distinguishable and incompatible stacks are never fused
+- **GIVEN** a previous game session's cached object IDs
+- **WHEN** the same world is reopened with a new object manager
+- **THEN** the runtime discards obsolete references before looking them up and reloads durable state without invalid-ID exceptions or cross-session results
+
+#### Scenario: US1 - Link a chest and use it after reloading 5
+
+- **GIVEN** a denied or changed target
+- **WHEN** naming completes
+- **THEN** rejection is explicit, its draft is retained and no name or inventory is changed without authorization
+
+#### Scenario: US1 - Link a chest and use it after reloading 6
+
+- **GIVEN** an eligible chest or terminal under the player's interaction cursor
+- **WHEN** the player presses the configurable naming shortcut (default `Alt + N`)
+- **THEN** the naming dialog opens subject to the existing access checks; `Alt + E` no longer opens that dialog, and typing in a UI cannot trigger the shortcut
 
 ### Requirement: Access preservation
 

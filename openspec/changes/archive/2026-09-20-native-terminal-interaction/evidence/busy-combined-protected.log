@@ -1,0 +1,5 @@
+PASS locked chest stacks are excluded while free stacks remain consumable
+PASS crafting count and removal include only free chest stacks
+PASS Epic Loot list count name and exact callbacks protect locked stacks
+PASS ALT lock toggle saves and invalidates availability
+4/4 passed

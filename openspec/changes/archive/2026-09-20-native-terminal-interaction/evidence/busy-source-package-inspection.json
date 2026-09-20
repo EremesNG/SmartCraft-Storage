@@ -1,0 +1,17 @@
+{
+  "Branch": "storage-net",
+  "Commit": "5aa72dbb2b41b8fe0619e23e0ea1e1cb46e1d398",
+  "FileVersion": "0.7.9.0",
+  "ProductVersion": "0.7.9+5aa72dbb2b41b8fe0619e23e0ea1e1cb46e1d398",
+  "DllSHA256": "546FF0A2A2446EA514389A4289DAC943D10704F58FF547D8AAE19604EA14BD98",
+  "ZipSHA256": "01F701AA0BA79B7F7CF2759FD3A9FF5230D646F2AEC4B481EFD556011703BBDD",
+  "ZipEntries": [
+    "CHANGELOG.md",
+    "icon.png",
+    "manifest.json",
+    "plugins/SmartCraftStorage.dll",
+    "README.md"
+  ],
+  "IndependentSourceReview": "oracle_storage_busy_079_round2 PASS",
+  "GameInstallationModified": false
+}

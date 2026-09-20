@@ -1,0 +1,12 @@
+PASS marked carried shield and sword are excluded without changing unlocked candidates
+PASS a stale mixed selection preserves all items and grants no materials or sockets
+PASS unlocked bulk sacrifice retains exact amounts and socket rewards
+PASS an empty selection retains normal harmless behavior
+PASS an absent Epic Loot plugin installs nothing
+PASS other mods sacrifice filters continue to apply
+PASS rejected filter registration installs no execution patch
+PASS a duplicate ID is preserved without adding an execution patch
+PASS external registration exceptions do not escape initialization
+PASS patch installation failure rolls back only the new filter
+PASS an unreadable execution selection is canceled before side effects
+11/11 passed

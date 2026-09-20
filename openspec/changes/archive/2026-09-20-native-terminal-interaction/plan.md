@@ -471,7 +471,13 @@ after these regressions and implementation corrections.
 
 The target branch independently moved to 70ea14d and now includes issue-8
 ALT-lock input/crafting/Epic Loot protections alongside cart/overlay fixes.
-Root owns merge reconciliation and focused combined tests (T031); continuity
-outweighs a new implementation handoff. Preserve every unrelated protection and
-storage conservation/busy guard. Product conflict resolution requires a fresh
-Oracle integration review; the source PASS does not approve merge choices.
+Initial ownership was root. The actual merge exposed coupled station/crafting
+lock policies and obsolete direct-station test boundaries. Root assigned
+`deep_local_merge_lock_integration` the target-only product C# and focused test
+reconciliation (T031): specialist ownership isolates that dependency chain while
+root verifies the source package and owns docs, artifacts and commits. The
+delegation envelope records the bounded surface, pre-fix native protection
+tests, local/remote cost and view requirements, and no game/save writes.
+Preserve every unrelated protection and storage conservation/busy guard.
+Product conflict resolution requires a fresh Oracle integration review; the
+source PASS does not approve merge choices.

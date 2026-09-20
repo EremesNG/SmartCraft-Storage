@@ -1,10 +1,78 @@
 # Verification Report: Native terminal interaction and reliable linking
 
-**Reviewer**: oracle_storage_busy_079_round2<br>
+**Reviewer**: oracle<br>
 **Independent from implementer**: Yes<br>
-**Verdict**: PASS — reviewed 0.7.9 source and recovery scope; combined distribution checks pending
+**Verdict**: PASS
 
-## Current independent review: BUSY-001 round 2
+Oracle instance: `oracle_storage_combined_079`.
+
+## Review dimensions
+
+- **Completeness**: PASS — both source recovery and target reconciliation cover every accepted FR and buildable SC.
+- **Correctness**: PASS — qualified recovery/protection failures converge; 171 focused checks and exact package equality support the independent verdict.
+- **Coherence**: PASS — source/target version 0.7.9, merge parents, documented protections and test limitations agree.
+
+## Compliance matrix
+
+| Requirement | Implementation evidence | Executed check | Result |
+| --- | --- | --- | --- |
+| FR-001 | NativeTerminalInventory and prior restore-grid evidence | Prior 27 native UI checks retained; contract/native checks and independent source review | PASS |
+| FR-002 | StorageNameFlow, service naming and configured shortcut | 40 contract checks and independent source review | PASS |
+| FR-003 | StorageJournal stable references and StorageRpc durable recovery | 7 runtime and 73 native checks, busy-combined-runtime.log and busy-combined-network.log | PASS |
+| FR-004 | Sequential terminal deposits and exact protection | 40 contract checks, native projection/queue evidence retained | PASS |
+| FR-005 | StoragePlanner directed and automatic withdrawal | 40 contract checks include exact-slot cases | PASS |
+| FR-006 | Custody proof, mutation guards and protected chest cost predicates | 73 native, 7 runtime and 4 protected input checks | PASS |
+| FR-007 | Retry/backpressure and target-specific pending states | Native timing, authenticated progress, reconnect and exact-release checks | PASS |
+| FR-008 | Versioned source and combined packages, documented limitations | Exact five-entry ZIP/embedded DLL equality and version inspections | PASS |
+| SC-001 | Reliable naming and owner acknowledgement | Contract naming cases and independent source review | PASS |
+| SC-002 | Journal world/manager lifetime and stable identity | 7 runtime and native rebind/restart cases | PASS |
+| SC-003 | Native projection/hydration and display mutation guards | 40 contracts, runtime hydration and prior 27 UI checks | PASS |
+| SC-004 | Immutable slot expectation and withdrawal plan | Contract exact/partial/incompatible/changed-slot scenarios | PASS |
+| SC-005 | Finite protected costs, recovery and single-flight work | 73 native conservation/release/recovery/lock cases and 40 contracts | PASS |
+| SC-006 | Compiled integration and exact distribution contents | 171 focused checks, Release0errors/3knownwarnings,39Harmony/5lifecycle, package inspection | PASS |
+| SC-007 | Corrected local Steam/UI and full live kiln remain unobserved | User manual local test is the next observation | RISK |
+| SC-008 | Matching-client Steam and remote lock propagation remain unobserved | Two-client and remote legacy custody acceptance remain manual | RISK |
+| SC-009 | Bounded polling/retries and admission progress | Native clock/socket/backpressure/reconnect cases retained | PASS |
+
+## Findings
+
+No unresolved blocking finding. BUSY-079-001/002/003 are independently closed;
+the historical findings and exact verdicts remain below and in the evidence.
+
+## Residual risks
+
+- SC-007: No corrected live local Steam/UI or full kiln run; test ordinary chest/station access, terminal gestures, processing and conservation after rejoin.
+- SC-008: No matching-client Steam acceptance or new end-to-end remote locked-cost replay; verify two clients, owner changes and pending recovery. Legacy remote captures without independent actor proof remain pending.
+
+## Final independent combined review
+
+`oracle_storage_combined_079` returns PASS for merge commit
+`a406c53f5b2532086656959a1eda81fb8dd82aa7`: completeness, correctness and
+coherence all pass, with no actionable blocker. Its exact returned judgment is
+preserved in `evidence/busy-combined-oracle.md`. The reviewed-source matrix below
+remains applicable; the combined review additionally verifies that owner/access,
+ALT-lock protections, cart discovery, overlays and Epic Loot survive reconciliation.
+
+FR-001 through FR-008 and buildable SC-001 through SC-006/SC-009 pass. SC-007
+remains RISK for corrected local Steam/UI and complete live kiln behavior;
+SC-008 remains RISK for matching-client Steam behavior and remote lock propagation.
+The cap accumulator is tested directly; remote cost protection shares the local
+predicate but was not newly replayed end-to-end. These are explicit residual
+outcome risks, not invented observed acceptance.
+
+The committed target passes 171 focused checks: 73 native, 40 contracts,
+7 runtime, 15 cart, 18 overlays, 4 protected inputs and 14 Epic Loot variants.
+Release has 0 errors/3 known warnings; 39 Harmony targets and 5 lifecycle
+signatures resolve. The exact five-entry 0.7.9 ZIP contains the built DLL and
+matching versions. Both source and combined package inspections are retained.
+Prior ZIPs and the Desktop backup remain unchanged. No game/config/save writes
+or corrected live-game acceptance are claimed.
+
+Archive/provenance-only commits may require a final rebuild; compare production
+sources with the reviewed commits and record final distribution hashes in
+BUILD-INFO.txt. Any later product-code change requires fresh independent review.
+
+## Source independent review: BUSY-001 round 2
 
 Fresh read-only Oracle `oracle_storage_busy_079_round2` returned PASS for
 completeness, correctness and coherence. BUSY-079-001/002/003 are closed:

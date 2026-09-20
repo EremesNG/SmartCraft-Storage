@@ -1,0 +1,25 @@
+Game references: C:\Users\EremesNG\AppData\Local\Temp\SCS-game-references-20260919
+Building Release...
+  Skipping Jotunn Prebuild Task
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(13,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\SmartCraftStorage.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(14,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\SmartCraftStorage.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(15,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\SmartCraftStorage.csproj]
+  SmartCraftStorage -> C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\bin\Release\net48\SmartCraftStorage.dll
+
+Compilación correcta.
+
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(13,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\SmartCraftStorage.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(14,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\SmartCraftStorage.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\obj\Release\net48\SmartCraftStorage.AssemblyInfo.cs(15,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'MonoMod.Utils, Version=21.12.13.1, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\SmartCraftStorage.csproj]
+    3 Advertencia(s)
+    0 Errores
+
+Tiempo transcurrido 00:00:01.10
+
+Packaged C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\dist\SmartCraftStorage-0.7.9.zip
+  plugins/SmartCraftStorage.dll            300032 bytes
+  CHANGELOG.md                              11764 bytes
+  icon.png                                  69093 bytes
+  manifest.json                               517 bytes
+  README.md                                 18903 bytes
+  SHA256 65E5A741BF397505D3AFC1BE0D1F285FB824A05C17BA95B6F4EC152256C5531A

@@ -1,0 +1,91 @@
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(13,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.9.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(14,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.9.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(15,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.9.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(16,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.9.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+
+Compilación correcta.
+
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(13,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.9.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(14,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.9.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(15,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.9.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(16,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.9.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+    4 Advertencia(s)
+    0 Errores
+
+Tiempo transcurrido 00:00:01.69
+Test artifacts: C:\Users\EremesNG\AppData\Local\Temp\scs-network-tests-a9bfe179-9a08-4542-b5f2-d2e8eb882be6
+START
+PASS two restored processor requests each send an initial recovery probe
+PASS dense Tick and explicit Resume calls do not resend pending operations before the retry deadline; sent=2
+PASS delayed replies preserve both operations as pending
+PASS waiting preserves the durable request record
+PASS the initial request carries its complete intent
+PASS a result from a peer other than the server cannot admit a request
+PASS an admitted request polls status instead of repeating inventory snapshots
+PASS an unacknowledged operation can still retry its intent independently
+PASS a server needing fresh intent receives rebuilt inventory data
+PASS a late pending reply cannot regress a confirmed operation
+PASS a fresh-intent probe preserves the client's captured output and quantities
+PASS alternating fresh-intent and pending replies retain backoff instead of restarting a per-frame loop; sent=11
+PASS a congested routed connection defers retryable payloads
+PASS retryable traffic resumes when the routed connection drains
+PASS two independent operations retry 11 times each over 60 seconds at 30 FPS
+PASS two independent operations retry 11 times each over 60 seconds at 60 FPS
+PASS two independent operations retry 11 times each over 60 seconds at 144 FPS
+PASS retry deadlines honor the initial half-second and increasing delay
+PASS new progress unblocks only its own operation
+PASS a new session clears transient retry timing
+PASS reconnect restores only unfinished work and requests fresh admission without the old delay
+PASS server participant retries also respect connection backpressure
+PASS server participant commands resume after the queue drains
+PASS an unauthenticated participant reply cannot reset retry timing
+PASS a new authenticated preparation receipt advances the participant and reports progress
+PASS duplicate participant receipts do not repeatedly bypass the retry deadline
+PASS an unsolicited phase acknowledgement cannot advance a transaction
+PASS the next acknowledged phase can advance immediately
+PASS results and effect releases are not stranded behind the retryable-payload gate
+PASS local RPC completion remains synchronous even while a remote connection is congested
+PASS a server missing an operation requests fresh intent without recording a rejection
+PASS status polling returns a durable final outcome without repeating the operation
+PASS status polling cannot resume or alter another player's operation
+PASS captured output requests current discovery without losing its durable custody record
+PASS a captured output reserves its station before recovery
+PASS local output recovery finishes across real service rebinds; status=Confirmed; transaction=
+PASS recovered native inventory layouts move one item and conserve all seven items
+PASS completed output recovery releases both chest reservations and the cooking station
+PASS replaying completed recovery does not apply the item movement twice
+PASS an owner acknowledges a durable apply receipt after the old reservation was released
+PASS receipt recovery never reapplies an already completed inventory layout
+PASS a foreign owner preparation waits for its acknowledgement
+PASS a delayed preparation receipt survives rebuilding the participant binding
+PASS interleaved operations on one chest never share preparation receipts
+PASS an apply acknowledgement reaches a rebound participant while another operation is bound
+PASS delayed release receipts survive rebinds and complete cleanup
+PASS an owner change invalidates cached receipts and rejects late old-owner replies
+PASS the new owner can independently confirm the durable apply receipt
+PASS late replies cannot recreate retired operation progress
+PASS a locally discovered chest with a foreign owner receives its preparation acknowledgement
+PASS a foreign-owned anchor receives its preparation acknowledgement
+PASS host player prepare, apply and release accept synchronous self acknowledgements
+PASS a completed host-player operation leaves no reservation
+PASS native owner snapshot deserialization preserves a newer server-assigned durable identity
+PASS unavailable journal rejects before participant reservation or inventory mutation
+PASS a fresh unstamped participant is identified before its revision snapshot and commits normally
+PASS profile recovery follows unique custody markers when a stale raw ID resolves to another valid source
+PASS legacy recovery rejects self-RPC proof fields without matching persisted host profile custody
+PASS legacy recovery rejects persisted profile custody for the wrong actor
+PASS legacy orphan persists custody under the opaque operation ID and remaps only its source target
+PASS legacy delivery-0 is durably tombstoned before recovery uses delivery-1
+PASS one captured native output is conserved into storage exactly once
+PASS only the proven delivery reservations and completed source reservation are released
+PASS missing applied capture receipt remains fail closed and releases no reservation
+PASS restart reconstructs a missing legacy cleanup record and releases only its durable participant set
+PASS an applied legacy delivery receipt outside the active reservation set blocks fresh delivery
+PASS future capture custody records server-verifiable world and actor authority at the source; status=RecoveryPending; message=Requested
+FAIL processor input selection skips a locked first row and reaches an eligible later row
+FAIL crafting availability excludes locked chest rows while retaining free rows
+PASS kiln stored-output caps include locked coal rows in the total
+PASS cost planning consumes free chest rows while preserving matching locked rows; status=Confirmed
+PASS locked-only chest cost cannot start an operation or consume protected input; status=Rejected
+PASS a carried locked marker remains eligible for ordinary crafting costs while chest rows stay protected; status=Confirmed; message=
+DONE failures=2

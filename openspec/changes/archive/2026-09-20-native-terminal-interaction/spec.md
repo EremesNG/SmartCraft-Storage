@@ -2,7 +2,7 @@
 
 **Change ID**: `native-terminal-interaction`<br>
 **Route**: Full<br>
-**Status**: Local candidate packaged; independent verification and live acceptance pending
+**Status**: Independently verified and packaged; live SC-007/SC-008 remain explicit risks
 
 ## Intent and scope
 
