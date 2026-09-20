@@ -54,6 +54,18 @@ spawn agents or mutate another lane's files.
 - [x] T021 [US1] Make Alt+N the default while retaining editable naming shortcuts for FR-002/FR-008 and SC-001/SC-006 in `Hotkeys/HotkeyConfig.cs` | Verify: new installs use Alt+N, existing custom or disabled bindings survive, a migrated default is not imposed again on later customizations, and instructions/package metadata agree.
 - [x] T022 [US2] Correct first-terminal native scrollbar cache contamination and misleading empty cells for FR-001/FR-008 and SC-007 in `Storage/UI/NativeTerminalInventory.cs` | Verify: reproduce first-view cache failure before correcting it; alternate terminal/ordinary views without moving the native scrollbar; show only occupied grouped entries with adaptive rows; retain empty-area deposit events and exact physical capacity reporting.
 
+## Convergence: NET-001 remote send saturation
+
+- [x] T023 [US3] Correct NET-001 (contradicts FR-007, partial FR-003/FR-008) with root-owned elapsed-time retries, admitted-request status polling and transport backpressure for SC-005/SC-006/SC-009 in `Storage/Runtime/StorageService.cs` | Verify: observe red before the fix at the clock/socket seams, preserve pending requests and custody, allow new authenticated progress, and keep repeated-frame traffic bounded on client and server.
+- [~] T024 [US3] Exercise NET-001 corrected runtime wiring and package the 0.7.8 source and local-merge candidates with root-owned tests/artifacts and fresh Oracle judgment for FR-008 and SC-006/SC-008/SC-009 in `openspec/changes/native-terminal-interaction/verify-report.md` | Verify: focused suites/build/Harmony/package checks pass, prior packages are retained, source branch remains isolated, remote live acceptance and unavailable independent review stay explicit.
+
+NET-001 evidence: user reports no error with the prior local-merge DLL installed
+on both client and server, unlike 0.7.7 with idle automatic processing. Diagnostic
+logs and a read-only save-field inspection were retained under local-merge/dist/diagnostics/
+send-limit-20260920. No source or player-save mutation occurred during diagnosis.
+The bounded deep implementation dispatch could not start (agent thread limit);
+root owns the same declared surfaces sequentially. T014/T015 remain open.
+
 ## Parallel execution
 
 ### Group P1

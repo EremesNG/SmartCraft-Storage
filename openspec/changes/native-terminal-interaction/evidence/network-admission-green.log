@@ -1,0 +1,15 @@
+Test artifacts: C:\Users\EremesNG\AppData\Local\Temp\scs-network-tests-5dcd61cd-5bff-48ec-973c-a192626daac4
+START
+PASS two restored processor requests each send an initial recovery probe
+PASS dense Tick and explicit Resume calls do not resend pending operations before the retry deadline; sent=2
+PASS delayed replies preserve both operations as pending
+PASS waiting preserves the durable request record
+PASS the initial request carries its complete intent
+PASS a result from a peer other than the server cannot admit a request
+PASS an admitted request polls status instead of repeating inventory snapshots
+PASS an unacknowledged operation can still retry its intent independently
+PASS a server needing fresh intent receives rebuilt inventory data
+PASS a late pending reply cannot regress a confirmed operation
+PASS a congested routed connection defers retryable payloads
+PASS retryable traffic resumes when the routed connection drains
+DONE failures=0

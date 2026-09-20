@@ -257,7 +257,7 @@ checks or prevent providing the local candidate for user testing. The installed
 thoth-sdd SKILL.md:72 requires "a fresh read-only Oracle" for Full final verify.
 Root therefore leaves the verdict NOT RUN and archive deferred.
 
-## Current local candidate: 0.7.7 native baseline and grouped-entry cells
+## Prior local candidate: 0.7.7 native baseline and grouped-entry cells
 
 The user's screenshots establish two live 0.7.6 regressions: a normal chest's
 scrollbar near the center and a full 30/30 network appearing to have extra
@@ -291,9 +291,38 @@ reached`. No reviewer was created, CAP-001 persists, the verdict remains NOT RUN
 and T014/T015 stay open. The installed thoth-sdd SKILL.md:72 requires "a fresh
 read-only Oracle"; root does not replace that verdict with its own checks.
 
+## Current local candidate: 0.7.8 bounded network recovery
+
+NET-001 is a same-intent FR-003/FR-007/FR-008 correction. The user confirms that
+matching 0.7.7 floods the remote connection while idle, while the pre-storage
+backup on both endpoints does not. The real production service reproduces 402
+packets for two pending processor requests in an immediate Tick/Resume burst;
+the corrected service sends two and waits. An additional reply-feedback case
+reproduced 3,600 sends in a simulated minute and now sends 11.
+
+See evidence/network-implementation-checks.md and network-*.log for qualified
+red/green evidence and fixture limitations. Current source checks pass:
+
+- 33 actual-Unity network checks; 40 existing contracts; 4 runtime checks.
+- Release build: zero errors, three known CS0436 publicizer warnings.
+- 39 Harmony targets/arguments and 5 Unity lifecycle signatures.
+- Full ready validator and whitespace checks; existing checklist warning only.
+
+The fix preserves pending intent/custody, uses status polling after admission,
+limits retries by time on client and server, and defers retryable payloads while
+the routed socket is congested. Fresh-intent control replies preserve output
+custody and backoff. UI and station resource semantics are unchanged.
+
+Fresh oracle_storage_network_078_final could not start: native agent thread
+limit reached. Independent verdict is NOT RUN; CAP-001 and T014/T015 remain open.
+T023 has implementation evidence; T024 remains in progress pending integration
+evidence and the independent judgment. Packaging targets source and the existing
+local-merge worktree, retaining its cart/overlay compatibility and prior ZIPs.
+No installed game/config/server/save writes or real Steam acceptance are claimed.
+
 ## Residual risks
 
 - SC-007: the user accepts the compact design but reported the 0.7.6 native scrollbar and filler-cell regressions. Corrected 0.7.7 first-terminal restoration, adaptive display, blank-space deposits, native weight, label fit/UI scale, search/control release, gestures, naming/re-entry, gamepad/touch and installed-mod interactions still need observation. Source inspection, cache replay and synthetic Unity UI are not full-game verification.
 - SC-008: remote owner response delays, multiple clients, dedicated server and MultiUserChest simultaneous use need matching-version multiplayer acceptance.
 - The runtime fixture does not execute Unity or the actual native legacy inventory loader. New exact item payloads are exercised through the production adapter; persisted legacy payload loading still requires an in-game observation.
-- No automatic installation, server deployment, publication, commit or alteration of world/character saves was performed.
+- No automatic installation, server deployment, publication or alteration of world/character saves was performed. Local source/merge commits preserve the feature branch for a future upstream PR.

@@ -58,7 +58,7 @@ As a player, I can search, organize and use bulk actions while confirmed invento
 
 **Independent test**: Filter a pooled view, organize it, run transfer-all queues with delayed confirmation, close/reopen, and confirm exact quantities and unchanged automation scope.
 
-**Covers**: FR-001, FR-003, FR-004, FR-006, FR-007, FR-008, SC-003, SC-005, SC-006, SC-007, SC-008
+**Covers**: FR-001, FR-003, FR-004, FR-006, FR-007, FR-008, SC-003, SC-005, SC-006, SC-007, SC-008, SC-009
 
 **Acceptance scenarios**:
 
@@ -66,6 +66,7 @@ As a player, I can search, organize and use bulk actions while confirmed invento
 2. **Given** a pending cross-grid request, **When** more gestures or refreshes occur, **Then** no second mutation is submitted, drag identity remains stable and the authoritative inventories refresh after the same operation completes.
 3. **Given** a bulk transfer, **When** one step is pending or the UI closes, **Then** only the submitted operation persists and unsubmitted entries are not moved; later steps require confirmed preceding results and fresh capacity.
 4. **Given** ordinary chests, crafting, processing and direct quick-stack, **When** the terminal UI is used or closed, **Then** prior finite-network, permission, compaction and direct-feature boundaries remain intact.
+5. **Given** delayed or lost remote replies, **When** automatic stations and UI updates resume pending work, **Then** retries use elapsed time instead of frame rate, admitted requests poll status without repeating inventory snapshots, and a congested connection defers retryable payloads while preserving operation identity and custody.
 
 ## Edge cases
 
@@ -105,6 +106,7 @@ the action buttons. Necessary operation status remains visible in the header.
 - **SC-006** `[buildable]`: Existing contract tests, new focused regressions, plugin build and patch metadata checks pass and the versioned package matches the verified code.
 - **SC-007** `[outcome]`: All live single-player naming/reopening/reloading, native search, transfer, split, Organize and ordinary-chest restoration checks succeed at the available display resolution.
 - **SC-008** `[outcome]`: 2 matching clients confirm the same terminal gestures with delayed owner responses and no duplicated or lost items; unobserved game/integration scenarios remain explicit residual risks.
+- **SC-009** `[buildable]`: Repeated updates during delayed responses produce bounded retries independent of frame rate; authenticated progress permits the next step, queued transport pressure defers retryable sends, and reconnect/status recovery preserves pending work and exact quantities.
 
 ## Assumptions
 

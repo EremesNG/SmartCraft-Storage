@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.8
+
+- Limit storage recovery retries by elapsed time, with increasing delays up to
+  eight seconds, to prevent pending operations flooding the connection on join.
+- Once the server admits an operation, request its status instead of repeatedly
+  sending complete inventory snapshots. New authenticated progress can resume
+  promptly; reconnecting requests fresh admission and preserves pending items.
+- Defer retryable storage commands while the routed connection is congested,
+  leaving confirmations and custody releases able to complete. This is a local
+  test candidate; matching-version server and client testing remains required.
+
 ## 0.7.7
 
 - Fix the native chest scrollbar moving into the grid when a terminal is the

@@ -42,6 +42,41 @@ uncommitted implementation and the prior archived review history.
 
 ## Design
 
+### Remote send saturation correction (0.7.8)
+
+Live finding NET-001 contradicts FR-007 bounded retries and leaves SC-008 unmet:
+the matching 0.7.7 client/server floods Steam's outgoing queue after spawning,
+without input. The user confirms the earlier local-merge DLL on both ends removes
+the error. The saved profile has two pending processor cost intents; Tick resumes
+them every frame and reconstructs all inventory snapshots. This is same-intent
+convergence for FR-003/FR-007/FR-008 and SC-005/SC-006/SC-008/SC-009.
+
+Owner: root, retaining loaded request/recovery context and a single ordered writer
+for runtime integration. A bounded deep retry-policy lane was attempted but the
+native agent thread limit prevented dispatch; use the truthful sequential fallback.
+Mutable surface: Storage/Core/StorageRetrySchedule.cs, Storage/Runtime/StorageService.cs,
+Storage/Runtime/StorageRpc.cs, focused contract/network tests, candidate metadata,
+README/CHANGELOG and this audit. Preserve native UI, permissions, IDs, durable records,
+item custody and existing transaction outcomes. No installed game/server/save changes.
+
+Use monotonic elapsed-time retries (initial immediate, then 0.5/1/2/4/8 seconds,
+capped at 8), shared by Tick and all explicit Resume callers. Only authenticated
+new progress resets an operation's timer; context replacement clears transient timing.
+After server admission, poll small status requests instead of repeating inventories.
+An unknown server record or output needing a fresh delivery plan explicitly requests
+fresh intent; naming retains its small retryable command. Bound retryable payload
+dispatch using the actual routed connection's send queue; acknowledgements/results
+and effect-release messages retain delivery so flow control cannot strand custody.
+
+Verification uses the accepted transaction/status seams plus external clock and
+socket boundaries: red-first dense-frame/delayed-response tests, lost/late acknowledgement
+recovery, independent operations, backpressure and reconnection. Exercise production
+runtime wiring in an isolated fixture where feasible; do not claim the live multiplayer
+failure fixed solely from pure policy tests. Run storage suites, affected native fixtures,
+Release build, patch metadata and exact package inspection. Keep source storage-net
+isolated and merge the correction into local-merge after validation. Request a fresh
+Oracle final review; capability failure is recorded without asserting approval.
+
 ### First-view scrollbar and padded cells correction (0.7.7)
 
 The user accepts the improved 0.7.6 visual design but shows a native chest with

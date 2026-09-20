@@ -26,6 +26,9 @@ namespace SmartCraftStorage.Storage.Runtime
         private readonly Dictionary<string, long> _requestPeers = new Dictionary<string, long>(StringComparer.Ordinal);
         private readonly Dictionary<string, long> _nameOwners = new Dictionary<string, long>(StringComparer.Ordinal);
         private readonly Dictionary<string, byte[]> _pendingRequests = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+        private readonly StorageRetrySchedule _retries = new StorageRetrySchedule();
+        private readonly HashSet<string> _admittedRequests = new HashSet<string>(StringComparer.Ordinal);
+        private readonly Func<double> _clock;
         private readonly Dictionary<string, CachedInventory> _snapshotCache = new Dictionary<string, CachedInventory>(StringComparer.Ordinal);
         private readonly Dictionary<string, StorageView> _viewCache = new Dictionary<string, StorageView>(StringComparer.Ordinal);
         private int _viewCacheFrame = -1;
@@ -38,21 +41,35 @@ namespace SmartCraftStorage.Storage.Runtime
         internal static bool IsExecutingEffect => _executingEffects > 0;
 
         internal StorageService(Func<StorageSettings> settings)
+            : this(settings, () => UnityEngine.Time.realtimeSinceStartupAsDouble) { }
+
+        internal StorageService(Func<StorageSettings> settings, Func<double> clock)
         {
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _settings = settings ?? throw new ArgumentNullException(nameof(settings)); _journal = new StorageJournal();
             _rpc.RequestReceived = HandleServerRequest; _rpc.ResultReceived = operation =>
             {
                 EnsureRuntimeContext();
                 _operations.TryGetValue(operation.Id, out var previous);
+                var needsFreshIntent = operation.Status == StorageOperationStatus.Requested;
+                // Requested is also the server's request for fresh discovery.
+                // It neither relinquishes captured output nor counts as progress.
+                if (needsFreshIntent && previous != null)
+                    operation = new StorageOperation(operation.Id, previous.Status, previous.Requested,
+                        previous.Accepted, previous.Remaining, operation.Message, previous.Captured);
                 operation = StorageEffects.AcceptStatus(previous, operation);
                 _operations[operation.Id] = operation;
-                if (operation.IsFinal) { _pendingRequests.Remove(operation.Id); PersistPendingRequests(); }
+                if (operation.IsFinal || needsFreshIntent) _admittedRequests.Remove(operation.Id);
+                else if (_pendingRequests.ContainsKey(operation.Id)) _admittedRequests.Add(operation.Id);
+                if (!needsFreshIntent && (previous == null || previous.Status != operation.Status)) _retries.Progress(operation.Id);
+                if (operation.IsFinal) { _pendingRequests.Remove(operation.Id); _retries.Forget(operation.Id); PersistPendingRequests(); }
                 if (operation.IsFinal && Player.m_localPlayer != null) RemoveEscrow(Player.m_localPlayer, operation.Id);
             };
             _rpc.EffectReceived = ApplyLocalEffect;
             _rpc.EffectAcknowledged = AcknowledgeEffect;
             _rpc.NameAcknowledged = AcknowledgeName;
             _rpc.EffectReleased = RemoveLocalEffectMarker;
+            _rpc.ProgressReceived = OnParticipantProgress;
             _effectCoordinator = new StorageEffects(_journal, new RuntimeEffectPort(this));
         }
         public bool Ready { get { EnsureRuntimeContext(); return ZNet.instance != null && ZDOMan.instance != null; } }
@@ -65,6 +82,8 @@ namespace SmartCraftStorage.Storage.Runtime
             if (ReferenceEquals(_manager, manager) && _session == session && _world == world && ReferenceEquals(_localActor, Player.m_localPlayer)) return;
             _manager = manager; _session = session; _world = world; _localActor = Player.m_localPlayer;
             _operations.Clear(); _requestPeers.Clear(); _nameOwners.Clear(); _pendingRequests.Clear();
+            _retries.Clear();
+            _admittedRequests.Clear();
             _snapshotCache.Clear(); _viewCache.Clear(); _viewCacheFrame = -1; _tickCursor = 0;
             _rpc.ResetParticipants();
             // Durable world records, profile intents and effect handlers survive this reset.
@@ -205,7 +224,7 @@ namespace SmartCraftStorage.Storage.Runtime
             {
                 _pendingRequests.Remove(operationKey); PersistPendingRequests();
                 RemoveLocalEffectMarker(captureEffect.TargetId, operationKey); RemoveEscrow(context.Actor, operationKey);
-            }, () => { SubmitPending(operationKey); return GetOperation(operationKey); });
+            }, () => { Resume(operationKey); return GetOperation(operationKey); });
             return Remember(result);
         }
 
@@ -235,6 +254,8 @@ namespace SmartCraftStorage.Storage.Runtime
         }
         public void Resume(string operationId)
         {
+            EnsureRuntimeContext();
+            if (!_retries.TryBegin(operationId, _clock())) return;
             if (_pendingRequests.ContainsKey(operationId ?? "")) { SubmitPending(operationId); return; }
             ResumeRecordedOperation(operationId);
         }
@@ -254,6 +275,13 @@ namespace SmartCraftStorage.Storage.Runtime
                 return;
             }
             ResumeTransaction(operationId);
+        }
+
+        private void OnParticipantProgress(string operationId)
+        {
+            _retries.Progress(operationId);
+            foreach (var effect in _journal.PendingEffects.Where(x => x.DeliveryTransactionId == operationId))
+                _retries.Progress(effect.OperationId);
         }
 
         private void ResumeTransaction(string operationId)
@@ -304,7 +332,7 @@ namespace SmartCraftStorage.Storage.Runtime
                 target.GetZDO().m_uid.ToString(), body.GetArray());
             _pendingRequests[id] = intent.Encode(); PersistPendingRequests();
             Remember(new StorageOperation(id, StorageOperationStatus.Requested, message: "Requested"));
-            SubmitPending(id); return GetOperation(id);
+            Resume(id); return GetOperation(id);
         }
 
         private void AcknowledgeName(long sender, string operationId, bool accepted, string message)
@@ -460,7 +488,7 @@ namespace SmartCraftStorage.Storage.Runtime
                 _journal.Save(new StorageTransactionRecord(operation.Id, "outcome", operation.Status, Array.Empty<StorageParticipantPlan>(),
                     operation.Message, operation.Requested, operation.Accepted));
             if (ZNet.instance != null && ZNet.instance.IsServer() && _requestPeers.TryGetValue(operation.Id, out var peer)) _rpc.Reply(peer, operation);
-            if (operation.IsFinal) _requestPeers.Remove(operation.Id);
+            if (operation.IsFinal) { _requestPeers.Remove(operation.Id); _retries.Forget(operation.Id); }
             var excess = _operations.Count - (_settings().MaxPendingOperations + 256);
             if (excess > 0)
                 foreach (var retired in _operations.Values.Where(x => x.IsFinal).Take(excess).Select(x => x.Id).ToList()) _operations.Remove(retired);
@@ -598,6 +626,7 @@ namespace SmartCraftStorage.Storage.Runtime
                 return;
             }
             if (!result.IsAccepted) return;
+            _retries.Progress(operationId);
             _journal.SaveEffect(record.At(stage, acknowledgement: Acknowledgement(stage)));
             var resumed = _effectCoordinator.Resume(operationId);
             if (resumed.Stage == StorageEffectStage.Completed) ReleaseEffectSource(resumed);
@@ -928,7 +957,7 @@ namespace SmartCraftStorage.Storage.Runtime
                 context.Anchor != null && context.Anchor.IsValid() ? context.Anchor.GetZDO().m_uid.ToString() : "none", body.GetArray());
             _pendingRequests[id] = intent.Encode(); PersistPendingRequests();
             Remember(new StorageOperation(id, StorageOperationStatus.Requested, message: "Requested"));
-            if (submit) SubmitPending(id);
+            if (submit) Resume(id);
             return GetOperation(id);
         }
 
@@ -941,6 +970,11 @@ namespace SmartCraftStorage.Storage.Runtime
                 intent = StorageRequestIntent.Decode(encoded);
                 if (intent.Id != id || intent.WorldId != WorldIdentity())
                     throw new InvalidOperationException("Return to the operation's original world to resume");
+                if (intent.Kind != "name" && _admittedRequests.Contains(id))
+                {
+                    RequestStatus(id);
+                    return;
+                }
                 var anchor = intent.AnchorId == "none" ? null : ResolveTarget(intent.AnchorId);
                 if (intent.AnchorId != "none" && (anchor == null || !anchor.IsValid()))
                     throw new InvalidOperationException("Operation anchor is not loaded");
@@ -957,12 +991,20 @@ namespace SmartCraftStorage.Storage.Runtime
                 Remember(new StorageOperation(id, StorageOperationStatus.RecoveryPending,
                     old.Requested, old.Accepted, old.Remaining, error.Message, old.Captured));
                 if (intent != null && intent.WorldId == WorldIdentity())
-                {
-                    var status = new ZPackage(); status.Write("status"); status.Write(id);
-                    _rpc.Submit(status);
-                }
+                    RequestStatus(id);
             }
         }
+
+        private void RequestStatus(string id)
+        {
+            var status = new ZPackage(); status.Write("status"); status.Write(id);
+            _rpc.Submit(status);
+        }
+
+        private bool NeedsFreshOutputIntent(StorageEffectRecord effect) => effect == null ||
+            effect.Stage == StorageEffectStage.Captured || effect.Stage == StorageEffectStage.CapturePending ||
+            (effect.Stage == StorageEffectStage.DeliveryPending &&
+                _journal.Load(effect.DeliveryTransactionId)?.Status == StorageOperationStatus.Rejected);
 
         private byte[] CurrentRequestHeader(StorageRequestIntent intent, StorageContext context)
         {
@@ -1045,19 +1087,18 @@ namespace SmartCraftStorage.Storage.Runtime
                     var recordedActor = effect?.ActorId ?? transaction?.ActorId ?? 0L;
                     if (recordedActor != 0 && recordedActor != actor.ActorId)
                     { _rpc.Reply(sender, new StorageOperation(id, StorageOperationStatus.Rejected, message: "Operation belongs to another player")); _requestPeers.Remove(id); return; }
-                    if (admitted == null) Remember(new StorageOperation(id, StorageOperationStatus.RecoveryPending, message: "Awaiting valid operation intent"));
+                    if (admitted == null || (!admitted.IsFinal && effect == null && transaction == null) ||
+                        (effect?.Capture != null && NeedsFreshOutputIntent(effect)))
+                        _rpc.Reply(sender, new StorageOperation(id, StorageOperationStatus.Requested, message: "Fresh operation intent required"));
                     else if (admitted.IsFinal) Remember(admitted);
-                    else { ResumeRecordedOperation(id); Remember(GetOperation(id)); }
+                    else { Resume(id); Remember(GetOperation(id)); }
                     return;
                 }
                 if (admitted != null && admitted.IsFinal) { Remember(admitted); return; }
                 var recordedEffect = _journal.LoadEffect(id);
                 if (admitted != null && kind != "name" &&
-                    (kind != "output" || (recordedEffect != null && recordedEffect.Stage != StorageEffectStage.Captured &&
-                        recordedEffect.Stage != StorageEffectStage.CapturePending &&
-                        !(recordedEffect.Stage == StorageEffectStage.DeliveryPending &&
-                            _journal.Load(recordedEffect.DeliveryTransactionId)?.Status == StorageOperationStatus.Rejected))))
-                { ResumeRecordedOperation(id); Remember(GetOperation(id)); return; }
+                    (kind != "output" || !NeedsFreshOutputIntent(recordedEffect)))
+                { Resume(id); Remember(GetOperation(id)); return; }
                 if (kind == "name")
                 {
                     var target = ZDOMan.instance.GetZDO(package.ReadZDOID()); var name = package.ReadString();

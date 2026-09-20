@@ -4,7 +4,7 @@
     <TargetFramework>net48</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AssemblyName>SmartCraftStorage</AssemblyName>
-    <Version>0.7.7</Version>
+    <Version>0.7.8</Version>
     <RootNamespace>SmartCraftStorage</RootNamespace>
     <Nullable>disable</Nullable>
     <RestoreAdditionalProjectSources>https://api.nuget.org/v3/index.json;https://nuget.bepinex.dev/v3/index.json</RestoreAdditionalProjectSources>

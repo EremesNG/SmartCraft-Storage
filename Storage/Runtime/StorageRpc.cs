@@ -36,6 +36,7 @@ namespace SmartCraftStorage.Storage.Runtime
         internal Action<long, string, StorageEffectStage, StorageEffectStepResult> EffectAcknowledged;
         internal Action<long, string, bool, string> NameAcknowledged;
         internal Action<string, string> EffectReleased;
+        internal Action<string> ProgressReceived;
 
         internal StorageRpc()
         {
@@ -67,7 +68,11 @@ namespace SmartCraftStorage.Storage.Runtime
             _registeredRpc = ZRoutedRpc.instance;
         }
 
-        internal void Submit(ZPackage package) { EnsureRegistered(); ZRoutedRpc.instance?.InvokeRoutedRPC(RequestRpc, package); }
+        internal void Submit(ZPackage package)
+        {
+            EnsureRegistered();
+            if (ZRoutedRpc.instance != null) Send(ZRoutedRpc.instance.GetServerPeerID(), RequestRpc, package);
+        }
         internal void Reply(long peer, StorageOperation operation)
         {
             EnsureRegistered();
@@ -78,13 +83,13 @@ namespace SmartCraftStorage.Storage.Runtime
         {
             EnsureRegistered();
             var package = new ZPackage(); package.Write(operationId); package.Write((int)stage); WriteDescriptor(package, descriptor); package.Write(escrow ?? "");
-            ZRoutedRpc.instance?.InvokeRoutedRPC(owner, EffectApplyRpc, package);
+            Send(owner, EffectApplyRpc, package);
         }
         internal void ApplyName(long owner, ZDOID target, string operationId, long actorId, string name)
         {
             EnsureRegistered();
             var package = new ZPackage(); package.Write(target); package.Write(operationId); package.Write(actorId); package.Write(name ?? "");
-            ZRoutedRpc.instance?.InvokeRoutedRPC(owner, NameApplyRpc, package);
+            Send(owner, NameApplyRpc, package);
         }
         internal void ReleaseEffect(long owner, string targetId, string operationId)
         {
@@ -147,8 +152,9 @@ namespace SmartCraftStorage.Storage.Runtime
             var operationId = package.ReadString(); var actorId = package.ReadLong(); var phase = package.ReadInt(); var accepted = package.ReadBool();
             var peer = ZNet.instance.GetPeers().FirstOrDefault(x => x.m_uid == sender && x.m_playerID == actorId);
             if (peer == null || !_participants.TryGetValue("player:" + actorId, out var value)) return;
-            if (value is PlayerParticipant participant) participant.Acknowledge(operationId, phase, accepted);
-            else if (value is RemotePlayerParticipant remote) remote.Acknowledge(operationId, phase, accepted);
+            var changed = value is PlayerParticipant participant ? participant.Acknowledge(operationId, phase, accepted)
+                : value is RemotePlayerParticipant remote && remote.Acknowledge(operationId, phase, accepted);
+            if (changed) ProgressReceived?.Invoke(operationId);
         }
         private void OnEffectApply(long sender, ZPackage package)
         {
@@ -315,8 +321,9 @@ namespace SmartCraftStorage.Storage.Runtime
             var id = package.ReadZDOID(); var operationId = package.ReadString(); var accepted = package.ReadBool();
             var zdo = ZDOMan.instance?.GetZDO(id);
             if (zdo == null || zdo.GetOwner() != sender || !_participants.TryGetValue(id.ToString(), out var value)) return;
-            if (value is RuntimeParticipant participant) participant.AcknowledgeRelease(operationId, accepted);
-            else if (value is RemoteParticipant remote) remote.Acknowledge(operationId, 2, accepted, "");
+            var changed = value is RuntimeParticipant participant ? participant.AcknowledgeRelease(operationId, accepted)
+                : value is RemoteParticipant remote && remote.Acknowledge(operationId, 2, accepted, "");
+            if (changed) ProgressReceived?.Invoke(operationId);
         }
 
         private void OnParticipantAck(long sender, ZPackage package)
@@ -325,7 +332,7 @@ namespace SmartCraftStorage.Storage.Runtime
             var operationId = package.ReadString(); var participantId = package.ReadString(); var phase = package.ReadInt();
             var accepted = package.ReadBool(); var message = package.ReadString();
             if (!_participants.TryGetValue(participantId, out var value) || !(value is RemoteParticipant participant) || participant.Owner != sender) return;
-            participant.Acknowledge(operationId, phase, accepted, message);
+            if (participant.Acknowledge(operationId, phase, accepted, message)) ProgressReceived?.Invoke(operationId);
         }
 
         private static void SendParticipantAck(string operationId, string participantId, int phase, bool accepted, string message)
@@ -343,7 +350,22 @@ namespace SmartCraftStorage.Storage.Runtime
         {
             var zdo = ZDOMan.instance?.GetZDO(id); return zdo != null ? ZNetScene.instance?.FindInstance(zdo) : null;
         }
-        private static void Send(long owner, string method, ZPackage package) => ZRoutedRpc.instance?.InvokeRoutedRPC(owner, method, package);
+        private static void Send(long owner, string method, ZPackage package)
+        {
+            if (ZRoutedRpc.instance == null || ZNet.instance == null || owner == 0L) return;
+            if (ZDOMan.instance == null || owner != ZDOMan.GetSessionID())
+            {
+                // Clients route through the server even when a different owner is
+                // the final recipient. Leave room for game traffic and receipts.
+                var peer = ZNet.instance.IsServer()
+                    ? ZNet.instance.GetPeers().FirstOrDefault(x => x.m_uid == owner)
+                    : ZNet.instance.GetServerPeer();
+                if (peer?.m_socket == null || !peer.m_socket.IsConnected() || peer.m_socket.GetSendQueueSize() >= 64 * 1024) return;
+            }
+            // Only retryable commands pass here. Results, acknowledgements and
+            // effect releases retain their normal send path so custody can settle.
+            ZRoutedRpc.instance.InvokeRoutedRPC(owner, method, package);
+        }
 
         private static void WriteDescriptor(ZPackage package, StorageEffectDescriptor descriptor)
         {
@@ -436,7 +458,7 @@ namespace SmartCraftStorage.Storage.Runtime
                 var package = new ZPackage(); package.Write(_container.m_nview.GetZDO().m_uid); package.Write(operationId); Send(_container.m_nview.GetZDO().GetOwner(), ReleaseRpc, package);
                 return StorageParticipantResult.Unknown("Awaiting participant release");
             }
-            internal void AcknowledgeRelease(string operationId, bool accepted) { if (accepted) _released.Add(operationId); }
+            internal bool AcknowledgeRelease(string operationId, bool accepted) => accepted && _released.Add(operationId);
             internal static HashSet<string> ReadReceipts(ZDO zdo) => new HashSet<string>((zdo.GetString(ReceiptsKey, "") ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.Ordinal);
             internal static bool HasReceipt(ZDO zdo, string operationId)
             {
@@ -541,10 +563,16 @@ namespace SmartCraftStorage.Storage.Runtime
                 var package = new ZPackage(); package.Write(_zdo.m_uid); package.Write(operationId); Send(Owner, ReleaseRpc, package);
                 return StorageParticipantResult.Unknown("Awaiting participant release");
             }
-            internal void Acknowledge(string operationId, int phase, bool accepted, string message)
+            internal bool Acknowledge(string operationId, int phase, bool accepted, string message)
             {
-                if (!accepted) { _failures[operationId + ":" + phase] = message ?? "Owner rejected participant"; return; }
-                if (phase == 0) _prepared.Add(operationId); else if (phase == 1) _applied.Add(operationId); else if (phase == 2) _released.Add(operationId);
+                if (!accepted)
+                {
+                    var key = operationId + ":" + phase;
+                    var changed = !_failures.ContainsKey(key);
+                    _failures[key] = message ?? "Owner rejected participant";
+                    return changed;
+                }
+                return phase == 0 ? _prepared.Add(operationId) : phase == 1 ? _applied.Add(operationId) : phase == 2 && _released.Add(operationId);
             }
         }
 
@@ -581,10 +609,10 @@ namespace SmartCraftStorage.Storage.Runtime
                 var package = new ZPackage(); package.Write(operationId); Send(_peerId, PlayerReleaseRpc, package);
                 return StorageParticipantResult.Unknown("Awaiting player release");
             }
-            internal void Acknowledge(string operationId, int phase, bool accepted)
+            internal bool Acknowledge(string operationId, int phase, bool accepted)
             {
-                if (!accepted) { if (phase == 0) _prepareRejected.Add(operationId); return; }
-                if (phase == 0) _prepared.Add(operationId); else if (phase == 1) _applied.Add(operationId); else if (phase == 2) _released.Add(operationId);
+                if (!accepted) return phase == 0 && _prepareRejected.Add(operationId);
+                return phase == 0 ? _prepared.Add(operationId) : phase == 1 ? _applied.Add(operationId) : phase == 2 && _released.Add(operationId);
             }
         }
 
@@ -656,8 +684,8 @@ namespace SmartCraftStorage.Storage.Runtime
                 var package = new ZPackage(); package.Write(operationId); Send(peer.m_uid, PlayerReleaseRpc, package);
                 return StorageParticipantResult.Unknown("Awaiting player release");
             }
-            internal void Acknowledge(string operationId, int phase, bool accepted)
-            { if (!accepted) return; if (phase == 0) _prepared.Add(operationId); else if (phase == 1) _remoteReceipts.Add(operationId); else if (phase == 2) _released.Add(operationId); }
+            internal bool Acknowledge(string operationId, int phase, bool accepted) => accepted &&
+                (phase == 0 ? _prepared.Add(operationId) : phase == 1 ? _remoteReceipts.Add(operationId) : phase == 2 && _released.Add(operationId));
             private HashSet<string> ReceiptSet() => ReadPlayerReceipts(_player);
             internal static HashSet<string> ReadPlayerReceipts(Player player) { player.m_customData.TryGetValue(PlayerReceiptsKey, out var value); return new HashSet<string>((value ?? "").Split(new[] { '\n' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.Ordinal); }
             internal static bool HasPlayerReceipt(Player player, string operationId)

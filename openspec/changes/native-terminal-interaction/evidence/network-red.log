@@ -1,0 +1,9 @@
+Test artifacts: C:\Users\EremesNG\AppData\Local\Temp\scs-network-tests-3f4d02f9-e342-4685-999b-0f99be1cd1bc
+START
+PASS two restored processor requests each send an initial recovery probe
+FAIL dense Tick and explicit Resume calls do not resend pending operations before the retry deadline; sent=402
+PASS delayed replies preserve both operations as pending
+PASS waiting preserves the durable request record
+FAIL a congested routed connection defers retryable payloads
+FAIL retryable traffic resumes when the routed connection drains
+DONE failures=3

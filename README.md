@@ -10,7 +10,7 @@ animals from a nearby chest, and repairing all your gear at once.
 Requires [BepInEx](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/)
 and [Jotunn](https://valheim.thunderstore.io/package/ValheimModding/Jotunn/).
 
-**Version 0.7.7 requires the same SmartCraftStorage version on the server and
+**Version 0.7.8 requires the same SmartCraftStorage version on the server and
 every client**, with BepInEx and Jotunn. The server coordinates storage transfers;
 the owning client performs player and machine effects. Automation still operates
 in loaded areas with a nearby player. This does not run an unloaded base offline.
@@ -139,7 +139,14 @@ Server-synced settings also bound member count, queued operations and work per
 update. Defaults are 64 members, 128 pending operations and 4 transitions per
 update. A limit or unavailable member must not be interpreted as extra capacity.
 
-For the first local 0.7.7 test:
+For the first local 0.7.8 test:
+
+- Install the same candidate on the server and client. Join and wait before
+  using storage, then test processor inputs/outputs, terminal transfers and a
+  reconnect. Pending work should recover without repeated send-limit messages.
+  Recovery now backs off from half a second to eight seconds while waiting;
+  acknowledged progress can continue immediately. Keep the previous DLL for
+  comparison if the issue returns.
 
 - Restart Valheim and open the terminal before opening any ordinary chest.
   Close it and open a normal chest: its scrollbar must stay at the right edge.
