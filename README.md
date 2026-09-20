@@ -46,6 +46,11 @@ other. They work with a free cursor (no need to have a chest open).
 Both modifier-clicks replace the normal click (they don't open/move the
 item) only while the modifier is held.
 
+Lock and restock marks support [ExtraSlots](https://github.com/shudnal/ExtraSlots)
+and [MyLittleUI](https://github.com/shudnal/MyLittleUI). Marks follow items between
+the inventory and extra slots, keep their size when icons are scaled, and avoid
+duplicate marks when Shield Me Bruh is installed. These mods are optional.
+
 Messages shown by quick-stack and restock are localized (English,
 Portuguese-Brazilian, Spanish so far) based on your in-game language.
 
@@ -66,6 +71,9 @@ local mod**. Note that `bin/Release/net48/` additionally contains the game's
 own assemblies (`assembly_valheim.dll`, `Jotunn.dll`, the UnityEngine
 modules) because they are build references — the package deliberately ships
 only `SmartCraftStorage.dll`.
+
+The [overlay regression tests](tests/OverlayRegression/README.md) run in an
+isolated Windows Unity process using a local Valheim and BepInEx installation.
 
 ## Links
 

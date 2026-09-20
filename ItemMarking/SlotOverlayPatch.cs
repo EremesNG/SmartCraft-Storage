@@ -72,7 +72,11 @@ namespace SmartCraftStorage.ItemMarking
             }
 
             var go = new GameObject(overlayName);
-            go.transform.SetParent(element.m_icon.transform, worldPositionStays: false);
+            // UI mods scale or clone the item icon (including its children).
+            // Keep marks on the slot so they follow ExtraSlots without being copied,
+            // and draw them below the slot's labels and stack count.
+            go.transform.SetParent(element.transform, worldPositionStays: false);
+            go.transform.SetSiblingIndex(element.m_icon.transform.GetSiblingIndex() + 1);
 
             var rect = go.AddComponent<RectTransform>();
             rect.anchorMin = Vector2.zero;

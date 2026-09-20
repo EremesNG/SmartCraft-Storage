@@ -1,5 +1,8 @@
 # Changelog
 
+## Unreleased
+- Fixed lock/restock marks left in empty inventory slots when item icons are copied by other UI mods, including Shield Me Bruh. Marks follow ExtraSlots cells and keep their size with MyLittleUI icon scaling.
+
 ## 0.6.0
 - If you also have Epic Loot installed, the Enchanter can now use materials from nearby chests too, the same way crafting and building already do. Not required, only kicks in when Epic Loot is present
 
