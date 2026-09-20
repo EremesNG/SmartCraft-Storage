@@ -74,7 +74,7 @@ namespace SmartCraftStorage.AnimalFeeder
                         continue;
                     }
 
-                    chestInventory.RemoveItem(match, 1);
+                    if (!chestInventory.RemoveItem(match, 1)) continue;
 
                     var spawnPosition = creaturePosition + Vector3.up * 0.5f;
                     var spawned = ItemDrop.DropItem(match, 1, spawnPosition, Quaternion.identity);

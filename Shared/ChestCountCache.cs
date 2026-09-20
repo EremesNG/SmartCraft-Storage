@@ -23,6 +23,10 @@ namespace SmartCraftStorage.Shared
     {
         private static readonly Dictionary<Query, int> Totals = new Dictionary<Query, int>(QueryComparer.Instance);
         private static int _frame = -1;
+        private static long _actorId;
+        private static Vector3 _origin;
+        private static float _radius;
+        private static int _worldLevel;
 
         public static bool TryGet(string name, int quality, bool matchWorldLevel, out int chestTotal)
         {
@@ -50,9 +54,17 @@ namespace SmartCraftStorage.Shared
         private static void ExpireIfFrameChanged()
         {
             int frame = Time.frameCount;
-            if (frame != _frame)
+            var player = Player.m_localPlayer;
+            long actorId = player != null ? player.GetPlayerID() : 0;
+            var origin = player != null ? player.transform.position : Vector3.zero;
+            float radius = Config.ModConfig.CraftingChestRadius.Value;
+            if (frame != _frame || actorId != _actorId || origin != _origin || radius != _radius || Game.m_worldLevel != _worldLevel)
             {
                 _frame = frame;
+                _actorId = actorId;
+                _origin = origin;
+                _radius = radius;
+                _worldLevel = Game.m_worldLevel;
                 Invalidate();
             }
         }

@@ -3,6 +3,6 @@
     <ValheimInstallDir Condition="'$(VALHEIM_INSTALL)' != ''">$(VALHEIM_INSTALL)</ValheimInstallDir>
     <ValheimInstallDir Condition="'$(ValheimInstallDir)' == '' AND $([MSBuild]::IsOSPlatform('Windows'))">C:\Program Files (x86)\Steam\steamapps\common\Valheim</ValheimInstallDir>
     <ValheimInstallDir Condition="'$(ValheimInstallDir)' == '' AND !$([MSBuild]::IsOSPlatform('Windows'))">/mnt/c/Program Files (x86)/Steam/steamapps/common/Valheim</ValheimInstallDir>
-    <ValheimManagedDir>$(ValheimInstallDir)\valheim_Data\Managed</ValheimManagedDir>
+    <ValheimManagedDir Condition="'$(ValheimManagedDir)' == ''">$(ValheimInstallDir)\valheim_Data\Managed</ValheimManagedDir>
   </PropertyGroup>
 </Project>

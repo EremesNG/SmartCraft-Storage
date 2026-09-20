@@ -1,5 +1,6 @@
 using BepInEx.Configuration;
 using HarmonyLib;
+using SmartCraftStorage.Storage.UI;
 using UnityEngine;
 
 namespace SmartCraftStorage.Hotkeys
@@ -11,7 +12,7 @@ namespace SmartCraftStorage.Hotkeys
         {
             try
             {
-                if (__instance != Player.m_localPlayer || !__instance.TakeInput())
+                if (__instance != Player.m_localPlayer || !__instance.TakeInput() || StorageTerminalUi.IsOpen)
                 {
                     return;
                 }
@@ -23,6 +24,10 @@ namespace SmartCraftStorage.Hotkeys
                 else if (IsShortcutDown(HotkeyConfig.RestockShortcut.Value))
                 {
                     Restock.RestockService.Execute(__instance);
+                }
+                else if (IsShortcutDown(HotkeyConfig.NetworkNameShortcut.Value) && !Hud.InRadial())
+                {
+                    StorageChestNaming.OpenHovered(__instance);
                 }
             }
             catch (System.Exception ex)

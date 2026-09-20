@@ -34,6 +34,8 @@ param(
     [string] $Author = 'Zellds',
     [bool]   $LocalImport = $true,
     [string] $ValheimInstall = $env:VALHEIM_INSTALL,
+    [string] $ValheimManagedDir,
+    [switch] $NoRestore,
     [string] $Configuration = 'Release'
 )
 
@@ -121,14 +123,24 @@ if ($Version -notmatch '^\d+\.\d+\.\d+$') {
     throw "Version must be major.minor.patch (Thunderstore rejects anything else); got '$Version'."
 }
 
-$valheim = Find-ValheimInstall $ValheimInstall
-$env:VALHEIM_INSTALL = $valheim
-Write-Host "Valheim:  $valheim" -ForegroundColor DarkGray
+if ($ValheimManagedDir) {
+    $ValheimManagedDir = [System.IO.Path]::GetFullPath($ValheimManagedDir)
+    if (-not (Test-Path -LiteralPath (Join-Path $ValheimManagedDir 'assembly_valheim.dll'))) {
+        throw "No assembly_valheim.dll in '$ValheimManagedDir'."
+    }
+}
+else {
+    $valheim = Find-ValheimInstall $ValheimInstall
+    $ValheimManagedDir = Join-Path $valheim 'valheim_Data/Managed'
+}
+Write-Host "Game references: $ValheimManagedDir" -ForegroundColor DarkGray
 
 Write-Host "Building $Configuration..." -ForegroundColor Cyan
-dotnet build (Join-Path $repo 'SmartCraftStorage.csproj') -c $Configuration
+$buildArguments = @('build', (Join-Path $repo 'SmartCraftStorage.csproj'), '-c', $Configuration, "-p:ValheimManagedDir=$ValheimManagedDir")
+if ($NoRestore) { $buildArguments += '--no-restore' }
+& dotnet @buildArguments
 if ($LASTEXITCODE -ne 0) {
-    throw "Build failed (compiling against $valheim). Scroll up for the compiler errors."
+    throw "Build failed (compiling against $ValheimManagedDir). Scroll up for the compiler errors."
 }
 
 $dll = Join-Path $repo "bin/$Configuration/net48/SmartCraftStorage.dll"
@@ -157,7 +169,13 @@ try {
     Compress-Archive -Path (Join-Path $stage '*') -DestinationPath $zip -CompressionLevel Optimal
 }
 finally {
-    if (Test-Path $stage) { Remove-Item $stage -Recurse -Force }
+    $resolvedStage = [System.IO.Path]::GetFullPath($stage)
+    $temporaryRoot = [System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()).TrimEnd([char[]]'\/') + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $resolvedStage.StartsWith($temporaryRoot, [System.StringComparison]::OrdinalIgnoreCase) -or
+        [System.IO.Path]::GetFileName($resolvedStage) -notlike 'smartcraft-package-*') {
+        throw "Refusing cleanup outside the temporary package directory: $resolvedStage"
+    }
+    if (Test-Path -LiteralPath $resolvedStage) { Remove-Item -LiteralPath $resolvedStage -Recurse -Force }
 }
 
 Write-Host ''

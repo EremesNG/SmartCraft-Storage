@@ -62,6 +62,7 @@ namespace SmartCraftStorage.Integrations
             var items = new List<ItemDrop.ItemData>();
             foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
             {
+                if (container.m_nview == null || !container.m_nview.IsOwner()) continue;
                 items.AddRange(container.GetInventory().GetAllItems());
             }
 
@@ -79,6 +80,7 @@ namespace SmartCraftStorage.Integrations
             int total = 0;
             foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
             {
+                if (container.m_nview == null || !container.m_nview.IsOwner()) continue;
                 total += container.GetInventory().CountItems(itemName);
             }
 

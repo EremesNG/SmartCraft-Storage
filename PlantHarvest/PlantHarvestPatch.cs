@@ -109,12 +109,14 @@ namespace SmartCraftStorage.PlantHarvest
                         }
 
                         var chestInventory = container.GetInventory();
+                        if (!NearbyContainers.HasRoomFor(chestInventory, itemName)) continue;
                         int before = chestInventory.CountItems(itemName);
                         chestInventory.AddItem(prefab, remaining);
                         int added = chestInventory.CountItems(itemName) - before;
                         if (added > 0)
                         {
                             remaining -= added;
+                            stack = remaining;
                         }
                     }
 

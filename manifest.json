@@ -1,7 +1,7 @@
 {
     "name": "SmartCraftStorage",
-    "description": "Automates chest storage in Valheim: quick-stack, restock, craft/build from nearby chests, auto-fuel and collect at fireplaces/smelters/kilns/cooking stations/beehives/fermenters, auto-feed tameable animals, and repair everything at once.",
-    "version_number": "0.6.0",
+    "description": "Manage named chest networks from a storage terminal, organize finite storage, craft from the network and automatically feed processors and store their output. Includes direct quick-stack and restock. Install on server and clients.",
+    "version_number": "0.7.7",
     "website_url": "https://github.com/Zellds/SmartCraft-Storage",
     "dependencies": [
         "denikson-BepInExPack_Valheim-5.4.2350",

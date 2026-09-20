@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using SmartCraftStorage.Storage.Runtime;
 using UnityEngine;
 
 namespace SmartCraftStorage.Shared
@@ -65,10 +66,12 @@ namespace SmartCraftStorage.Shared
 
         public static List<Container> Find(Vector3 origin, float radius, Player player)
         {
-            var entry = GetCached(origin, radius);
+            if (player == null) return new List<Container>();
+            long playerId = player.GetPlayerID();
+            var entry = GetCached(origin, radius, playerId);
             if (entry != null)
             {
-                PruneDestroyed(entry.Containers);
+                PruneUnavailable(entry.Containers, playerId);
                 return entry.Containers;
             }
 
@@ -79,13 +82,13 @@ namespace SmartCraftStorage.Shared
             entry = TakeOldestSlot();
             entry.Origin = origin;
             entry.Radius = radius;
+            entry.ActorId = playerId;
             entry.Time = Time.time;
 
             var result = entry.Containers;
             result.Clear();
             Seen.Clear();
 
-            long playerId = player.GetPlayerID();
             int hitCount = OverlapNearby(origin, radius);
 
             for (int i = 0; i < hitCount; i++)
@@ -152,27 +155,12 @@ namespace SmartCraftStorage.Shared
 
         public static bool TryClaimWriteAccess(ZNetView nview)
         {
-            if (nview == null || !nview.IsValid())
-            {
-                return false;
-            }
-            if (nview.IsOwner())
-            {
-                return true;
-            }
-            nview.ClaimOwnership();
-            return nview.IsOwner();
+            return StorageFacade.Service.TryClaimDirectWrite(nview, Player.m_localPlayer);
         }
 
-        // Every write this mod makes to a chest goes through here, so this is where
-        // the multiplayer race is closed. ClaimOwnership() is not a lock — it always
-        // succeeds — so the only thing keeping us out of a chest somebody else has
-        // open is the in-use check, and by now that check may be stale: the container
-        // list is cached for a fraction of a second, and the game itself only reloads
-        // a container's ZDO once a second (Container.CheckForChanges). Another player
-        // can open a chest, or a ward's permissions can change, between the search
-        // and this write, so re-test rather than trusting what was true at search
-        // time. Callers already skip to the next chest when this returns false.
+        // Legacy synchronous writers revalidate access and current authority at
+        // the point of mutation. Queued terminal/player transfers use the server
+        // coordinator instead. Cached discovery is never a write reservation.
         public static bool TryClaimWriteAccess(Container container)
         {
             var player = Player.m_localPlayer;
@@ -210,6 +198,7 @@ namespace SmartCraftStorage.Shared
             {
                 return false;
             }
+            if (StorageFacade.Service.IsBusy(container.m_nview)) return false;
             if (IsInUseByAnyone(container))
             {
                 return false;
@@ -231,13 +220,13 @@ namespace SmartCraftStorage.Shared
                 && container.m_nview.GetZDO().GetInt(ZDOVars.s_inUse) == 1;
         }
 
-        private static CacheEntry GetCached(Vector3 origin, float radius)
+        private static CacheEntry GetCached(Vector3 origin, float radius, long actorId)
         {
             float now = Time.time;
 
             foreach (var entry in Cache)
             {
-                if (entry.Radius == radius
+                if (entry.Radius == radius && entry.ActorId == actorId
                     && now - entry.Time <= CacheSeconds
                     && (entry.Origin - origin).sqrMagnitude <= CacheMoveToleranceSqr)
                 {
@@ -262,13 +251,14 @@ namespace SmartCraftStorage.Shared
         }
 
         // A chest can be destroyed while its slot is still warm.
-        private static void PruneDestroyed(List<Container> containers)
+        private static void PruneUnavailable(List<Container> containers, long playerId)
         {
             for (int i = containers.Count - 1; i >= 0; i--)
             {
-                if (containers[i] == null)
+                if (!IsUsableBy(containers[i], playerId))
                 {
                     containers.RemoveAt(i);
+                    ChestCountCache.Invalidate();
                 }
             }
         }
@@ -286,6 +276,7 @@ namespace SmartCraftStorage.Shared
         private sealed class CacheEntry
         {
             public Vector3 Origin;
+            public long ActorId;
             public float Radius = -1f;
             public float Time = float.NegativeInfinity;
             public readonly List<Container> Containers = new List<Container>();

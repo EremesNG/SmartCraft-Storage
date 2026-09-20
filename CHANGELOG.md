@@ -1,5 +1,55 @@
 # Changelog
 
+## 0.7.7
+
+- Fix the native chest scrollbar moving into the grid when a terminal is the
+  first container opened with Valheim Plus inventory layout enabled. Initialize
+  the native layout before applying terminal coordinates.
+- Show only occupied grouped entries in the terminal. Remove misleading empty
+  cells and fit the view to one through four rows; the capacity counter still
+  describes the physical chests. Blank areas retain native deposit handling.
+
+## 0.7.6
+
+- Compact terminal inventory: eight columns, four visible rows, search beside
+  display order, and one row of action buttons. The scrollbar ends above the
+  buttons, and the drag/Shift/Ctrl help footer is removed.
+- Show the full network weight in Valheim's native chest weight indicator,
+  including items hidden by search. Operation feedback uses the header.
+- Default the configurable network naming shortcut to `Alt + N`. Migrate the
+  old exact `Alt + T` default once; preserve other custom or disabled bindings
+  and all later changes.
+
+## 0.7.5
+- Fixed intermittent ignored clicks and blinking terminal controls when a refresh occurred while the mouse button was held. Organize and the other controls remain clickable while idle; dragging, splitting and pending-transfer protections remain active.
+
+## 0.7.4
+- Fixed character movement while typing in the terminal's search field. Character controls pause while search has focus and resume when focus leaves the field or the terminal closes.
+
+## 0.7.3
+- Fixed the terminal's blank inventory grid when Valheim Plus reapplies chest layout margins. The terminal now preserves native horizontal stretching and the existing panel width, keeping cells and controls visible.
+- Added an isolated Unity regression check for empty/populated grids, external margin changes and ordinary-chest layout restoration. Full-mod gameplay acceptance remains pending for this local test candidate.
+
+## 0.7.2
+- Changed network naming to `Alt + T` while looking at a chest or terminal, freeing the former `Alt + E` naming shortcut for other mods. Customize it with `Hotkeys.NetworkNameShortcut`; hover help follows the configured shortcut.
+- Naming uses the normal interaction range and access checks, and shortcuts stay inactive while the terminal or naming dialog is open. This remains a local test candidate.
+
+## 0.7.1
+- Replaced the terminal's item lists and transfer buttons with Valheim's native player and chest grids, including drag, split, quick transfer, search and pooled quantity labels.
+- Fixed single-player linking that remained at "waiting" after a successful immediate reply. Naming drafts and pending state now belong to their individual chest; confirmed owner requests are not replayed.
+- Fixed stale journal object references when returning to the same world, incomplete item data that broke terminal rendering, and the invalid Unity Start method signature.
+- Directed withdrawals use the selected player slot and reject incompatible or changed destinations. Projected entries cannot be dropped, equipped, consumed or moved as real items.
+- Native Take all and Stack all run one confirmed operation at a time. Stack all deposits existing network identities, protecting equipped, quest and locked items; closing cancels unsent steps.
+- Preserved finite network capacity, Organize, station access and the direct range of Shift+E. This is a local test candidate; visual and multiplayer acceptance remain pending.
+
+## 0.7.0
+- Added a buildable storage terminal: link ordinary chests by network name and radius, search pooled contents, deposit, withdraw and organize compatible stacks into fewer chests.
+- Crafting and supported processing inputs/outputs can use nearby terminal networks without opening the terminal or backing chests. Wards, chest privacy and finite slot capacity still apply.
+- Coordinated transfers track pending operations and receipts across owners. A delayed reply does not trigger a second delivery or a duplicate ground drop.
+- Quick-stack and restock retain their direct chest radius and now queue coordinated transfers. Building, animals, harvesting and Epic Loot remain direct; synchronous writes require an available local owner.
+- Matching SmartCraftStorage versions are now required on the server and all clients. MultiUserChest remains optional.
+- Added English/Spanish terminal controls and an offline contract harness. Live UI and dedicated-server acceptance remain required before publishing this candidate.
+
 ## 0.6.0
 - If you also have Epic Loot installed, the Enchanter can now use materials from nearby chests too, the same way crafting and building already do. Not required, only kicks in when Epic Loot is present
 
