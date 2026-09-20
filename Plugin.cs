@@ -36,6 +36,7 @@ namespace SmartCraftStorage
 
             HarmonyInstance = new Harmony(PluginGuid);
             HarmonyInstance.PatchAll();
+            SmartCraftStorage.Integrations.EpicLootSacrificeProtection.Setup(HarmonyInstance);
 
             Logger.LogInfo($"{PluginName} {PluginVersion} loaded.");
         }
