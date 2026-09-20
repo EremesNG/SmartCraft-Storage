@@ -1,0 +1,30 @@
+  Determinando los proyectos que se van a restaurar...
+  Todos los proyectos están actualizados para la restauración.
+  OverlayRegression -> C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\OverlayRegression\bin\Release\net48\SmartCraftStorage.OverlayTests.dll
+
+Compilación correcta.
+    0 Advertencia(s)
+    0 Errores
+
+Tiempo transcurrido 00:00:01.17
+Test artifacts: C:\Users\EremesNG\AppData\Local\Temp\smartcraft-overlay-tests-f4097bcb-934f-4a86-8b43-0290c0948134
+START
+PASS Both marks visible before move
+PASS shield decoration does not copy marks
+PASS excluded decoration does not copy marks
+PASS Moving to ExtraSlots clears the old cell
+PASS Both marks follow the item to ExtraSlots
+PASS Reopening keeps only the occupied extra slot marked
+PASS Marks fit the slot at icon scale 0.2
+PASS Marks fit the slot at icon scale 0.75
+PASS Marks fit the slot at icon scale 2
+PASS Marks allow clicks and stay behind stack text
+PASS Restock applies by name and lock applies only to the marked stack
+PASS Unlocking the extra-slot item preserves restock
+PASS Removing restock clears both panels
+PASS Moving back to regular inventory clears the extra slot
+PASS Food shows only its restock mark
+PASS Moving food within regular inventory clears the old restock dot
+PASS Reopening after a regular food move leaves no copied restock dot
+PASS Unmarking food leaves both regular cells clear
+DONE

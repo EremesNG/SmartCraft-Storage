@@ -68,6 +68,25 @@ the process has its own temporary savedir/config; there is no Steam connection.
 Simplify review retained one shared retry gate and one fresh-output-intent
 predicate, with explicit custody comments and no unrelated refactoring.
 
+## Combined worktree evidence
+
+The implementation was committed as dc50935 on storage-net and merged into
+local-merge as 4c4c757. Only CHANGELOG.md conflicted; its local cart/overlay notes
+and the feature's 0.7.8 entry were both retained. The combined candidate passes
+33 network checks, 15 cart checks, 18 actual-Unity overlay checks, and the 39/5
+Harmony/lifecycle check. The source contributes 40 contract and 4 runtime checks:
+110 focused assertions in total. Prior 27 UI/config assertions were not rerun
+because those files are unchanged, and are not counted in that total.
+
+Both source and combined 0.7.8 ZIPs were built, with only the expected five files.
+The final documentation-only follow-up records this evidence. Rebuilds after the
+audit merge update only build commit metadata; the tested production code stays
+the same. Final hashes, exact commit IDs, clean-worktree checks and ZIP/DLL match
+are recorded in the combined worktree's dist/local-merge/BUILD-INFO.txt.
+
+Prior 0.7.7 packages remain available. No cart/overlay changes were merged back
+into storage-net, which remains suitable as the future upstream feature branch.
+
 ## Remaining acceptance / capability gap
 
 Fresh `oracle_storage_network_078_final` returned `agent thread limit reached`;

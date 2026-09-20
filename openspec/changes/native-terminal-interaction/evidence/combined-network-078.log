@@ -1,0 +1,51 @@
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(13,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.8.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(14,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.8.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(15,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.8.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(16,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.8.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+
+Compilación correcta.
+
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(13,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.8.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(14,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.8.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(15,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.8.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\obj\Release\net48\Storage.Network.Tests.AssemblyInfo.cs(16,44): warning CS0436: El tipo 'IgnoresAccessChecksToAttribute' de 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs' está en conflicto con el tipo importado 'IgnoresAccessChecksToAttribute' de 'SmartCraftStorage, Version=0.7.8.0, Culture=neutral, PublicKeyToken=null'. Se usará el tipo definido en 'C:\Users\EremesNG\.nuget\packages\bepinex.assemblypublicizer.msbuild\0.4.1\contentFiles\cs\any\IgnoresAccessChecksToAttribute.cs'. [C:\Users\EremesNG\orca\workspaces\SmartCraft-Storage\local-merge\tests\Storage.Network.Tests\Storage.Network.Tests.csproj]
+    4 Advertencia(s)
+    0 Errores
+
+Tiempo transcurrido 00:00:03.72
+Test artifacts: C:\Users\EremesNG\AppData\Local\Temp\scs-network-tests-a9ded374-bfbd-4c7d-ab29-e3b4b09319ca
+START
+PASS two restored processor requests each send an initial recovery probe
+PASS dense Tick and explicit Resume calls do not resend pending operations before the retry deadline; sent=2
+PASS delayed replies preserve both operations as pending
+PASS waiting preserves the durable request record
+PASS the initial request carries its complete intent
+PASS a result from a peer other than the server cannot admit a request
+PASS an admitted request polls status instead of repeating inventory snapshots
+PASS an unacknowledged operation can still retry its intent independently
+PASS a server needing fresh intent receives rebuilt inventory data
+PASS a late pending reply cannot regress a confirmed operation
+PASS a fresh-intent probe preserves the client's captured output and quantities
+PASS alternating fresh-intent and pending replies retain backoff instead of restarting a per-frame loop; sent=11
+PASS a congested routed connection defers retryable payloads
+PASS retryable traffic resumes when the routed connection drains
+PASS two independent operations retry 11 times each over 60 seconds at 30 FPS
+PASS two independent operations retry 11 times each over 60 seconds at 60 FPS
+PASS two independent operations retry 11 times each over 60 seconds at 144 FPS
+PASS retry deadlines honor the initial half-second and increasing delay
+PASS new progress unblocks only its own operation
+PASS a new session clears transient retry timing
+PASS reconnect restores only unfinished work and requests fresh admission without the old delay
+PASS server participant retries also respect connection backpressure
+PASS server participant commands resume after the queue drains
+PASS an unauthenticated participant reply cannot reset retry timing
+PASS a new authenticated preparation receipt advances the participant and reports progress
+PASS duplicate participant receipts do not repeatedly bypass the retry deadline
+PASS the next acknowledged phase can advance immediately
+PASS results and effect releases are not stranded behind the retryable-payload gate
+PASS local RPC completion remains synchronous even while a remote connection is congested
+PASS a server missing an operation requests fresh intent without recording a rejection
+PASS status polling returns a durable final outcome without repeating the operation
+PASS status polling cannot resume or alter another player's operation
+PASS captured output requests current discovery without losing its durable custody record
+DONE failures=0

@@ -315,10 +315,21 @@ custody and backoff. UI and station resource semantics are unchanged.
 
 Fresh oracle_storage_network_078_final could not start: native agent thread
 limit reached. Independent verdict is NOT RUN; CAP-001 and T014/T015 remain open.
-T023 has implementation evidence; T024 remains in progress pending integration
-evidence and the independent judgment. Packaging targets source and the existing
-local-merge worktree, retaining its cart/overlay compatibility and prior ZIPs.
-No installed game/config/server/save writes or real Steam acceptance are claimed.
+T023 has implementation evidence; T024 remains in progress for the independent
+judgment. Root completed the integration checks on local-merge: 33 network,
+15 cart-discovery and 18 overlay assertions pass. Together with the unchanged
+source contract/runtime checks, this supplies 110 focused passing assertions.
+The UI and shortcut source is unchanged from the prior tested 0.7.7 candidate;
+the previous 27 UI checks were not rerun or counted in this total.
+
+Implementation commit dc50935 was merged as 4c4c757, retaining cart/overlay
+compatibility. The only conflict was the changelog; both local additions and
+0.7.8 notes were preserved. Source and combined 0.7.8 packaging and 39/5 metadata
+checks passed; previous 0.7.7 ZIPs remain unchanged. A following documentation-only
+commit records these results; final DLL/ZIP hashes and commit metadata are kept
+in dist/local-merge/BUILD-INFO.txt in the combined worktree. Final packaging
+rebuilds from that worktree's committed head. No installed game/config/server/
+save writes or real Steam acceptance are claimed.
 
 ## Residual risks
 

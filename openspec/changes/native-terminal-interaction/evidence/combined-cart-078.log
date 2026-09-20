@@ -1,0 +1,16 @@
+PASS: FindsCartThroughVehicleCollider
+PASS: FindsOrdinaryChestsAndSortsNearestFirst
+PASS: DeduplicatesCartColliders
+PASS: PrefersTheCollidersOwnContainer
+PASS: SkipsVehiclesWithoutAContainer
+PASS: RejectsUnavailableCarts
+PASS: RechecksAccessBeforeWritingACachedCart
+PASS: AllowsWritesToAnOwnedCart
+PASS: DoesNotClaimARemoteCartForSynchronousWrites
+PASS: KeepsItemAndTerrainLayersExcluded
+PASS: ExcludesCartsOutsideTheRadius
+PASS: ReusesTheSweepUntilTheCacheExpires
+PASS: RefreshesAfterPlayerMovementOrRadiusChange
+PASS: FindsCartBeyondTheInitialHitBuffer
+PASS: DoesNotSearchStaticPiecesForCarts
+15/15 tests passed.

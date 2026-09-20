@@ -63,6 +63,13 @@ NET-001 evidence: user reports no error with the prior local-merge DLL installed
 on both client and server, unlike 0.7.7 with idle automatic processing. Diagnostic
 logs and a read-only save-field inspection were retained under local-merge/dist/diagnostics/
 send-limit-20260920. No source or player-save mutation occurred during diagnosis.
+T023 passes 33 native network checks, including custody-preserving fresh-intent
+polling and backoff under alternating replies. Existing 40 contract and 4 runtime
+checks pass. T024 root integration passes 33 network, 15 cart and 18 overlay
+checks, source/combined packaging and 39/5 Harmony/lifecycle checks; prior 0.7.7
+ZIPs are retained. See evidence/network-implementation-checks.md. Fresh
+oracle_storage_network_078_final failed to start (agent thread limit reached),
+so T024's independent judgment and T014/T015 remain open, not self-approved.
 The bounded deep implementation dispatch could not start (agent thread limit);
 root owns the same declared surfaces sequentially. T014/T015 remain open.
 
