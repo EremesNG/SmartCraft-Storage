@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using BepInEx.Bootstrap;
 using SmartCraftStorage.Config;
+using SmartCraftStorage.ItemMarking;
 using SmartCraftStorage.Shared;
 using UnityEngine;
 
@@ -62,7 +63,13 @@ namespace SmartCraftStorage.Integrations
             var items = new List<ItemDrop.ItemData>();
             foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
             {
-                items.AddRange(container.GetInventory().GetAllItems());
+                foreach (var item in container.GetInventory().GetAllItems())
+                {
+                    if (!ItemFlags.IsLocked(item))
+                    {
+                        items.Add(item);
+                    }
+                }
             }
 
             return items;
@@ -79,7 +86,7 @@ namespace SmartCraftStorage.Integrations
             int total = 0;
             foreach (var container in NearbyContainers.Find(player.transform.position, ModConfig.CraftingChestRadius.Value, player))
             {
-                total += container.GetInventory().CountItems(itemName);
+                total += UnlockedInventory.CountItems(container.GetInventory(), itemName);
             }
 
             return total;
@@ -107,9 +114,7 @@ namespace SmartCraftStorage.Integrations
                 }
 
                 var chestInventory = container.GetInventory();
-                int before = chestInventory.CountItems(itemName);
-                chestInventory.RemoveItem(itemName, remaining);
-                int removed = before - chestInventory.CountItems(itemName);
+                int removed = UnlockedInventory.RemoveItems(chestInventory, itemName, remaining);
                 remaining -= removed;
             }
 
@@ -119,7 +124,7 @@ namespace SmartCraftStorage.Integrations
         private static int RemoveExactItem(ItemDrop.ItemData item, int amount)
         {
             var player = Player.m_localPlayer;
-            if (player == null || item == null)
+            if (player == null || item == null || ItemFlags.IsLocked(item))
             {
                 return 0;
             }
@@ -140,9 +145,7 @@ namespace SmartCraftStorage.Integrations
                     continue;
                 }
 
-                int before = item.m_stack;
-                chestInventory.RemoveItem(item, amount);
-                return before - (chestInventory.ContainsItem(item) ? item.m_stack : 0);
+                return UnlockedInventory.RemoveItem(chestInventory, item, amount);
             }
 
             return 0;

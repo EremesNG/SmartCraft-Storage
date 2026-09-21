@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>EpicLoot</AssemblyName>
+    <NuGetAudit>false</NuGetAudit>
+    <EpicLootContract Condition="'$(EpicLootContract)' == ''">Supported</EpicLootContract>
+    <DefineConstants>$(DefineConstants);$(EpicLootContract)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="HarmonyX" Version="2.7.0" />
+    <Compile Include="../../ItemMarking/ItemFlags.cs" Link="Production/ItemFlags.cs" />
+    <Compile Include="../../Integrations/EpicLootSacrificeProtection.cs" Link="Production/EpicLootSacrificeProtection.cs"
+             Condition="Exists('../../Integrations/EpicLootSacrificeProtection.cs')" />
+  </ItemGroup>
+</Project>

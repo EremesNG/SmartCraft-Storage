@@ -63,7 +63,7 @@ namespace SmartCraftStorage.Stations
                 foreach (var container in NearbyContainers.Find(fermenter.transform.position, StationConfig.FermenterRadius.Value, player))
                 {
                     var chestInventory = container.GetInventory();
-                    var item = fermenter.FindCookableItem(chestInventory);
+                    var item = FindCookableItem(fermenter, chestInventory);
                     if (item == null || !fermenter.IsItemAllowed(item))
                     {
                         continue;
@@ -78,10 +78,30 @@ namespace SmartCraftStorage.Stations
                     // RPC_AddOre on Smelter) — matches vanilla's own AddItem() call.
                     int nameHash = item.m_dropPrefab.name.GetStableHashCode();
                     bool cheated = item.m_cheated;
-                    chestInventory.RemoveItem(item, 1);
+                    if (UnlockedInventory.RemoveItem(chestInventory, item, 1) != 1)
+                    {
+                        continue;
+                    }
                     fermenter.m_nview.InvokeRPC("RPC_AddItem", nameHash, cheated);
                     return;
                 }
+            }
+
+            private static ItemDrop.ItemData FindCookableItem(Fermenter fermenter, Inventory inventory)
+            {
+                foreach (var conversion in fermenter.m_conversion)
+                {
+                    if (conversion.m_from == null)
+                    {
+                        continue;
+                    }
+                    var item = UnlockedInventory.FindItem(inventory, conversion.m_from.m_itemData.m_shared.m_name);
+                    if (item != null)
+                    {
+                        return item;
+                    }
+                }
+                return null;
             }
         }
 

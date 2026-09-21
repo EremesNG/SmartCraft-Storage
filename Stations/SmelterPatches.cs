@@ -85,7 +85,8 @@ namespace SmartCraftStorage.Stations
                     if (requiredWood != null)
                     {
                         string woodName = requiredWood.m_itemData.m_shared.m_name;
-                        if (!chestInventory.HaveItem(woodName))
+                        var wood = UnlockedInventory.FindItem(chestInventory, woodName, true);
+                        if (wood == null)
                         {
                             continue;
                         }
@@ -95,12 +96,15 @@ namespace SmartCraftStorage.Stations
                             continue;
                         }
 
-                        chestInventory.RemoveItem(woodName, 1);
+                        if (UnlockedInventory.RemoveItem(chestInventory, wood, 1) != 1)
+                        {
+                            continue;
+                        }
                         smelter.m_nview.InvokeRPC("RPC_AddOre", requiredWood.gameObject.name, false);
                         return true;
                     }
 
-                    var item = smelter.FindCookableItem(chestInventory);
+                    var item = FindCookableItem(smelter, chestInventory);
                     if (item == null || !smelter.IsItemAllowed(item.m_dropPrefab.name))
                     {
                         continue;
@@ -113,7 +117,10 @@ namespace SmartCraftStorage.Stations
 
                     string prefabName = item.m_dropPrefab.name;
                     bool cheated = item.m_cheated;
-                    chestInventory.RemoveItem(item, 1);
+                    if (UnlockedInventory.RemoveItem(chestInventory, item, 1) != 1)
+                    {
+                        continue;
+                    }
                     smelter.m_nview.InvokeRPC("RPC_AddOre", prefabName, cheated);
                     return true;
                 }
@@ -137,7 +144,8 @@ namespace SmartCraftStorage.Stations
                     foreach (var container in containers)
                     {
                         var chestInventory = container.GetInventory();
-                        if (!chestInventory.HaveItem(fuelName))
+                        var fuel = UnlockedInventory.FindItem(chestInventory, fuelName, true);
+                        if (fuel == null)
                         {
                             continue;
                         }
@@ -147,7 +155,10 @@ namespace SmartCraftStorage.Stations
                             continue;
                         }
 
-                        chestInventory.RemoveItem(fuelName, 1);
+                        if (UnlockedInventory.RemoveItem(chestInventory, fuel, 1) != 1)
+                        {
+                            continue;
+                        }
                         smelter.m_nview.InvokeRPC("RPC_AddFuel");
                         pulled = true;
                         break;
@@ -158,6 +169,23 @@ namespace SmartCraftStorage.Stations
                         break;
                     }
                 }
+            }
+
+            private static ItemDrop.ItemData FindCookableItem(Smelter smelter, Inventory inventory)
+            {
+                foreach (var conversion in smelter.m_conversion)
+                {
+                    if (conversion.m_from == null)
+                    {
+                        continue;
+                    }
+                    var item = UnlockedInventory.FindItem(inventory, conversion.m_from.m_itemData.m_shared.m_name);
+                    if (item != null)
+                    {
+                        return item;
+                    }
+                }
+                return null;
             }
 
             private static bool KilnCoalCapReached(string coalName, List<Container> containers)

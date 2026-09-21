@@ -59,7 +59,7 @@ namespace SmartCraftStorage.Stations
                     foreach (var container in containers)
                     {
                         var chestInventory = container.GetInventory();
-                        var item = station.FindCookableItem(chestInventory);
+                        var item = FindCookableItem(station, chestInventory);
                         if (item == null || !station.IsItemAllowed(item.m_dropPrefab.name))
                         {
                             continue;
@@ -72,7 +72,10 @@ namespace SmartCraftStorage.Stations
 
                         string prefabName = item.m_dropPrefab.name;
                         bool cheated = item.m_cheated;
-                        chestInventory.RemoveItem(item, 1);
+                        if (UnlockedInventory.RemoveItem(chestInventory, item, 1) != 1)
+                        {
+                            continue;
+                        }
                         station.m_nview.InvokeRPC("RPC_AddItem", prefabName, cheated);
                         pulled = true;
                         break;
@@ -101,7 +104,8 @@ namespace SmartCraftStorage.Stations
                     foreach (var container in containers)
                     {
                         var chestInventory = container.GetInventory();
-                        if (!chestInventory.HaveItem(fuelName))
+                        var fuel = UnlockedInventory.FindItem(chestInventory, fuelName, true);
+                        if (fuel == null)
                         {
                             continue;
                         }
@@ -111,7 +115,10 @@ namespace SmartCraftStorage.Stations
                             continue;
                         }
 
-                        chestInventory.RemoveItem(fuelName, 1);
+                        if (UnlockedInventory.RemoveItem(chestInventory, fuel, 1) != 1)
+                        {
+                            continue;
+                        }
                         station.m_nview.InvokeRPC("RPC_AddFuel");
                         pulled = true;
                         break;
@@ -122,6 +129,23 @@ namespace SmartCraftStorage.Stations
                         break;
                     }
                 }
+            }
+
+            private static ItemDrop.ItemData FindCookableItem(CookingStation station, Inventory inventory)
+            {
+                foreach (var conversion in station.m_conversion)
+                {
+                    if (conversion.m_from == null)
+                    {
+                        continue;
+                    }
+                    var item = UnlockedInventory.FindItem(inventory, conversion.m_from.m_itemData.m_shared.m_name);
+                    if (item != null)
+                    {
+                        return item;
+                    }
+                }
+                return null;
             }
         }
 

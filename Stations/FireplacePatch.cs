@@ -45,7 +45,8 @@ namespace SmartCraftStorage.Stations
                     }
 
                     var chestInventory = container.GetInventory();
-                    if (!chestInventory.HaveItem(fuelName))
+                    var fuel = UnlockedInventory.FindItem(chestInventory, fuelName, true);
+                    if (fuel == null)
                     {
                         continue;
                     }
@@ -55,7 +56,10 @@ namespace SmartCraftStorage.Stations
                         continue;
                     }
 
-                    chestInventory.RemoveItem(fuelName, 1);
+                    if (UnlockedInventory.RemoveItem(chestInventory, fuel, 1) != 1)
+                    {
+                        continue;
+                    }
                     __instance.m_nview.InvokeRPC("RPC_AddFuel");
                     currentFuel += 1f;
                 }

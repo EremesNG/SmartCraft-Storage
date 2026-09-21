@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Epic Loot's Sacrifice list now respects `Alt + left-click` locks on carried equipment as well as stored items; a selection that becomes locked is canceled before consuming items or granting materials and socketed gems
+- `Alt + left-click` locks on chest stacks now reserve those exact stacks from crafting, building, station inputs and fuel, and Epic Loot enchanting while leaving unlocked stacks available
+- Lock changes are saved immediately and update nearby crafting counts without requiring another inventory move
 - Restore nearby cart storage discovery for quick-stack and other storage features while retaining the filtered, cached physics query.
 
 ## 0.6.0
