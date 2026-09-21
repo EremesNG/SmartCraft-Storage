@@ -5,8 +5,9 @@
 
 .DESCRIPTION
     Produces dist/SmartCraftStorage-<version>.zip containing exactly the files a
-    package needs — manifest.json, icon.png, README.md, CHANGELOG.md and
-    plugins/SmartCraftStorage.dll. Deliberately NOT the rest of the build output:
+    package needs — manifest.json, icon.png, README.md (from README-thunderstore.md,
+    the trimmed player-facing version — the repo's own README.md is for developers),
+    CHANGELOG.md and plugins/SmartCraftStorage.dll. Deliberately NOT the rest of the build output:
     bin/Release/net48 also holds assembly_valheim.dll, Jotunn.dll and every
     UnityEngine module, and shipping those would collide with the real ones.
 
@@ -147,9 +148,12 @@ try {
     }
     $manifest | ConvertTo-Json -Depth 10 | Set-Content (Join-Path $stage 'manifest.json') -Encoding utf8
 
-    foreach ($file in 'icon.png', 'README.md', 'CHANGELOG.md') {
+    foreach ($file in 'icon.png', 'CHANGELOG.md') {
         Copy-Item (Join-Path $repo $file) $stage
     }
+    # The repo's own README.md is for developers (build instructions, etc.);
+    # players on Thunderstore get the trimmed player-facing version instead.
+    Copy-Item (Join-Path $repo 'README-thunderstore.md') (Join-Path $stage 'README.md')
     Copy-Item $dll (Join-Path $stage 'plugins')
 
     New-Item -ItemType Directory -Path $dist -Force | Out-Null
