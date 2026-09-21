@@ -26,7 +26,8 @@ can be added if there's demand).
 
 Every automation in this mod (quick-stack, restock, crafting-from-nearby-
 chests, the stations, and the animal feeder) uses the same rule to decide
-which chests count as "nearby":
+which chests count as "nearby" — this includes a cart's own storage, not
+just placed chests:
 
 - Within the configured radius (see the Configuration page)
 - Not a dead player's coffin (`TombStone`)
@@ -67,6 +68,12 @@ no selected items are consumed and no sacrifice materials or socketed gems are
 returned. Select the remaining unlocked items to continue. This protection is
 specific to Sacrifice; other player crafting and equipment operations retain
 their existing behavior.
+
+Lock and restock marks support [ExtraSlots](https://github.com/shudnal/ExtraSlots)
+and [MyLittleUI](https://github.com/shudnal/MyLittleUI). Marks follow items
+between the inventory and extra slots, keep their size when icons are scaled,
+and avoid duplicate marks when Shield Me Bruh is installed. These mods are
+optional.
 
 ## Restock
 
