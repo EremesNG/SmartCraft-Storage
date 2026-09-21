@@ -31,6 +31,7 @@ namespace UnityEngine
     public class Collider
     {
         public Container Container;
+        public GameObject gameObject = new GameObject();
         public T GetComponentInParent<T>() where T : class => Container as T;
     }
     public static class Physics
@@ -42,7 +43,14 @@ namespace UnityEngine
             return count;
         }
     }
-    public static class LayerMask { public static int GetMask(params string[] names) => 1; }
+    public static class LayerMask
+    {
+        public static int GetMask(params string[] names) => 1;
+        // No fixture here creates a vehicle-layer collider, so any distinct,
+        // stable value keeps production's cart-fallback branch compiling and
+        // correctly unreachable for these chest-only scenarios.
+        public static int NameToLayer(string name) => -2;
+    }
     public static class Mathf { public static int Min(int a, int b) => Math.Min(a, b); public static int CeilToInt(float value) => (int)Math.Ceiling(value); }
     public static class Time { public static float time; public static int frameCount; }
     public static class Debug { public static void Log(object message) { } public static void LogWarning(object message) { } public static void LogException(Exception error) { throw error; } }
@@ -51,10 +59,19 @@ namespace UnityEngine
     public sealed class GameObject
     {
         public string name;
+        public int layer;
         public readonly Transform transform = new Transform();
         public ItemDrop Item;
         public T GetComponent<T>() where T : class => Item as T;
     }
+}
+
+// No fixture here creates a vehicle-layer collider without a Container, so this
+// stub only needs to satisfy production's type reference; it is never populated
+// or reached by GetComponentInParent<Vagon>() in these chest-only scenarios.
+public sealed class Vagon
+{
+    public Container m_container;
 }
 
 namespace HarmonyLib
