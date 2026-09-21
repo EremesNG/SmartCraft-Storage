@@ -14,13 +14,11 @@ namespace SmartCraftStorage.Stations
             {
                 try
                 {
-                    // TEMPORARY diagnostic for issue #4 ("auto refuel even if disabled").
-                    // Remove once the cause is confirmed.
                     bool configValue = StationConfig.CookingStationAutoRefuel.Value;
                     bool hasNview = __instance.m_nview != null;
                     bool nviewValid = hasNview && __instance.m_nview.IsValid();
                     bool isOwner = nviewValid && __instance.m_nview.IsOwner();
-                    Debug.Log($"[SmartCraftStorage] CookingStation.UpdateCooking: name={__instance.name}, "
+                    DebugLog.Log($"[SmartCraftStorage] CookingStation.UpdateCooking: name={__instance.name}, "
                         + $"position={__instance.transform.position}, configValue={configValue}, hasNview={hasNview}, "
                         + $"nviewValid={nviewValid}, isOwner={isOwner}");
 

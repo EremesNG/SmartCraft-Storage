@@ -8,9 +8,17 @@ namespace SmartCraftStorage.Config
         public static ConfigEntry<float> CraftingChestRadius;
         public static ConfigEntry<bool> ShowAvailableAmounts;
         public static ConfigEntry<AmountFormat> AvailableAmountFormat;
+        public static ConfigEntry<bool> DebugLogging;
 
         public static void Bind(ConfigFile config)
         {
+            // Display preference, not gameplay: left per-player rather than admin-only,
+            // the same way hotkeys are.
+            DebugLogging = config.Bind(
+                "Debug",
+                "DebugLogging",
+                false,
+                "Log extra detail about automated decisions (which chest was picked, why one was skipped, etc.) to help diagnose a report. Off by default since it's verbose.");
             // Display preference, not gameplay: left per-player rather than admin-only,
             // the same way hotkeys are.
             ShowAvailableAmounts = config.Bind(
