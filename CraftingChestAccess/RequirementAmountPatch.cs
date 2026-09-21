@@ -47,7 +47,8 @@ namespace SmartCraftStorage.CraftingChestAccess
                 int required = req.GetAmount(quality) * craftMultiplier;
                 int available = player.GetInventory().CountItems(req.m_resItem.m_itemData.m_shared.m_name);
 
-                amountText.text = required + " (" + available + ")";
+                KeepInsideSlot(amountText);
+                amountText.text = Compose(required, available, ModConfig.AvailableAmountFormat.Value);
             }
             catch (System.Exception ex)
             {
@@ -56,6 +57,89 @@ namespace SmartCraftStorage.CraftingChestAccess
                     + "for this session. Set ShowAvailableAmounts=false to silence this.");
                 Debug.LogException(ex);
             }
+        }
+
+        // The label is only as wide as the ingredient slot, and TMP's default overflow
+        // mode draws past that rect instead of clipping it, so a pair like "4 (1652)"
+        // runs over the neighbouring ingredient. There is no character limit to raise —
+        // the limit is the rect width in pixels. Auto-sizing makes TMP shrink the line
+        // until it fits that rect, down to 60% of the prefab size, and leaves anything
+        // short enough at the original size.
+        private static void KeepInsideSlot(TMP_Text label)
+        {
+            if (label.enableAutoSizing)
+            {
+                return;
+            }
+
+            // A rect this narrow would force every label to the minimum size, which
+            // would look worse than the overflow. Leave TMP alone and let the smaller
+            // brackets do what they can.
+            if (label.rectTransform.rect.width < 20f)
+            {
+                return;
+            }
+
+            // Read the size before auto-sizing is on: from then on fontSize reports
+            // whatever TMP last computed for the current text, not the prefab value.
+            label.fontSizeMax = label.fontSize;
+            label.fontSizeMin = label.fontSize * 0.6f;
+            // Without this TMP treats the bracket as a break opportunity and wraps the
+            // line rather than shrinking it, then auto-sizes to fit the height instead.
+            label.textWrappingMode = TextWrappingModes.NoWrap;
+            label.richText = true;
+            label.enableAutoSizing = true;
+        }
+
+        // Rows are pooled and reused, so the settings above outlive this feature being
+        // switched off mid-session. That is harmless: a bare required amount is short
+        // enough to render at fontSizeMax, which is the size the prefab shipped with.
+
+        // Auto-sizing still backs every one of these: the widest format is the one most
+        // likely to need shrinking, not the one exempt from it.
+        private static string Compose(int required, int available, AmountFormat format)
+        {
+            if (format == AmountFormat.Spaced)
+            {
+                return required + " (" + available + ")";
+            }
+
+            string count = format == AmountFormat.Compact ? Abbreviate(available) : available.ToString();
+            return required + "<size=60%>(" + count + ")</size>";
+        }
+
+        // Four digits already crowd the slot, so the count is abbreviated from a
+        // thousand up rather than from ten thousand. The ceiling below is 999500 and
+        // not a round million because Scale rounds: 999600 reads as "1M", and letting
+        // it through the k branch would print "1000k".
+        private static string Abbreviate(int amount)
+        {
+            if (amount < 1000)
+            {
+                return amount.ToString();
+            }
+
+            if (amount < 999500)
+            {
+                return Scale(amount, 1000) + "k";
+            }
+
+            return Scale(amount, 1000000) + "M";
+        }
+
+        // A tenth earns its width while the whole part is a single digit — "1.1k" says
+        // something "24.5k" does not — and a trailing ".0" never earns it.
+        private static string Scale(int amount, int unit)
+        {
+            if (amount / unit >= 10)
+            {
+                return ((amount + unit / 2) / unit).ToString();
+            }
+
+            long tenths = ((long)amount * 10 + unit / 2) / unit;
+            return tenths % 10 == 0
+                ? (tenths / 10).ToString()
+                : (tenths / 10) + "." + (tenths % 10);
         }
     }
 }
