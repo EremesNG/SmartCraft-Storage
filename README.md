@@ -27,7 +27,7 @@ server doesn't need it at all.
 - **Fermenter:** Automatically pulls any mead/potion base from nearby chests and stores the finished product once ready.
 - **Animal feeding:** Automatically feeds hungry tameable animals from nearby chests, taming or already-tamed.
 - **Plant harvest (in test, off by default):** Optionally auto-harvests ripe crops near the player into the nearest chest.
-- **Epic Loot compatibility (optional):** If [Epic Loot](https://valheim.thunderstore.io/package/RandyKnapp/EpicLoot/) is also installed, the Enchanter can use materials from nearby chests too.
+- **Epic Loot compatibility (optional):** If [Epic Loot](https://valheim.thunderstore.io/package/RandyKnapp/EpicLoot/) is also installed, the Enchanter can use materials from nearby chests too. On supported versions, `Alt + left-click` also protects marked equipment from Sacrifice, including equipment you carry.
 
 ## Hotkeys
 
@@ -40,7 +40,7 @@ other. They work with a free cursor (no need to have a chest open).
 |---|---|
 | `Shift + E` | **Quick-stack**: stashes items from your inventory into nearby chests that already contain that item. Locked (🔒) and equipped items are never moved. |
 | `Ctrl + E` | **Restock**: pulls from nearby chest(s) enough of each item marked for restock to fill a full stack in your inventory — even if you currently have none of that item. |
-| `Alt + left-click` on an inventory item | Toggles the **lock** (🔒) on that item — a locked item is never moved by quick-stack. |
+| `Alt + left-click` on an inventory item | Toggles the **lock** (🔒) on that stack — locked player stacks are not quick-stacked, and locked chest stacks are reserved from crafting and automatic station inputs. |
 | `Alt + Ctrl + left-click` on an inventory item | Toggles the **restock** mark (🔵) on that item — defines the list the restock hotkey uses. |
 
 Both modifier-clicks replace the normal click (they don't open/move the

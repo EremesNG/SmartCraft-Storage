@@ -1,6 +1,7 @@
 using BepInEx.Configuration;
 using HarmonyLib;
 using SmartCraftStorage.Hotkeys;
+using SmartCraftStorage.Shared;
 using UnityEngine;
 
 namespace SmartCraftStorage.ItemMarking
@@ -38,6 +39,8 @@ namespace SmartCraftStorage.ItemMarking
                 else
                 {
                     ItemFlags.ToggleLocked(item);
+                    __instance.m_inventory.Changed();
+                    ChestCountCache.Invalidate();
                 }
 
                 return false;
