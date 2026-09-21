@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0
+- Fixed the available-amount text (`10(34)`) overflowing into the next ingredient slot on crowded recipes; it now shrinks to fit instead
+- Added `AvailableAmountFormat` to choose how that number is written: `Compact` (abbreviates past a thousand, e.g. `1.1k`), `Exact` (the full number), or `Spaced` (the full number at the original size, like before this update) (community contribution by [uy8Uk4N56G](https://github.com/Zellds/SmartCraft-Storage/pull/15))
+
 ## 0.7.0
 - `Alt + left-click` locks on chest stacks are now reserved from crafting, building, station fuel/inputs, and Epic Loot's Enchanter, so a locked stack is never spent automatically. Locked equipment, including what you're carrying, is also protected from Epic Loot's Sacrifice: a selection that includes a locked item is canceled instead of consuming it (community contribution by [EremesNG](https://github.com/Zellds/SmartCraft-Storage/pull/14))
 - Fixed lock and restock marks getting left behind in empty inventory slots when other UI mods (such as Shield Me Bruh) copy item icons. Marks also now follow items moved into ExtraSlots and keep their size when MyLittleUI scales icons (community contribution by [EremesNG](https://github.com/Zellds/SmartCraft-Storage/pull/13))
