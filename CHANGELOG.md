@@ -1,11 +1,8 @@
 # Changelog
 
-## Unreleased
-- Fixed lock/restock marks left in empty inventory slots when item icons are copied by other UI mods, including Shield Me Bruh. Marks follow ExtraSlots cells and keep their size with MyLittleUI icon scaling.
-- Epic Loot's Sacrifice list now respects `Alt + left-click` locks on carried equipment as well as stored items; a selection that becomes locked is canceled before consuming items or granting materials and socketed gems
-- `Alt + left-click` locks on chest stacks now reserve those exact stacks from crafting, building, station inputs and fuel, and Epic Loot enchanting while leaving unlocked stacks available
-- Lock changes are saved immediately and update nearby crafting counts without requiring another inventory move
-- Restore nearby cart storage discovery for quick-stack and other storage features while retaining the filtered, cached physics query.
+## 0.7.0
+- `Alt + left-click` locks on chest stacks are now reserved from crafting, building, station fuel/inputs, and Epic Loot's Enchanter, so a locked stack is never spent automatically. Locked equipment, including what you're carrying, is also protected from Epic Loot's Sacrifice: a selection that includes a locked item is canceled instead of consuming it (community contribution by [EremesNG](https://github.com/Zellds/SmartCraft-Storage/pull/14))
+- Fixed lock and restock marks getting left behind in empty inventory slots when other UI mods (such as Shield Me Bruh) copy item icons. Marks also now follow items moved into ExtraSlots and keep their size when MyLittleUI scales icons (community contribution by [EremesNG](https://github.com/Zellds/SmartCraft-Storage/pull/13))
 
 ## 0.6.0
 - If you also have Epic Loot installed, the Enchanter can now use materials from nearby chests too, the same way crafting and building already do. Not required, only kicks in when Epic Loot is present
